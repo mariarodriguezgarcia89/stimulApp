@@ -1,15 +1,18 @@
-CREATE DATABASE stimulapp;
-use stimulapp;
+DROP TABLE IF EXISTS tokens;
+DROP TABLE IF EXISTS estadisticas_usuario;
+DROP TABLE IF EXISTS partidas;
+DROP TABLE IF EXISTS juegos;
+DROP TABLE IF EXISTS usuarios;
 
 CREATE TABLE usuarios(
     id_usuario INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100),
     apellidos VARCHAR(150),
-    email VARCHAR(150) UNIQUE, --login
-    password_hash VARCHAR(255), --bcrypt
+    email VARCHAR(150) UNIQUE, -- login
+    password_hash VARCHAR(255), -- bcrypt
     fecha_nacimiento DATE,
-    foto_perfil VARCHAR(255), --ruta o null
-    email_cuidador VARCHAR(150), --para alertas
+    foto_perfil VARCHAR(255), -- ruta o null
+    email_cuidador VARCHAR(150), -- para alertas
     nombre_cuidador VARCHAR(100),
     activo BOOLEAN DEFAULT true,
     created_at DATETIME
@@ -26,7 +29,7 @@ CREATE TABLE juegos(
 CREATE TABLE partidas(
     id_partida INT PRIMARY KEY AUTO_INCREMENT,
     usuario_id INT,
-    juego_id INT,
+    juego_id INT,req
     nivel ENUM('facil','medio','dificil'),
     puntuacion INT,
     duracion_segundos INT,
