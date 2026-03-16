@@ -1,9 +1,11 @@
+//Cargar las variables de entorno desde el archivo .env
 require('dotenv').config();
 
 //Importar 
 const express = require('express');
 const cors = require('cors');
-const router = require('./routes/auth'); // Asegúrate de que la ruta sea correcta
+const router = require('./routes/auth'); 
+const usuariosRouter = require('./routes/usuarios'); 
 
 //Crear la app con express()
 const app = express();
@@ -14,8 +16,11 @@ app.use(cors());
 //Añadir el middleware express.json()
 app.use(express.json());
 
-//Usar el router para las rutas de autenticación
+//Usar el router para las rutas de autenticacióncd back
 app.use('/auth', router);
+
+//Usar el router para las rutas de usuarios
+app.use('/usuarios', usuariosRouter);
 
 //Definir el puerto (puedes sacarlo de process.env.PORT con un valor por defecto)
 const PORT = process.env.PORT || 3000;
