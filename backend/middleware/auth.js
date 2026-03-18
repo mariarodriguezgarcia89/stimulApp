@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const auth = (req, res, next) => {
   try{
     const token = req.header('Authorization').replace('Bearer ', '');
-    console.log('Token recibido:', token);
     
     if (!token) {
         return res.status(401).json({ error: 'Por favor, autentícate.' });

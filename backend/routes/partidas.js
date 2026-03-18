@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const partida = require('../models/Partida');
-const estadistica = require('../models/Estadistica');
+const { Partida, Estadistica, Juego } = require('../models');
 
 // Obtener partidas del usuario
 router.get('/mis-partidas', auth, async (req, res) => {
   try {
-    const partidas = await partida.findAll({
+    const partidas = await Partida.findAll({
       where: { usuario_id: req.user.id },
     });
     res.json(partidas);
@@ -20,7 +19,7 @@ router.get('/mis-partidas', auth, async (req, res) => {
 router.post('/nueva-partida', auth, async (req, res) => {
   try {
     const { juego_id, puntuacion, duracion_segundos, nivel, completada } = req.body;
-    const nuevaPartida = await partida.create({
+    const nuevaPartida = await Partida.create({
       usuario_id: req.user.id,
       juego_id,
         puntuacion,
@@ -31,7 +30,7 @@ router.post('/nueva-partida', auth, async (req, res) => {
     });
 
     console.log('Llegamos al findOrCreate', req.user.id, juego_id);
-    const [estadisticaUsuario, creada] = await estadistica.findOrCreate({
+    const [estadisticaUsuario, creada] = await Estadistica.findOrCreate({
     where: { usuario_id: req.user.id, juego_id: juego_id },
     defaults: { 
         mejor_puntuacion: puntuacion, 
@@ -52,7 +51,7 @@ router.post('/nueva-partida', auth, async (req, res) => {
     }
 
     res.json(nuevaPartida);
-
+    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

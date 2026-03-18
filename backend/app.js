@@ -7,6 +7,7 @@ const cors = require('cors');
 const router = require('./routes/auth'); 
 const usuariosRouter = require('./routes/usuarios'); 
 const partidasRouter = require('./routes/partidas');
+const estadisticasRouter = require('./routes/estadisticas');
 
 //Crear la app con express()
 const app = express();
@@ -25,6 +26,9 @@ app.use('/usuarios', usuariosRouter);
 
 //Usar el router para las rutas de partidas
 app.use('/partidas', partidasRouter);
+
+//Usar el router para las rutas de estadísticas
+app.use('/estadisticas', estadisticasRouter);
 
 //Definir el puerto (puedes sacarlo de process.env.PORT con un valor por defecto)
 const PORT = process.env.PORT || 3000;

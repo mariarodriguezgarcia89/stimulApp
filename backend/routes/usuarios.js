@@ -1,17 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const usuario = require('../models/Usuario');
+const { Usuario } = require('../models');
 
 // Obtener usuario
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await usuario.findByPk((req.user.id), {
+    const user = await Usuario.findByPk((req.user.id), {
       attributes: { exclude: ['password_hash'] }
     }); 
 
     res.json(user);
   } catch (error) {
+    console.error('Error al obtener usuario:', error);
     res.status(500).json({ error: 'Error al obtener el usuario.' });
   }
 });
@@ -20,7 +21,7 @@ router.get('/me', auth, async (req, res) => {
 router.put('/me', auth, async (req, res) => {
   try {
     const { nombre, apellidos, fecha_nacimiento, foto_perfil, email_cuidador,  nombre_cuidador } = req.body;
-    await usuario.update(
+    await Usuario.update(
       { nombre, apellidos, fecha_nacimiento, foto_perfil, email_cuidador,  nombre_cuidador },
       { where: { id_usuario: req.user.id } }
     );
