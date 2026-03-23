@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { Partida, Estadistica, Juego } = require('../models');
+const { Partida, Estadistica, Juego, Usuario } = require('../models');
+const { enviarCorreoAlCuidador } = require('../services/emailService');
 
 // Obtener partidas del usuario
 router.get('/mis-partidas', auth, async (req, res) => {
@@ -48,6 +49,18 @@ router.post('/nueva-partida', auth, async (req, res) => {
             mejor_puntuacion: Math.max(estadisticaUsuario.mejor_puntuacion, puntuacion),
             ultima_partida: new Date()
         });
+
+        // Comprobar si la nueva puntuación es un descenso significativo
+        const mediaAnterior = estadisticaUsuario.puntuacion_media;
+        if (mediaAnterior > 0 && puntuacion < mediaAnterior * 0.7) { // umbral del 30% de descenso
+            // Obtener el juego para incluir su nombre en el correo
+            const juego = await Juego.findByPk(juego_id);
+            const nombreJuego = juego ? juego.nombre : 'el juego';
+            // Enviar correo al cuidador
+            const usuario = await Usuario.findByPk(req.user.id);
+            
+            await enviarCorreoAlCuidador(usuario.email_cuidador, usuario.nombre, nombreJuego, puntuacion, mediaAnterior);
+        }   
     }
 
     res.json(nuevaPartida);
