@@ -47,10 +47,6 @@ const Usuario = sequelize.define('usuarios', {
         defaultValue: true
     },
 
-    created_at: {
-        type: DataTypes.DATE,
-    }
-
 });
 
 module.exports = Usuario;

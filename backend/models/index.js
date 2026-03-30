@@ -21,6 +21,7 @@ Estadistica.belongsTo(Juego, { foreignKey: 'juego_id' });
 
 //Exportar modelos para usarlos en rutas
 module.exports = {
+    sequelize,
     Usuario,
     Juego,
     Tokens,
