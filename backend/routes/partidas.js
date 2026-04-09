@@ -52,7 +52,7 @@ router.post('/nueva-partida', auth, async (req, res) => {
 
         // Comprobar si la nueva puntuación es un descenso significativo
         const mediaAnterior = estadisticaUsuario.puntuacion_media;
-        if (mediaAnterior > 0 && puntuacion < mediaAnterior * 0.7) { // umbral del 30% de descenso
+        if (mediaAnterior > 0 && puntuacion < mediaAnterior * 0.4) { 
             // Obtener el juego para incluir su nombre en el correo
             const juego = await Juego.findByPk(juego_id);
             const nombreJuego = juego ? juego.nombre : 'el juego';

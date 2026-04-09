@@ -1,65 +1,95 @@
 const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+
+// Creamos un router de Express para agrupar las rutas de autenticación.
+// Se monta en app.js con el prefijo /auth.
+const router = express.Router(); 
+
+// Librería para hashear contraseñas. Nunca se guarda una contraseña en texto plano en la base de datos
+const bcrypt = require('bcryptjs'); 
+
+// Librería para generar y verificar tokens JWT
+const jwt = require('jsonwebtoken'); 
+
+// Leemos el secreto JWT desde las variables de entorno
+// Se usa para firmar los tokens: solo el servidor que conoce este secreto puede verificarlos
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// Importamos el modelo Usuario desde models/index.js 
+// A través de él hacemos todas las operaciones con la tabla usuarios sin escribir SQL.
 const { Usuario } = require('../models');
 
-// Ruta para el registro de usuarios
+// POST /auth/register 
+// Registra un nuevo usuario en la base de datos
+// Ruta pública: no requiere token JWT
 router.post('/register', async (req, res) => {
+
+    // Extraemos los campos necesarios del body de la petición.
     const { nombre, email, password } = req.body;
 
     try {
-        // Verificar si el usuario ya existe
+        // Comprobamos si ya existe un usuario con ese email.
+        // findOne devuelve el primer registro que coincida con el where, o null si no hay
         const existingUser = await Usuario.findOne({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ message: 'El usuario ya existe' });
         }
 
-        // Hashear la contraseña
+        // Hasheamos la contraseña antes de guardarla.
+        // El segundo parámetro (10) es el número de "salt rounds": cuántas veces se aplica
+        // el algoritmo. A mayor número, más seguro pero más lento. 10 es el valor estándar.
+        // bcrypt es irreversible: no se puede obtener la contraseña original a partir del hash.
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Crear el nuevo usuario
+        // Creamos el nuevo usuario en la base de datos.
+        // Guardamos password_hash (el hash), nunca la contraseña original.
         const newUser = await Usuario.create({ nombre, email, password_hash: hashedPassword });
 
+        // Respondemos con 201 Created. No devolvemos el usuario creado para no exponer datos.
         res.status(201).json({ message: 'Usuario registrado exitosamente' });
 
     } catch (error) {
         console.error('Error en el registro:', error);
         res.status(500).json({ message: 'Error en el servidor' });
     }
-
 });
 
-// Ruta para el inicio de sesión
+
+// POST /auth/login
+// Inicia sesión y devuelve un token JWT si las credenciales son correctas
+// Ruta pública: no requiere token JWT
 router.post('/login', async (req, res) => {
+
     const { email, password } = req.body;
 
     try {
-        // Verificar si el usuario existe
+        // Buscamos el usuario por email.
         const user = await Usuario.findOne({ where: { email } });
+
+        // Si el usuario no existe, respondemos con "Credenciales inválidas".
         if (!user) {
             return res.status(400).json({ message: 'Credenciales inválidas' });
         }
 
-        // Verificar la contraseña        
+        // Comparamos la contraseña recibida con el hash guardado en la BD
+        // bcrypt.compare() 
+        // Nunca desencripta: compara hash con hash
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
         if (!isPasswordValid) {
             return res.status(400).json({ message: 'Credenciales inválidas' });
         }
 
-        // Generar un token JWT
+        // Las credenciales son correctas: generamos el token JWT
+        // El token expira en 1 hora: pasado ese tiempo el usuario tendrá que volver a hacer login.
         const token = jwt.sign({ id: user.id_usuario }, JWT_SECRET, { expiresIn: '1h' });
-        
+
+        // Devolvemos el token al cliente. El frontend lo guardará y lo enviará
+        // en la cabecera Authorization de cada petición protegida.
         res.json({ token });
 
     } catch (error) {
-
         console.error('Error en el inicio de sesión:', error);
         res.status(500).json({ message: 'Error en el servidor' });
-    }   
+    }
 });
 
 module.exports = router;
-

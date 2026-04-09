@@ -1,49 +1,100 @@
-const { sequelize, Usuario, Juego, Partida, Estadistica } = require("../models/index.js");
-const bcryptjs = require('bcryptjs');
+// Script de seed: inserta datos iniciales de prueba en la base de datos
+// Ejecución: node seeds/seed.js (desde la carpeta backend)
+
+// usar findOrCreate() en lugar de create() garantiza idempotencia,
+// es decir, se puede ejecutar el script múltiples veces sin duplicar datos.
+
+// nunca llamar a sequelize.sync() aquí. La BD debe estar ya creada
+// y sincronizada previamente. Llamar a sync() dentro del seed causa errores
+// de restricciones de claves foráneas en MariaDB.
+
+const { sequelize, Usuario, Juego } = require('../models/index.js'); 
+const bcryptjs = require('bcryptjs'); 
 
 async function seed() {
-  try {
+    try {
+        // Insertamos los 3 juegos de StimulApp
+        // findOrCreate busca por 'nombre' (campo único). Si no existe, lo crea con 'defaults'.
+        // Si ya existe, no hace nada. Así el seed es seguro de ejecutar varias veces.
+        const juegosData = [
+            {
+                nombre: 'Acaba el refrán',
+                descripcion: 'Completa refranes populares españoles y ejercita tu memoria semántica',
+                categoria_cognitiva: 'Lenguaje / memoria semántica',
+                activo: true
+            },
+            {
+                nombre: 'Encuentra el intruso',
+                descripcion: 'Identifica el elemento que no pertenece al grupo y entrena tu atención',
+                categoria_cognitiva: 'Atención / memoria de trabajo',
+                activo: true
+            },
+            {
+                nombre: 'Memory',
+                descripcion: 'Encuentra todas las parejas de cartas y pon a prueba tu memoria visual',
+                categoria_cognitiva: 'Memoria visual / espacial',
+                activo: true
+            },
+        ];
 
-    //Crear los juegos de prueba
-    const juegosData = [
-      { nombre: 'Acaba el refrán', descripcion: "Completa refranes populares españoles y ejercita tu memoria semántica", categoria_cognitiva: 'Lenguaje / memoria semántica', activo: true },
-      { nombre: 'Encuentra el intruso', descripcion: "Identifica el elemento que no pertenece al grupo y entrena tu atención", categoria_cognitiva: 'Atención / memoria de trabajo', activo: true },
-      { nombre: 'Memory', descripcion:  "Encuentra todas las parejas de cartas y pon a prueba tu memoria visual", categoria_cognitiva: 'Memoria visual / espacial', activo: true },
-    ];
+        for (const juegoData of juegosData) {
+            await Juego.findOrCreate({
+                where: { nombre: juegoData.nombre }, // Criterio de búsqueda: el nombre es único
+                defaults: juegoData                  // Valores a usar solo si se crea el registro
+            });
+        }
 
-    for (const juegoData of juegosData) {
-      await Juego.findOrCreate({
-        where: { nombre: juegoData.nombre },
-        defaults: juegoData
-      });   
-    }
+        // Hasheamos la contraseña una sola vez y la reutilizamos para los 3 usuarios
+        const passwordHash = await bcryptjs.hash('password123', 10);
 
-    //Crear un usuario de prueba
-    const passwordHash = await bcryptjs.hash('password123', 10);
+        const usuariosData = [
+            {
+                nombre: 'Rodrigo', apellidos: 'García',
+                email: 'rodrigo.garcia@example.com',
+                password_hash: passwordHash,
+                fecha_nacimiento: '1950-01-01',
+                foto_perfil: 'https://example.com/foto.jpg',
+                email_cuidador: 'cuidador@example.com', nombre_cuidador: 'María',
+                activo: true
+            },
+            {
+                nombre: 'María', apellidos: 'López',
+                email: 'maria.lopez@example.com',
+                password_hash: passwordHash,
+                fecha_nacimiento: '1960-01-01',
+                foto_perfil: 'https://example.com/foto2.jpg',
+                email_cuidador: 'cuidador2@example.com', nombre_cuidador: 'Juan',
+                activo: true
+            },
+            {
+                nombre: 'Juan', apellidos: 'Pérez',
+                email: 'juan.perez@example.com',
+                password_hash: passwordHash,
+                fecha_nacimiento: '1970-01-01',
+                foto_perfil: 'https://example.com/foto3.jpg',
+                email_cuidador: 'cuidador3@example.com', nombre_cuidador: 'Ana',
+                activo: true
+            }
+        ];
 
-    const usuariosData = [
-      { nombre: 'Rodrigo', apellidos: 'García', email: "rodrigo.garcia@example.com", password_hash: passwordHash, fecha_nacimiento: '1950-01-01', foto_perfil: "https://example.com/foto.jpg", email_cuidador: "cuidador@example.com", nombre_cuidador: "María", activo: true},
-      { nombre: 'María', apellidos: 'López', email: "maria.lopez@example.com", password_hash: passwordHash, fecha_nacimiento: '1960-01-01', foto_perfil: "https://example.com/foto2.jpg", email_cuidador: "cuidador2@example.com", nombre_cuidador: "Juan", activo: true },
-      { nombre: 'Juan', apellidos: 'Pérez', email: "juan.perez@example.com", password_hash: passwordHash, fecha_nacimiento: '1970-01-01', foto_perfil: "https://example.com/foto3.jpg", email_cuidador: "cuidador3@example.com", nombre_cuidador: "Ana", activo: true}
-    ];
+        for (const usuarioData of usuariosData) {
+            await Usuario.findOrCreate({
+                where: { email: usuarioData.email }, // El email es único: sirve como criterio de búsqueda
+                defaults: usuarioData
+            });
+        }
 
-    for (const usuarioData of usuariosData) {
-      await Usuario.findOrCreate({
-        where: { email: usuarioData.email },
-        defaults: usuarioData
-      });
-    }
+        console.log('Datos de prueba insertados correctamente.');
 
-    console.log("Datos de prueba insertados correctamente.");
     } catch (error) {
-    console.error("Error al insertar datos de prueba:", error);
+        console.error('Error al insertar datos de prueba:', error);
+
     } finally {
-    await sequelize.close();
+        // Cerramos la conexión a la BD siempre, tanto si el seed fue bien como si falló.
+        // Sin esto, el proceso de Node quedaría colgado esperando conexiones abiertas.
+        await sequelize.close();
     }
 }
 
+// Ejecutamos la función principal
 seed();
-
-
-
-
