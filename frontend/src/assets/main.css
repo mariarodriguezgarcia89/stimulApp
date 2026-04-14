@@ -1,0 +1,36 @@
+/* Importamos una fuente clara y legible de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+
+/* Variables de color globales */
+:root {
+  --color-fondo: #f5f0e8;
+  --color-principal: #7b1f2e;
+  --color-principal-hover: #5e1622;
+  --color-texto: #2c2c2c;
+  --color-texto-suave: #555555;
+  --color-borde: #ccbbaa;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-principal);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
