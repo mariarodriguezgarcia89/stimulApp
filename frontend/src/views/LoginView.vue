@@ -24,7 +24,7 @@ function handleLogin() {
   authService.login(email.value, password.value)
     .then(datos => {
       authStore.login(datos.token, datos.nombre, datos.foto_perfil)
-      router.push('/perfil')
+      router.push('/menu')
     })
     .catch(() => {
       error.value = 'Correo o contraseña incorrectos. Por favor, inténtelo de nuevo.'

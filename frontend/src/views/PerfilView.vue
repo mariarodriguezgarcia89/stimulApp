@@ -21,7 +21,7 @@ const exito = ref('')
 
 onMounted(() => {
   if (!authStore.token) {
-    router.push('/login')
+    router.push('/menu')
     return
   }
 
@@ -132,6 +132,8 @@ function cerrarSesion() {
       <p v-if="exito" class="exito">{{ exito }}</p>
 
       <button class="btn-principal" @click="handleGuardar">Guardar cambios</button>
+
+      <button class="btn-opcion" @click="router.push('/menu')">Volver al menú</button>
 
       <button class="btn-secundario" @click="cerrarSesion">Cerrar sesión</button>
     </div>
@@ -278,6 +280,22 @@ input:disabled {
 }
 
 .btn-secundario:hover {
+  background-color: #fdecea;
+}
+
+.btn-opcion {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+  background-color: white;
+  color: var(--color-principal);
+  border: 2px solid var(--color-principal);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-opcion:hover {
   background-color: #fdecea;
 }
 

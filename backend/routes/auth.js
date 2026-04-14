@@ -104,7 +104,11 @@ router.post('/login', async (req, res) => {
 
         // Devolvemos el token al cliente. El frontend lo guardará y lo enviará
         // en la cabecera Authorization de cada petición protegida.
-        res.json({ token });
+        res.json({ 
+            token,
+            nombre: user.nombre,
+            foto_perfil: user.foto_perfil
+            });
 
     } catch (error) {
         console.error('Error en el inicio de sesión:', error);
