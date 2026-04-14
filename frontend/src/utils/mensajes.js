@@ -15,4 +15,10 @@ export const mensajes = {
 
   // General
   errorServidor: 'Error de conexión con el servidor. Por favor, inténtelo más tarde.',
+
+  // Perfil
+    nombreObligatorio: 'El nombre es obligatorio.',
+    apellidosObligatorios: 'Los apellidos son obligatorios.',
+    errorActualizarPerfil: 'Error al actualizar el perfil. Por favor, inténtelo de nuevo.',
+    exitoActualizarPerfil: '✅ Perfil actualizado correctamente.',
 }
