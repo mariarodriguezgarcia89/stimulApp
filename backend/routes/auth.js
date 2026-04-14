@@ -24,8 +24,20 @@ const { Usuario } = require('../models');
 router.post('/register', async (req, res) => {
 
     // Extraemos los campos necesarios del body de la petición.
-    const { nombre, email, password } = req.body;
+    const { nombre, apellidos, email, password, fecha_nacimiento, nombre_cuidador, email_cuidador } = req.body;
+    
+            if (!nombre || !apellidos || !email || !password || !fecha_nacimiento) {
+            return res.status(400).json({ message: 'Por favor, complete todos los campos obligatorios.' });
+        }
 
+        if (!/\S+@\S+\.\S+/.test(email)) {
+            return res.status(400).json({ message: 'El formato del correo electrónico no es válido.' });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres.' });
+        }
+    
     try {
         // Comprobamos si ya existe un usuario con ese email.
         // findOne devuelve el primer registro que coincida con el where, o null si no hay
@@ -42,7 +54,15 @@ router.post('/register', async (req, res) => {
 
         // Creamos el nuevo usuario en la base de datos.
         // Guardamos password_hash (el hash), nunca la contraseña original.
-        const newUser = await Usuario.create({ nombre, email, password_hash: hashedPassword });
+        const newUser = await Usuario.create({ 
+            nombre, 
+            apellidos,
+            email, 
+            password_hash: hashedPassword,
+            fecha_nacimiento,
+            nombre_cuidador,
+            email_cuidador
+        });
 
         // Respondemos con 201 Created. No devolvemos el usuario creado para no exponer datos.
         res.status(201).json({ message: 'Usuario registrado exitosamente' });

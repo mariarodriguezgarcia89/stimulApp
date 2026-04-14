@@ -10,6 +10,11 @@ const mostrarPassword = ref(false)
 const error = ref('')
 const errorEmail = ref('')
 const errorPassword = ref('')
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const exito = ref(route.query.registro === 'exitoso' ? 
+  '✅ ¡Cuenta creada correctamente! Ya puede iniciar sesión con su correo y contraseña.' : '')
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -33,6 +38,7 @@ function handleLogin() {
     <div class="login-box">
         <h1>Iniciar sesión</h1>
         <p class="bienvenida">Bienvenido/a a StimulApp 😊</p>
+        <p v-if="exito" class="exito">{{ exito }}</p>
         <div class="campo">
         <label for="email">Correo electrónico</label>
         <input 
@@ -50,7 +56,7 @@ function handleLogin() {
             id="password" 
             v-model="password" 
             :type="mostrarPassword ? 'text' : 'password'"
-            @keyup.enter="handleLogin"
+            @keyup.enter="handleLogin"RegistroView.vue
              />
             <button type="button" @click="mostrarPassword = !mostrarPassword">
             {{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}
@@ -81,6 +87,18 @@ function handleLogin() {
   color: var(--color-texto-suave);
   font-size: 16px;
   margin-top: -8px;
+}
+
+.exito {
+  color: #27ae60;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #eafaf1;
+  border: 1px solid #27ae60;
+  border-radius: 8px;
+  padding: 10px;
+  width: 100%;
+  text-align: center;
 }
 
 .login-container {

@@ -13,4 +13,12 @@ function login(email, password) {
         });
 }
 
-export default { login };
+function registro(datos) {
+    return api.post('auth/register', datos) 
+    .catch(error => {
+        console.error('Error en el registro:', error);
+        throw error;
+    });
+}
+
+export default { login, registro };
