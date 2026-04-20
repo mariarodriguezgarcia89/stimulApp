@@ -3,6 +3,7 @@ import LoginView from '../views/LoginView.vue'
 import RegistroView from '@/views/RegistroView.vue'
 import PerfilView from '@/views/PerfilView.vue'
 import MenuView from '@/views/MenuView.vue' 
+import RefranView from '@/views/RefranView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,7 +31,10 @@ const router = createRouter({
       path: '/menu',
       name: 'Menu',
       component: MenuView
-    }
+    },
+    { path: '/juego/refran', 
+      name: 'Refran', 
+      component: RefranView }
   ],
 })
 

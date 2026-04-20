@@ -3,7 +3,9 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import avatarDefault from '@/assets/avatar-default.jpg'
+import ModalDificultad from '@/components/refran/ModalDificultad.vue'
 const menuAbierto = ref(false)
+const mostrarModalDificultad = ref(false)
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -17,6 +19,11 @@ onMounted(() => {
 function cerrarSesion() {
   authStore.logout()
   router.push('/login')
+}
+
+function seleccionarDificultad(nivel) {
+  mostrarModalDificultad.value = false
+  router.push(`/juego/refran?dificultad=${nivel}`)
 }
 </script>
 
@@ -52,7 +59,7 @@ function cerrarSesion() {
 
     <!-- Tarjetas de juegos -->
     <div class="juegos">
-      <div class="juego-card" @click="router.push('/juego/refran')">
+      <div class="juego-card" @click="mostrarModalDificultad = true">
         <img src="@/assets/icono-refran.png" alt="Acaba el refrán" class="juego-icono" />
         <div class="juego-info">
           <h2>Acaba el refrán</h2>
@@ -79,7 +86,11 @@ function cerrarSesion() {
         </div>
       </div>
     </div>
-
+    <ModalDificultad 
+    v-if="mostrarModalDificultad" 
+    @seleccionar="seleccionarDificultad" 
+    @cerrar="mostrarModalDificultad = false" 
+/>
   </div>
 </template>
 
