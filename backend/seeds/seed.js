@@ -8,7 +8,7 @@
 // y sincronizada previamente. Llamar a sync() dentro del seed causa errores
 // de restricciones de claves foráneas en MariaDB.
 
-const { sequelize, Usuario, Juego } = require('../models/index.js'); 
+const { sequelize, Usuario, Juego, Refran } = require('../models/index.js'); 
 const bcryptjs = require('bcryptjs'); 
 
 async function seed() {
@@ -83,6 +83,78 @@ async function seed() {
                 defaults: usuarioData
             });
         }
+
+        const refranesData = [
+            {
+                primera_parte: 'A caballo regalado,',
+                opcion_uno: 'no se le mira el diente',
+                opcion_dos: 'se le mira el diente',
+                opcion_correcta: 'no se le mira el diente'
+            },
+            {
+                primera_parte: 'Más vale tarde,',
+                opcion_uno: 'que nunca',
+                opcion_dos: 'que siempre',
+                opcion_correcta: 'que nunca'
+            },
+            {
+                primera_parte: 'En casa de herrero,',
+                opcion_uno: 'cuchillo de palo',
+                opcion_dos: 'cuchillo de hierro',
+                opcion_correcta: 'cuchillo de palo'
+            },
+            {
+                primera_parte: 'No hay mal que por bien,',
+                opcion_uno: 'no venga',
+                opcion_dos: 'venga',
+                opcion_correcta: 'no venga'
+            },
+            {
+                primera_parte: 'Ojos que no ven,',
+                opcion_uno: 'corazón que no siente',
+                opcion_dos: 'corazón que siente',
+                opcion_correcta: 'corazón que no siente'
+            },
+            {
+                primera_parte: 'Dime con quién andas,',
+                opcion_uno: 'y te diré quién eres',
+                opcion_dos: 'y te diré qué comes',
+                opcion_correcta: 'y te diré quién eres'
+            },
+            {
+                primera_parte: 'A buen hambre,',
+                opcion_uno: 'no hay mal pan',   
+                opcion_dos: 'no hay mal vino',
+                opcion_correcta: 'no hay mal pan'
+            },
+            {
+                primera_parte: 'El que mucho abarca,',
+                opcion_uno: 'poco aprieta',
+                opcion_dos: 'mucho aprieta',
+                opcion_correcta: 'poco aprieta'
+            },
+            {
+                primera_parte: 'Agua que no has de beber,',
+                opcion_uno: 'déjala correr',
+                opcion_dos: 'bébetela', 
+                opcion_correcta: 'déjala correr'
+            },
+            {
+                primera_parte: 'Camarón que se duerme,',
+                opcion_uno: 'se lo lleva la corriente',
+                opcion_dos: 'se lo lleva el viento',
+                opcion_correcta: 'se lo lleva la corriente'
+            }
+        ];  
+
+        for (const refranData of refranesData) {
+            await Refran.findOrCreate({
+                where: { primera_parte: refranData.primera_parte }, // La primera parte del refrán es única
+                defaults: refranData
+            });
+        }
+
+
 
         console.log('Datos de prueba insertados correctamente.');
 
