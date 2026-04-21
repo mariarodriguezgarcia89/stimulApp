@@ -4,6 +4,7 @@ import RegistroView from '@/views/RegistroView.vue'
 import PerfilView from '@/views/PerfilView.vue'
 import MenuView from '@/views/MenuView.vue' 
 import RefranView from '@/views/RefranView.vue'
+import MemoryView from '@/views/MemoryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,7 +35,12 @@ const router = createRouter({
     },
     { path: '/juego/refran', 
       name: 'Refran', 
-      component: RefranView }
+      component: RefranView 
+    }, 
+    { path: '/juego/memory', 
+      name: 'Memory', 
+      component: MemoryView 
+    }
   ],
 })
 

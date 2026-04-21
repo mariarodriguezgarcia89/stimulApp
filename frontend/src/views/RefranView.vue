@@ -1,13 +1,14 @@
 <script setup>
 import refranService from '@/services/refranService'
-import partidaService from '@/services/partidaService'
-import ModalSalir from '@/components/refran/ModalSalir.vue'
-import ModalFinPartida from '@/components/refran/ModalFinPartida.vue'
+import ModalSalir from '@/components/shared/ModalSalir.vue'
+import ModalFinPartida from '@/components/shared/ModalFinPartida.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { usePartida } from '@/composables/usePartida'
+const { finalizarPartida, confirmarSalida, salirAlMenu } = usePartida()
 
-const route = useRoute()
 const router = useRouter()
+const route = useRoute()
 const refranes = ref([])
 const indiceActual = ref(0)
 const puntos = ref(0)
@@ -45,19 +46,6 @@ onMounted(() => {
     })
 })
 
-function iniciarTemporizador() {
-    tiempoRestante.value = 30
-    clearInterval(temporizador)
-    temporizador = setInterval(() => {
-        tiempoRestante.value--
-        if (tiempoRestante.value <= 0) {
-            clearInterval(temporizador)
-            respondido.value = true
-            ultimaRespuestaCorrecta.value = false
-        }
-    }, 1000)
-}
-
 function responder(opcion) {
     respondido.value = true
     opcionElegida.value = opcion
@@ -82,10 +70,13 @@ function responderTexto() {
 }
 
 function siguiente() {
+
     if (indiceActual.value + 1 >= refranes.value.length) {
-        finalizarPartida()
-    return
-    }   
+      const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
+      finalizarPartida(1, puntos.value, duracion, dificultad, mostrarModalFin)
+      return
+    }
+  
     indiceActual.value++
     respondido.value = false
     opcionElegida.value = null
@@ -94,18 +85,11 @@ function siguiente() {
     if (dificultad === 'dificil') iniciarTemporizador()
 }
 
+
 function saltar() {
     saltados.value++
     siguiente()
 }
-
-function confirmarSalida() {
-    mostrarModalSalir.value = true
-}
-
-function salirAlMenu() {
-    router.push('/menu')
-}   
 
 function jugarOtraVez() {
     indiceActual.value = 0
@@ -116,19 +100,19 @@ function jugarOtraVez() {
     respuestaTexto.value = ''
     mostrarModalFin.value = false
     if (dificultad === 'dificil') iniciarTemporizador()
-}       
+}     
 
-function finalizarPartida() {
-    const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
-    partidaService.guardarPartida({
-        juego_id: 1,
-        puntuacion: puntos.value,
-        duracion_segundos: duracion,
-        nivel: dificultad,
-        completada: true
-    })
-
-    mostrarModalFin.value = true
+function iniciarTemporizador() {
+  tiempoRestante.value = 30
+  clearInterval(temporizador)
+  temporizador = setInterval(() => {
+    tiempoRestante.value--
+    if (tiempoRestante.value <= 0) {
+      clearInterval(temporizador)
+      respondido.value = true
+      ultimaRespuestaCorrecta.value = false
+      }
+    }, 1000)
 }
 
 </script>
@@ -137,7 +121,7 @@ function finalizarPartida() {
   <div class="refran-container" v-if="refranActual">
 
     <div class="cabecera">
-      <button class="btn-salir" @click="confirmarSalida">✕ Salir</button>
+      <button class="btn-salir" @click="mostrarModalSalir = true">Salir</button>
       <span class="progreso">{{ indiceActual + 1 }} / {{ refranes.length }}</span>
       <span class="puntos">⭐ {{ puntos }}</span>
     </div>
@@ -199,12 +183,13 @@ function finalizarPartida() {
   </div>
     <ModalSalir 
         v-if="mostrarModalSalir"
-        @confirmar="salirAlMenu"
+        @confirmar="router.push('/menu')"
         @cancelar="mostrarModalSalir = false"
     />
     <ModalFinPartida 
         v-if="mostrarModalFin"
         :puntos="puntos"
+        labelAcertados="refranes"
         :acertados="acertados"
         :total="refranes.length"
         :saltados="saltados"

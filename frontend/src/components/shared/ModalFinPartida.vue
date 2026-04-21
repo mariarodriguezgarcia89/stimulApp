@@ -1,15 +1,14 @@
 <script setup>
-
 const props = defineProps({
     puntos: Number,
     acertados: Number,
     total: Number,
-    saltados: Number,
-    puntuacionHistorica: Number
+    saltados: { type: Number, default: null },
+    puntuacionHistorica: Number,
+    labelAcertados: { type: String, default: 'elementos' }
 })
 
-const emit = defineEmits(['jugarOtraVez','cerrar'])
-
+const emit = defineEmits(['jugarOtraVez', 'cerrar'])
 </script>
 
 <template>
@@ -19,16 +18,13 @@ const emit = defineEmits(['jugarOtraVez','cerrar'])
                 <span class="icono-principal">🎉</span>
                 <h2>¡Partida terminada!</h2>
             </div>
-
-            <p>Has conseguido {{ puntos }} puntos, acertando {{ acertados }} de {{ total }} refranes.</p>
-            <p>Has saltado {{ saltados }} refranes.</p>
+            <p>Has conseguido {{ puntos }} puntos, acertando {{ acertados }} de {{ total }} {{ labelAcertados }}.</p>
+            <p v-if="saltados !== null">Has saltado {{ saltados }} {{ labelAcertados }}.</p>
             <p>Tu puntuación histórica es de {{ puntuacionHistorica }} puntos.</p>
-
             <button class="btn-cerrar" @click="$emit('cerrar')">Volver al menú</button>
             <button class="btn-jugar" @click="$emit('jugarOtraVez')">Jugar otra vez</button>
         </div>
     </div>
-
 </template>
 
 <style scoped>

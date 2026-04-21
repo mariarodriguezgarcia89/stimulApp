@@ -1,33 +1,37 @@
 <script setup>
-    const emit = defineEmits(['seleccionar', 'cerrar'])
+const props = defineProps({
+    icono: { type: String, default: '🎮' },
+    titulo: { type: String, default: '¿Cómo quieres jugar?' },
+    descripcionFacil: { type: String, default: '' },
+    descripcionDificil: { type: String, default: '' }
+})
+
+const emit = defineEmits(['seleccionar', 'cerrar'])
 </script>
 
 <template>
     <div class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="icono-principal">🧩</span>
-                <h2>¿Cómo quieres jugar?</h2>
+                <span class="icono-principal">{{ icono }}</span>
+                <h2>{{ titulo }}</h2>
             </div>
-
             <div class="dificultades">
                 <button class="btn-dificultad" @click="$emit('seleccionar', 'facil')">
                     <span class="btn-icono">🌟</span>
                     <div class="btn-texto">
                         <span class="btn-titulo">Normal</span>
-                        <span class="btn-descripcion">Elige la respuesta correcta entre tres opciones</span>
+                        <span class="btn-descripcion">{{ descripcionFacil }}</span>
                     </div>
                 </button>
-
                 <button class="btn-dificultad" @click="$emit('seleccionar', 'dificil')">
                     <span class="btn-icono">🏆</span>
                     <div class="btn-texto">
                         <span class="btn-titulo">Avanzado</span>
-                        <span class="btn-descripcion">Escribe tú mismo cómo termina el refrán</span>
+                        <span class="btn-descripcion">{{ descripcionDificil }}</span>
                     </div>
                 </button>
             </div>
-
             <button class="btn-cerrar" @click="$emit('cerrar')">Cerrar</button>
         </div>
     </div>

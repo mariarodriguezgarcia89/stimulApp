@@ -3,9 +3,30 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import avatarDefault from '@/assets/avatar-default.jpg'
-import ModalDificultad from '@/components/refran/ModalDificultad.vue'
+import ModalDificultad from '@/components/shared/ModalDificultad.vue'
 const menuAbierto = ref(false)
-const mostrarModalDificultad = ref(false)
+const juegoSeleccionado = ref(null) // 'refran', 'memory', 'intruso'
+
+const JUEGOS = {
+    refran: {
+        icono: '🧩',
+        titulo: '¿Cómo quieres jugar?',
+        descripcionFacil: 'Elige la continuación correcta del refrán entre tres opciones. ¡Tómate tu tiempo!',
+        descripcionDificil: 'Escribe tú mismo cómo termina el refrán. Tienes 30 segundos por pregunta.'
+    },
+    memory: {
+        icono: '🃏',
+        titulo: '¿Cómo quieres jugar?',
+        descripcionFacil: 'Encuentra las 4 parejas de tarjetas. Las tarjetas se mostrarán unos segundos al inicio.',
+        descripcionDificil: 'Encuentra las 8 parejas antes de que se acabe el tiempo. ¡Concentración!'
+    },
+    intruso: {
+        icono: '🔍',
+        titulo: '¿Cómo quieres jugar?',
+        descripcionFacil: 'Encuentra cuál de las imágenes no pertenece al grupo.',
+        descripcionDificil: 'Las categorías son más parecidas entre sí. ¡Necesitarás pensar bien!'
+    }
+}
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -22,8 +43,9 @@ function cerrarSesion() {
 }
 
 function seleccionarDificultad(nivel) {
-  mostrarModalDificultad.value = false
-  router.push(`/juego/refran?dificultad=${nivel}`)
+    const juego = juegoSeleccionado.value
+    juegoSeleccionado.value = null
+    router.push(`/juego/${juego}?dificultad=${nivel}`)
 }
 </script>
 
@@ -59,7 +81,7 @@ function seleccionarDificultad(nivel) {
 
     <!-- Tarjetas de juegos -->
     <div class="juegos">
-      <div class="juego-card" @click="mostrarModalDificultad = true">
+      <div class="juego-card" @click="juegoSeleccionado = 'refran'"> 
         <img src="@/assets/icono-refran.png" alt="Acaba el refrán" class="juego-icono" />
         <div class="juego-info">
           <h2>Acaba el refrán</h2>
@@ -68,7 +90,7 @@ function seleccionarDificultad(nivel) {
         </div>
       </div>
 
-      <div class="juego-card" @click="router.push('/juego/memory')">
+      <div class="juego-card" @click="juegoSeleccionado = 'memory'">
         <img src="@/assets/icono-memory.png" alt="Memory" class="juego-icono" />
         <div class="juego-info">
           <h2>Memory</h2>
@@ -87,9 +109,13 @@ function seleccionarDificultad(nivel) {
       </div>
     </div>
     <ModalDificultad 
-    v-if="mostrarModalDificultad" 
+    v-if="juegoSeleccionado"
+    :icono="JUEGOS[juegoSeleccionado].icono"
+    :titulo="JUEGOS[juegoSeleccionado].titulo"
+    :descripcionFacil="JUEGOS[juegoSeleccionado].descripcionFacil"
+    :descripcionDificil="JUEGOS[juegoSeleccionado].descripcionDificil"
     @seleccionar="seleccionarDificultad" 
-    @cerrar="mostrarModalDificultad = false" 
+    @cerrar="juegoSeleccionado = null" 
 />
   </div>
 </template>
