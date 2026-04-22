@@ -18,6 +18,7 @@ const usuariosRouter = require('./routes/usuarios');
 const partidasRouter = require('./routes/partidas');
 const estadisticasRouter = require('./routes/estadisticas');
 const refranesRouter = require('./routes/refranes');
+const intrusosRouter = require('./routes/intrusos');
 
 // Creamos la aplicación Express. Es el objeto central del servidor
 const app = express();
@@ -42,6 +43,7 @@ app.use('/usuarios', usuariosRouter);
 app.use('/partidas', partidasRouter);
 app.use('/estadisticas', estadisticasRouter);
 app.use('/refranes', refranesRouter);
+app.use('/intrusos', intrusosRouter);
 
 // Leemos el puerto del .env. Si no está definido, usamos 3000 como valor por defecto
 // Así el mismo código funciona en local y en un servidor de producción sin modificarlo

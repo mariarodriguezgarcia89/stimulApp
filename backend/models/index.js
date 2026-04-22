@@ -8,6 +8,7 @@ const Tokens = require('./Tokens');
 const Partida = require('./Partida');
 const Estadistica = require('./Estadistica');
 const Refran = require('./Refran');
+const Intruso = require('./Intruso');
 
 // Las asociaciones definen las relaciones entre tablas, equivalente a las
 // claves foráneas del SQL. Sequelize las usa para construir JOINs automáticos
@@ -41,5 +42,6 @@ module.exports = {
     Tokens,
     Partida,
     Estadistica,
-    Refran
+    Refran, 
+    Intruso
 };

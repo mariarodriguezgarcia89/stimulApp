@@ -8,7 +8,7 @@
 // y sincronizada previamente. Llamar a sync() dentro del seed causa errores
 // de restricciones de claves foráneas en MariaDB.
 
-const { sequelize, Usuario, Juego, Refran } = require('../models/index.js'); 
+const { sequelize, Usuario, Juego, Refran, Intruso } = require('../models/index.js'); 
 const bcryptjs = require('bcryptjs'); 
 
 async function seed() {
@@ -154,7 +154,73 @@ async function seed() {
             });
         }
 
+    const intrusosData = [
+  // FÁCIL
+  {
+    imagen_uno: '/intrusos/facil_p1_perro.png',
+    imagen_dos: '/intrusos/facil_p1_pajaro.png',
+    imagen_tres: '/intrusos/facil_p1_gato.png',
+    imagen_cuatro: '/intrusos/facil_p1_coche.png',
+    imagen_intrusa: '/intrusos/facil_p1_coche.png',
+    nivel: 'facil',
+    explicacion: 'El coche es el intruso porque es un vehículo, mientras que el resto son animales.'
+  },
+  {
+    imagen_uno: '/intrusos/facil_p2_bici.png',
+    imagen_dos: '/intrusos/facil_p2_bus.png',
+    imagen_tres: '/intrusos/facil_p2_coche.png',
+    imagen_cuatro: '/intrusos/facil_p2_perro.png',
+    imagen_intrusa: '/intrusos/facil_p2_perro.png',
+    nivel: 'facil',
+    explicacion: 'El perro es el intruso porque es un animal, mientras que el resto son vehículos.'
+  },
+  {
+    imagen_uno: '/intrusos/facil_p3_camiseta.png',
+    imagen_dos: '/intrusos/facil_p3_pantalones.png',
+    imagen_tres: '/intrusos/facil_p3_tenis.png',
+    imagen_cuatro: '/intrusos/facil_p3_perro.png',
+    imagen_intrusa: '/intrusos/facil_p3_perro.png',
+    nivel: 'facil',
+    explicacion: 'El perro es el intruso porque es un animal, mientras que el resto son prendas de ropa.'
+  },
+  // DIFÍCIL
+  {
+    imagen_uno: '/intrusos/dificil_p1_perro.png',
+    imagen_dos: '/intrusos/dificil_p1_gato.png',
+    imagen_tres: '/intrusos/dificil_p1_lobo.png',
+    imagen_cuatro: '/intrusos/dificil_p1_delfin.png',
+    imagen_intrusa: '/intrusos/dificil_p1_delfin.png',
+    nivel: 'dificil',
+    explicacion: 'El delfín es el intruso porque es el único animal acuático, mientras que el resto son animales terrestres.'
+  },
+  {
+    imagen_uno: '/intrusos/dificil_p2_silla.png',
+    imagen_dos: '/intrusos/dificil_p2_mesa.png',
+    imagen_tres: '/intrusos/dificil_p2_sofa.png',
+    imagen_cuatro: '/intrusos/dificil_p2_nevera.png',
+    imagen_intrusa: '/intrusos/dificil_p2_nevera.png',
+    nivel: 'dificil',
+    explicacion: 'La nevera es el intruso porque es un electrodoméstico, mientras que el resto son muebles.'
+  },
+  {
+    imagen_uno: '/intrusos/dificil_p3_coche.png',
+    imagen_dos: '/intrusos/dificil_p3_bici.png',
+    imagen_tres: '/intrusos/dificil_p3_moto.png',
+    imagen_cuatro: '/intrusos/dificil_p3_barco.png',
+    imagen_intrusa: '/intrusos/dificil_p3_barco.png',
+    nivel: 'dificil',
+    explicacion: 'El barco es el intruso porque es el único medio de transporte acuático, mientras que el resto circulan por tierra.'
+  }
+];
 
+for (const intrusoData of intrusosData) {
+  await Intruso.findOrCreate({
+    where: { imagen_intrusa: intrusoData.imagen_intrusa, nivel: intrusoData.nivel },
+    defaults: intrusoData
+  });
+}
+
+console.log('✅ Intrusos insertados correctamente');
 
         console.log('Datos de prueba insertados correctamente.');
 
