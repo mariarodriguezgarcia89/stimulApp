@@ -99,7 +99,7 @@ function seleccionarDificultad(nivel) {
         </div>
       </div>
 
-      <div class="juego-card" @click="router.push('/juego/intruso')">
+      <div class="juego-card" @click="juegoSeleccionado = 'intruso'">
         <img src="@/assets/icono-intruso.png" alt="Encuentra el intruso" class="juego-icono" />
         <div class="juego-info">
           <h2>Encuentra el intruso</h2>

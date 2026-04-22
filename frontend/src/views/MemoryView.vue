@@ -135,7 +135,10 @@ function voltearCarta(carta){
             </div>
         </div>
 
-        <ModalSalir v-if="mostrarModalSalir" @confirmar="router.push('/menu')" @cancelar="mostrarModalSalir = false" />
+        <ModalSalir v-if="mostrarModalSalir" 
+        @confirmar="router.push('/menu')" 
+        @cancelar="mostrarModalSalir = false" 
+        />
         <ModalFinPartida 
             v-if="mostrarModalFin" 
             :puntos="puntos" 

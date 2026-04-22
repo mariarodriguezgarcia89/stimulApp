@@ -5,6 +5,7 @@ import PerfilView from '@/views/PerfilView.vue'
 import MenuView from '@/views/MenuView.vue' 
 import RefranView from '@/views/RefranView.vue'
 import MemoryView from '@/views/MemoryView.vue'
+import IntrusoView from '@/views/IntrusoView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,7 +41,11 @@ const router = createRouter({
     { path: '/juego/memory', 
       name: 'Memory', 
       component: MemoryView 
-    }
+    },
+    { path: '/juego/intruso', 
+      name: 'Intruso', 
+      component: IntrusoView 
+    },
   ],
 })
 

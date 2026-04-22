@@ -5,7 +5,7 @@ import ModalFinPartida from '@/components/shared/ModalFinPartida.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePartida } from '@/composables/usePartida'
-const { finalizarPartida, confirmarSalida, salirAlMenu } = usePartida()
+const { finalizarPartida } = usePartida()
 
 const router = useRouter()
 const route = useRoute()
@@ -189,12 +189,13 @@ function iniciarTemporizador() {
     <ModalFinPartida 
         v-if="mostrarModalFin"
         :puntos="puntos"
+        puntuacionHistorica=""
         labelAcertados="refranes"
         :acertados="acertados"
         :total="refranes.length"
         :saltados="saltados"
         @jugarOtraVez="jugarOtraVez"
-        @cerrar="salirAlMenu"
+        @cerrar="router.push('/menu')"
 />
 </template>
 
