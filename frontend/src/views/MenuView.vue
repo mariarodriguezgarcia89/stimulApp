@@ -251,36 +251,19 @@ function seleccionarDificultad(nivel) {
   font-size: 18px;
   color: var(--color-texto-suave);
 }
-
 .juegos {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  /* Si la pantalla es pequeña 1 columna, si es grande hasta 3 */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+  gap: 24px;
+  width: 100%;
 }
 
 .juego-card {
-  background-color: white;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border-left: 6px solid var(--color-principal);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.juego-card:hover {
-  transform: scale(1.02);
-}
-
-.juego-icono {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  flex-shrink: 0;
+  flex-direction: column; /* Icono arriba, texto abajo para aprovechar el grid */
+  text-align: center;
+  padding: 30px;
+  height: 100%;
 }
 
 .juego-info {

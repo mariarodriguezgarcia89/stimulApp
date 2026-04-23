@@ -106,38 +106,62 @@ function voltearCarta(carta){
 
     }
 
+    function jugarOtraVez() {
+    puntos.value = 0
+    fallos.value = 0
+    acertados.value = 0
+    cartasVolteadas.value = []
+    bloqueado.value = false
+    mostrarModalFin.value = false
+    clearInterval(temporizador)
+    generarCartas()
+    cartas.value.forEach(carta => carta.visible = true)
+    setTimeout(() => {
+        cartas.value.forEach(carta => carta.visible = false)
+    }, 3000)
+    fechaInicio.value = Date.now()
+    if (dificultad === 'dificil') iniciarTemporizador()
+}
+
+
 </script>
-
-
 <template>
-
     <div class="memory-container">
-        <div class="header">
-            <h1>Juego de Memoria</h1>
-            <button class="btn-salir" @click="mostrarModalSalir = true">Salir</button>
+
+        <div class="caja cabecera-juego">
+            <div class="juego-cabecera">
+                <div class="cabecera-izquierda">
+                    <h1>🧠 Juego de Memoria</h1>
+                    <div class="info">
+                        <span>Puntos: <strong>{{ puntos }}</strong></span>
+                        <span v-if="dificultad === 'dificil'"
+                              :class="['temporizador', { urgente: tiempoRestante <= 10 }]">
+                            ⏱ {{ tiempoRestante }}s
+                        </span>
+                    </div>
+                </div>
+                <button class="btn-salir" @click="mostrarModalSalir = true">✕ Salir</button>
+            </div>
         </div>
 
-        <div class="info">
-            <p>Puntos: {{ puntos }}</p>
-            <p v-if="dificultad === 'dificil'">Tiempo restante: {{ tiempoRestante }}s</p>
-        </div>
-
-        <div class="tablero">
-            <div 
-                v-for="carta in cartas" 
-                :key="carta.id" 
-                class="carta" 
-                :class="{ visible: carta.visible, emparejada: carta.emparejada }"
-                @click="voltearCarta(carta)"
+        <div class="tablero-container">
+            <div class="tablero">
+                <div 
+                    v-for="carta in cartas" 
+                    :key="carta.id" 
+                    class="carta" 
+                    :class="{ visible: carta.visible, emparejada: carta.emparejada }"
+                    @click="voltearCarta(carta)"
                 >
-                <img v-if="!carta.visible && !carta.emparejada" :src="cartaReverso" class="carta-img" />
-                <span v-else>{{ carta.valor }}</span>
+                    <img v-if="!carta.visible && !carta.emparejada" :src="cartaReverso" class="carta-img" />
+                    <span v-else>{{ carta.valor }}</span>
+                </div>
             </div>
         </div>
 
         <ModalSalir v-if="mostrarModalSalir" 
-        @confirmar="router.push('/menu')" 
-        @cancelar="mostrarModalSalir = false" 
+            @confirmar="router.push('/menu')" 
+            @cancelar="mostrarModalSalir = false" 
         />
         <ModalFinPartida 
             v-if="mostrarModalFin" 
@@ -149,86 +173,81 @@ function voltearCarta(carta){
             @cerrar="router.push('/menu')"
             @jugarOtraVez="jugarOtraVez"
         />
-    </div>
 
+    </div>
 </template>
 
 <style scoped>
-
 .memory-container {
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 24px 20px 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 30px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.cabecera-izquierda {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.btn-salir {
-  background: transparent;
-  border: 1px solid var(--color-borde);
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 15px;
-  cursor: pointer;
-  color: var(--color-texto-suave);
-}
-
-.btn-salir:hover {
-  background-color: var(--color-borde);
-}
-
-h1 {
-    font-size: 1.5rem;
-    color: var(--color-principal);
-}
-
-.info {
-    display: flex;
-    gap: 2rem;
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: var(--color-texto-suave);
+.cabecera-juego {
+  padding: 20px 28px;
+  border-top: 6px solid var(--color-principal);
 }
 
 .tablero {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    width: 100%;
-    max-width: 480px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
 }
 
 .carta {
-    background-color: var(--color-principal);
-    border-radius: 12px;
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  background-color: var(--color-principal);
+  border-radius: 12px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s;
 }
 
-.carta:not(.visible):not(.emparejada) {
-    background-color: #8B2635;
+.carta:hover:not(.emparejada) {
+  transform: scale(1.04);
 }
 
-.carta.visible, .carta.emparejada {
-    background-color: var(--color-principal);
+.carta.visible,
+.carta.emparejada {
+  background-color: #d4edda;
+  border: 2px solid #28a745;
+}
+
+.carta.emparejada {
+  cursor: default;
 }
 
 .carta-img {
-    width: 70%;
-    height: 70%;
-    object-fit: contain;
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
 }
 
+.info {
+  display: flex;
+  gap: 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--color-texto);
+}
+
+h1 {
+  font-size: 1.6rem;
+  color: var(--color-principal);
+  font-weight: 700;
+}
 </style>

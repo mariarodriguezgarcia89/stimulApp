@@ -56,7 +56,7 @@ function handleLogin() {
             id="password" 
             v-model="password" 
             :type="mostrarPassword ? 'text' : 'password'"
-            @keyup.enter="handleLogin"RegistroView.vue
+            @keyup.enter="handleLogin"
              />
             <button type="button" @click="mostrarPassword = !mostrarPassword">
             {{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}
