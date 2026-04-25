@@ -6,6 +6,7 @@ const isLarge = ref(false)
 
 function toggleDarkMode() {
   isDark.value = !isDark.value
+  console.log('toggleDarkMode llamado, isDark ahora es:', isDark.value)
   const theme = isDark.value ? 'dark' : 'light'
   document.documentElement.setAttribute('data-theme', theme)
 }
@@ -23,12 +24,12 @@ function toggleFontSize() {
       <button @click="toggleDarkMode">
         {{ isDark ? '☀️' : '🌙' }}
       </button>
-      <span class="etiqueta">{{ isDark ? 'Ver claro' : 'Ver oscuro' }}</span>
+      <span class="etiqueta">MODO</span>
     </div>
 
     <div class="control-group">
       <button @click="toggleFontSize">Aa</button>
-      <span class="etiqueta">{{ isLarge ? 'Letra normal' : 'Letra grande' }}</span>
+      <span class="etiqueta">ZOOM</span>
     </div>
   </div>
   <router-view></router-view>

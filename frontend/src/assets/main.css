@@ -25,27 +25,35 @@
   --color-texto-suave: #ccbbaa;
 }
 
+[data-theme="dark"] .icono-oscuro {
+  filter: invert(1)  brightness(2);
+}
 /* ========================================================
    3. SISTEMA DE ESCALADO (ZOOM PROPORCIONAL)
    ======================================================== */
-/* Base: Preparamos los contenedores para que la animación sea fluida al ir y volver */
-.pagina-container,
+/* Base: Preparamos los contenedores para que la animación sea fluida al ir y volver
+/* .pagina-container,
 .juego-container,
 .registro-container,
 .perfil-container,
+.menu-container,
 .login-container {
   transform-origin: top center;
   transition: transform 0.3s ease, margin-top 0.3s ease;
-}
+} */
 
 /* Estado activo: Aumenta el tamaño un 15% */
-[data-size="large"] .pagina-container,
+/* [data-size="large"] .pagina-container,
 [data-size="large"] .juego-container,
 [data-size="large"] .registro-container,
 [data-size="large"] .perfil-container,
+[data-size="large"] .menu-container,
 [data-size="large"] .login-container {
-  transform: scale(1.15);
-  margin-top: 30px;
+  zoom: 1.15;
+} */ 
+
+html[data-size="large"] {
+  zoom: 1.15;
 }
 
 /* ========================================================
@@ -341,4 +349,12 @@ input:focus {
 /* También aseguramos que el texto que escribe el usuario sea claro */
 [data-theme="dark"] input {
   color: var(--color-texto) !important;
+}
+
+#app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-fondo);
+  min-height: 100vh;
 }
