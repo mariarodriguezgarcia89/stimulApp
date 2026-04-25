@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 const isDark = ref(false)
 const isLarge = ref(false)
@@ -35,6 +35,7 @@ function toggleFontSize() {
 </template>
 
 <style scoped>
+/* ─── SOLO POSICIONAMIENTO DE LOS BOTONES FLOTANTES ─── */
 .accesibilidad-float {
   position: fixed;
   top: 20px;
@@ -44,34 +45,33 @@ function toggleFontSize() {
   z-index: 1000;
 }
 
+/* Usamos class en lugar de selectores puros para aislar este contenedor */
+.control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
 .control-group button {
-  width: 65px !important;  /* Forzamos tamaño fijo */
-  height: 65px !important; 
+  width: 65px; 
+  height: 65px; 
   border-radius: 50%;
   border: 3px solid var(--color-principal);
-  background: var(--color-caja);
-  font-size: 24px !important; /* El icono no debe crecer */
+  background: var(--color-caja); /* Usa la variable global */
+  font-size: 24px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  
-  /* Centrado perfecto del icono */
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 0; 
-  padding: 0;
+  transition: all 0.3s ease; /* Transición suave al cambiar de tema */
 }
 
 .etiqueta {
-  font-size: 14px !important; /* La leyenda también fija para que no empuje todo */
+  font-size: 14px; 
   font-weight: bold;
-  color: var(--color-texto);
-  margin-top: 5px;
-}
-
-/* En modo oscuro, la etiqueta debe leerse bien */
-[data-theme="dark"] .etiqueta {
-  color: white;
-  background: #333;
+  /* El color se lo da el main.css dependiendo del tema */
+  text-align: center;
 }
 </style>

@@ -1,118 +1,79 @@
 /* ─── IMPORTACIÓN DE FUENTE ─── */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
 
-/* ─── VARIABLES GLOBALES ─── */
+/* ========================================================
+   1. VARIABLES GLOBALES (PALETA DE COLORES)
+   ======================================================== */
 :root {
   --color-fondo: #f5f0e8;
   --color-principal: #7b1f2e;
   --color-principal-hover: #5e1622;
-  --color-texto: #2c2c2c;
+  --color-texto: #000000; /* Texto base en negro puro para máxima legibilidad */
   --color-texto-suave: #555555;
   --color-borde: #ccbbaa;
-  --color-caja: white; /* Variable para el fondo de las tarjetas */
+  --color-caja: white; 
 }
 
-/* ─── MODO OSCURO ─── */
+/* ========================================================
+   2. MODO OSCURO (REASIGNACIÓN DE VARIABLES)
+   ======================================================== */
 [data-theme="dark"] {
   --color-fondo: #1a1a1a;
   --color-caja: #2d2d2d;
   --color-borde: #444444;
+  --color-texto: #f5f0e8; /* El texto principal pasa a beige claro */
+  --color-texto-suave: #ccbbaa;
 }
 
-/* EL LOGO: Se vuelve blanco/claro sobre fondo negro */
-[data-theme="dark"] .logo {
-  filter: invert(1) brightness(2) !important;
+/* ========================================================
+   3. SISTEMA DE ESCALADO (ZOOM PROPORCIONAL)
+   ======================================================== */
+/* Base: Preparamos los contenedores para que la animación sea fluida al ir y volver */
+.pagina-container,
+.juego-container,
+.registro-container,
+.perfil-container,
+.login-container {
+  transform-origin: top center;
+  transition: transform 0.3s ease, margin-top 0.3s ease;
 }
 
-/* LAS FRASES: Siempre en NEGRO como pediste */
-.bienvenida, 
-label, 
-.help-text, 
-.registro-link,
-.registro-link a {
-  color: #000000 !important;
-  font-weight: 700;
-}
-
-/* ─── EL ENLACE "REGÍSTRATE AQUÍ" ─── */
-/* En modo claro: Granate resaltado */
-.registro-link a {
-  color: #7b1f2e !important;
-  text-decoration: underline;
-}
-
-/* En modo oscuro: Azul claro para que brille sobre el fondo oscuro */
-[data-theme="dark"] .registro-link a {
-  color: #60a5fa !important;
-  text-decoration: underline;
-}
-
-/* --- ESTILO PARA LOS BOTONES DE ACCESIBILIDAD --- */
-
-/* Por defecto (Modo Claro) */
-.control-group button {
-  color: #000000; /* El Aa se verá negro en modo claro */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-/* Color específico para el SOL/LUNA */
-/* Como es el primer grupo de control, le damos color al emoji */
-.control-group:first-child button {
-  color: #f39c12 !important; /* Naranja para el Sol */
-}
-
-/* --- AJUSTES EN MODO OSCURO --- */
-
-/* Fondo de los botones en modo oscuro */
-[data-theme="dark"] .control-group button {
-  background-color: #333333 !important;
-  border-color: #f5f0e8 !important;
-}
-
-/* El texto "Aa" pasa a BEIGE en modo oscuro para que se lea */
-[data-theme="dark"] .control-group:last-child button {
-  color: #f5f0e8 !important;
-}
-
-/* La luna en modo oscuro (opcional, si quieres que cambie de color) */
-[data-theme="dark"] .control-group:first-child button {
-  color: #f1c40f !important; /* Amarillo brillante para la Luna */
-}
-
-/* Las etiquetas de texto debajo de los botones */
-[data-theme="dark"] .etiqueta {
-  color: #f5f0e8 !important;
-}
-
-/* ─── CONFIGURACIÓN AGRANDAR (ZOOM PROPORCIONAL) ─── */
+/* Estado activo: Aumenta el tamaño un 15% */
 [data-size="large"] .pagina-container,
 [data-size="large"] .juego-container,
 [data-size="large"] .registro-container,
 [data-size="large"] .perfil-container,
 [data-size="large"] .login-container {
-  transform: scale(1.15); /* Aumenta un 15% todo el componente */
-  transform-origin: top center;
+  transform: scale(1.15);
   margin-top: 30px;
-  transition: transform 0.3s ease;
 }
 
-/* ─── RESET BÁSICO ─── */
+/* ========================================================
+   4. RESET BÁSICO Y ESTILOS DE ETIQUETAS GLOBALES
+   ======================================================== */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+html, body {
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-fondo); /* Aplica el fondo a la raíz también */
+}
+
 body {
-  background-color: var(--color-fondo);
   color: var(--color-texto);
   font-family: 'Nunito', sans-serif;
   font-size: 18px;
   line-height: 1.6;
   transition: background-color 0.3s ease;
+  /* Centramos el contenido verticalmente para que quede perfecto */
+  display: flex;
+  flex-direction: column;
 }
 
 a {
@@ -125,19 +86,95 @@ a:hover {
   text-decoration: underline;
 }
 
-/* ─── CONTENEDORES PRINCIPALES ─── */
-.pagina-container {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 20px 30px 60px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  transition: transform 0.3s ease;
+h1 {
+  font-size: 28px;
+  color: var(--color-principal);
+  text-align: center;
+  margin-bottom: 10px;
 }
 
-/* ─── CAJA BLANCA (Login, Registro, Perfil) ─── */
+/* Títulos en modo oscuro */
+[data-theme="dark"] h1 {
+  color: var(--color-texto) !important; 
+}
+
+/* Textos clave forzados a contrastar bien en ambos modos */
+.bienvenida, 
+label, 
+.help-text, 
+.registro-link {
+  color: #000000 !important;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .bienvenida, 
+[data-theme="dark"] label, 
+[data-theme="dark"] .help-text, 
+[data-theme="dark"] .registro-link {
+  color: var(--color-texto) !important;
+}
+
+/* Nuevo bloque exclusivo para el texto de ayuda */
+/* Nuevo bloque exclusivo para el texto de ayuda */
+.help-text {
+  font-size: 16px; /* Lo subimos para que sea mucho más cómodo de leer */
+  display: block;
+  margin-top: 4px; /* Un poco de aire para separarlo del cuadro de texto */
+}
+
+/* Enlace especial de registro/login */
+.registro-link a {
+  color: #7b1f2e !important;
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .registro-link a {
+  color: #60a5fa !important; /* Azul celeste para destacar sobre negro */
+}
+
+/* El Logo en modo oscuro (se invierte a blanco) */
+[data-theme="dark"] .logo {
+  filter: invert(1) brightness(2) !important;
+}
+
+/* ========================================================
+   5. BOTONES FLOTANTES DE ACCESIBILIDAD (App.vue)
+   ======================================================== */
+/* Colores por defecto para los iconos dentro de los botones */
+.control-group button {
+  color: #000000;
+}
+
+/* Sol (siempre naranja/amarillo) */
+.control-group:first-child button {
+  color: #f39c12 !important; 
+}
+
+/* Botones en modo oscuro */
+[data-theme="dark"] .control-group button {
+  background-color: #333333 !important;
+  border-color: var(--color-texto) !important;
+}
+
+/* La letra Aa se vuelve beige en modo oscuro */
+[data-theme="dark"] .control-group:last-child button {
+  color: var(--color-texto) !important;
+}
+
+/* La luna en modo oscuro */
+[data-theme="dark"] .control-group:first-child button {
+  color: #f1c40f !important; 
+}
+
+/* Textos bajo los botones flotantes */
+[data-theme="dark"] .etiqueta {
+  color: var(--color-texto) !important;
+}
+
+/* ========================================================
+   6. COMPONENTES REUTILIZABLES (CAJAS Y FORMULARIOS)
+   ======================================================== */
+/* Contenedor blanco/oscuro principal */
 .caja {
   background-color: var(--color-caja);
   border-radius: 16px;
@@ -148,57 +185,73 @@ a:hover {
   flex-direction: column;
   gap: 16px;
   border-top: 6px solid var(--color-principal);
-  color: var(--color-texto); /* Para que el texto sea blanco en modo oscuro */
-}
-
-/* ─── CONTENEDOR DE VISTA DE JUEGO ─── */
-.juego-container {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 24px 30px 60px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  transition: transform 0.3s ease;
-}
-
-.juego-cabecera {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.juego-titulo {
-  font-size: 1.6rem;
-  color: var(--color-principal);
-  font-weight: 700;
-}
-
-.juego-info {
-  display: flex;
-  gap: 24px;
-  font-size: 1.1rem;
-  font-weight: bold;
   color: var(--color-texto);
+  transition: background-color 0.3s ease;
 }
 
-/* ─── RECUADRO DEL TABLERO DE JUEGO ─── */
-.tablero-container {
-  background-color: var(--color-caja);
-  border-radius: 16px;
-  padding: 32px;
+/* Estructura de campos */
+.campo {
   width: 100%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border-left: 6px solid var(--color-principal);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 24px;
+  gap: 6px;
 }
 
-/* ─── BOTONES ─── */
+/* Entradas de texto generales */
+input {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  border: 2px solid var(--color-borde);
+  border-radius: 8px;
+  font-family: inherit;
+  color: #000000;
+  background-color: white; 
+}
+
+input:focus {
+  border-color: var(--color-principal);
+  outline: none;
+}
+
+/* Inputs en modo oscuro */
+[data-theme="dark"] input {
+  background-color: #1a1a1a;
+  color: var(--color-texto);
+  border-color: var(--color-borde);
+}
+
+/* Wrapper para los inputs de contraseña con botón Mostrar/Ocultar */
+.password-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.password-wrapper input {
+  flex: 1;
+}
+
+.password-wrapper button {
+  background-color: var(--color-caja);
+  color: var(--color-principal);
+  border: 2px dashed var(--color-principal);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 90px;
+}
+
+[data-theme="dark"] .password-wrapper button {
+  background-color: #333333;
+  color: var(--color-texto);
+  border-color: var(--color-texto);
+}
+
+/* Botón de acción principal */
 .btn-principal {
   width: 100%;
   padding: 16px;
@@ -210,61 +263,19 @@ a:hover {
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.2s;
+  margin-top: 8px;
 }
 
 .btn-principal:hover {
   background-color: var(--color-principal-hover);
 }
 
-.btn-secundario {
-  width: 100%;
-  padding: 14px;
-  font-size: 1.05rem;
-  font-weight: bold;
-  background-color: var(--color-caja);
-  color: var(--color-principal);
-  border: 2px solid var(--color-principal);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-/* ─── FORMULARIOS ─── */
-.campo {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-label {
-  font-size: 1rem;
-  font-weight: bold;
-  color: var(--color-texto); /* Blanco en modo oscuro */
-}
-
-input {
-  width: 100%;
-  padding: 14px;
-  font-size: 1rem;
-  border: 2px solid var(--color-borde);
-  border-radius: 8px;
-  font-family: inherit;
-  color: var(--color-texto);
-  background-color: var(--color-caja); /* Fondo oscuro en modo oscuro */
-}
-
-input:focus {
-  border-color: var(--color-principal);
-  outline: none;
-}
-
-/* ─── MENSAJES ─── */
+/* Caja de errores globales */
 .error {
   color: #ffffff;
   font-size: 0.95rem;
   font-weight: bold;
-  background-color: #c0392b; /* Fondo sólido para que se vea siempre bien */
+  background-color: #c0392b;
   border-radius: 8px;
   padding: 12px 16px;
   width: 100%;
@@ -275,22 +286,59 @@ input:focus {
   text-align: center;
 }
 
-.help-text, .bienvenida, .registro-link {
-  color: var(--color-texto-suave);
+/* ========================================================
+   8. SISTEMA DE REJILLA (GRID) RESPONSIVE PARA FORMULARIOS
+   ======================================================== */
+/* Por defecto (móvil): 1 columna */
+.formulario-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* ─── TEMPORIZADOR Y FEEDBACK ─── */
-.temporizador {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: var(--color-principal);
+/* En pantallas grandes (ordenador/tablet horizontal): 2 columnas */
+@media (min-width: 768px) {
+  .formulario-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas del mismo ancho */
+    gap: 24px 20px;
+  }
+  
+  /* Utilidad para obligar a un campo a ocupar todo el ancho (ej: Email) */
+  .fila-completa {
+    grid-column: 1 / -1;
+  }
 }
 
-.feedback {
-  border-radius: 12px;
-  padding: 16px 20px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  text-align: center;
-  width: 100%;
+.fecha-selector-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1.5fr; /* El mes necesita más espacio */
+  gap: 10px;
+}
+
+.select-grande {
+  padding: 14px;
+  font-size: 18px;
+  border: 2px solid var(--color-borde);
+  border-radius: 8px;
+  background-color: var(--color-caja);
+  color: var(--color-texto);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+[data-theme="dark"] .select-grande {
+  background-color: #1a1a1a;
+  color: #f5f0e8;
+}
+
+/* Color de los textos de ejemplo (placeholder) en modo oscuro */
+[data-theme="dark"] input::placeholder {
+  color: #aaaaaa; /* Un gris mucho más claro para que resalte */
+  opacity: 1; /* Evita que el navegador le baje la intensidad */
+}
+
+/* También aseguramos que el texto que escribe el usuario sea claro */
+[data-theme="dark"] input {
+  color: var(--color-texto) !important;
 }

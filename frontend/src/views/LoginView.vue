@@ -2,15 +2,12 @@
 import { ref } from 'vue'
 import authService from '@/services/authService'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const email = ref('')
 const password = ref('')
 const mostrarPassword = ref(false)
 const error = ref('')
-const errorEmail = ref('')
-const errorPassword = ref('')
-import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const exito = ref(route.query.registro === 'exitoso' ? 
@@ -35,58 +32,72 @@ function handleLogin() {
 <template>
   <div class="login-container">
     <img src="@/assets/logo.png" alt="Logo StimulApp" class="logo" />
-    <div class="login-box">
+    
+    <div class="caja">
         <h1>Iniciar sesión</h1>
         <p class="bienvenida">Bienvenido/a a StimulApp 😊</p>
+        
         <p v-if="exito" class="exito">{{ exito }}</p>
+        
         <div class="campo">
-        <label for="email">Correo electrónico</label>
-        <input 
-        :class="{ 'input-error': error }"
-        id="email" 
-        v-model="email" 
-        type="email" 
-        placeholder="ejemplo@correo.com" />
+          <label for="email">Correo electrónico</label>
+          <input 
+            :class="{ 'input-error': error }"
+            id="email" 
+            v-model="email" 
+            type="email" 
+            placeholder="ejemplo@correo.com" />
         </div>
 
         <div class="campo">
-        <label for="password">Contraseña</label>
-        <div class="password-wrapper">
-            <input 
-            id="password" 
-            v-model="password" 
-            :type="mostrarPassword ? 'text' : 'password'"
-            @keyup.enter="handleLogin"
-             />
-            <button type="button" @click="mostrarPassword = !mostrarPassword">
-            {{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}
-            </button>
-        </div>
-         <small class="help-text">
-            Pulse <strong>{{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}</strong> 
+          <label for="password">Contraseña</label>
+          <div class="password-wrapper">
+              <input 
+                id="password" 
+                v-model="password" 
+                :type="mostrarPassword ? 'text' : 'password'"
+                @keyup.enter="handleLogin"
+               />
+              <button type="button" @click="mostrarPassword = !mostrarPassword">
+                {{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}
+              </button>
+          </div>
+          <small class="help-text">
+            👆 Pulse <strong>{{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}</strong> 
             para {{ mostrarPassword ? 'ocultar' : 'ver' }} lo que está escribiendo
-        </small>
+          </small>
+        </div>
+
+        <ul v-if="error" class="error">
+          <li>⚠️ {{ error }}</li>
+        </ul>
+
+        <button class="btn-principal" @click="handleLogin">Iniciar sesión</button>
+
+        <p class="registro-link">
+          ¿No tienes cuenta?
+          <RouterLink to="/registro">Regístrate aquí</RouterLink>
+        </p>
     </div>
-
-    <p v-if="error" class="error">{{ error }}</p>
-
-    <button class="btn-principal" @click="handleLogin">Iniciar sesión</button>
-
-    <p class="registro-link">
-      ¿No tienes cuenta?
-      <RouterLink to="/registro">Regístrate aquí</RouterLink>
-    </p>
-  </div>
   </div>
 </template>
 
 <style scoped>
+/* ─── SOLO POSICIONAMIENTO Y ESTILOS ÚNICOS DE ESTA VISTA ─── */
+.login-container {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
 
-.bienvenida {
-  text-align: center;
-  color: var(--color-texto-suave);
-  font-size: 16px;
-  margin-top: -8px;
+.logo {
+  width: 350px;
+  display: block;
+  margin: 0 auto -40px auto;
 }
 
 .exito {
@@ -101,130 +112,15 @@ function handleLogin() {
   text-align: center;
 }
 
-.login-container {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 20px 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
+/* Exito en modo oscuro (usamos :global para que funcione bien en el componente) */
+:global([data-theme="dark"]) .exito {
+  background-color: #1e3a29;
+  color: #4ade80;
+  border-color: #27ae60;
 }
 
-.login-box {
-  background-color: white;
-  border-radius: 16px;
-  padding: 40px 36px;
-  width: 100%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  border-top: 6px solid var(--color-principal);
-}
-
-.logo {
-  width: 350px;
-  display: block;
-  margin: 0 auto -40px auto;
-}
-
-h1 {
-  font-size: 28px;
-  color: var(--color-principal);
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.campo {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-label {
-  font-size: 18px;
-  color: var(--color-texto);
-  font-weight: bold;
-}
-
-input {
-  width: 100%;
-  padding: 14px;
-  font-size: 18px;
-  border: 2px solid var(--color-borde);
-  border-radius: 8px;
-}
-
-input:focus {
-  border-color: var(--color-principal);
-  outline: none;
-}
-
-.password-wrapper {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.password-wrapper input {
-  flex: 1;
-}
-
-.password-wrapper button {
-  padding: 8px 12px;
-  font-size: 15px;
-  font-weight: bold;
-  color: var(--color-principal);
-  background: none;
-  border: 1px solid var(--color-principal);
-  border-radius: 8px;
-  cursor: pointer;
-  white-space: nowrap;
-  min-width: 90px;
-}
-
-.btn-principal {
-  width: 100%;
-  padding: 16px;
-  font-size: 20px;
-  background-color: var(--color-principal);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 8px;
-}
-
-.btn-principal:hover {
-  background-color: var(--color-principal-hover);
-}
-
-.error {
-  color: #c0392b;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  background-color: #fdecea;
-  border: 1px solid #c0392b;
-  border-radius: 8px;
-  padding: 10px;
-  width: 100%;
-}
-
+/* La clase dinámica de error para el input */
 .input-error {
-  border-color: #c0392b;
-}
-
-.registro-link {
-  font-size: 16px;
-  color: var(--color-texto-suave);
-}
-
-.help-text {
-  font-size: 14px;
-  color: var(--color-texto-suave);
+  border-color: #c0392b !important;
 }
 </style>
