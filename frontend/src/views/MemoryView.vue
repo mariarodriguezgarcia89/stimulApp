@@ -1,6 +1,6 @@
 <script setup>
-import ModalSalir from '@/components/shared/ModalSalir.vue'
-import ModalFinPartida from '@/components/shared/ModalFinPartida.vue'
+import ModalSalir from '@/components/modals/ModalSalir.vue'
+import ModalFinPartida from '@/components/modals/ModalFinPartida.vue'
 import { usePartida } from '@/composables/usePartida'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

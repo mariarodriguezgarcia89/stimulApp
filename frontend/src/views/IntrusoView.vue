@@ -3,8 +3,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import intrusoService from '@/services/intrusoService'
 import { usePartida } from '@/composables/usePartida'
-import ModalSalir from '@/components/shared/ModalSalir.vue'
-import ModalFinPartida from '@/components/shared/ModalFinPartida.vue'
+import ModalSalir from '@/components/modals/ModalSalir.vue'
+import ModalFinPartida from '@/components/modals/ModalFinPartida.vue'
 
 const { finalizarPartida } = usePartida()
 const route = useRoute()

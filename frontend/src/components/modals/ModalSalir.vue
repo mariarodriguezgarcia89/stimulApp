@@ -34,7 +34,7 @@ const emit = defineEmits(['confirmar', 'cancelar'])
 }
 
 .modal-content {
-    background-color: var(--color-fondo);
+    background-color: var(--color-caja);
     border-radius: 20px;
     padding: 2.5rem;
     width: 90%;
@@ -98,7 +98,7 @@ h2 {
 }
 
 p {
-    font-size: 16px;
+    font-size: 20px;
     color: var(--color-texto-suave);
     text-align: center;
     margin: 0;

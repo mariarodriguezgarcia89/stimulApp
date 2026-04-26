@@ -20,3 +20,23 @@ export const mensajes = {
   // --- GENERAL ---
   errorServidor: 'Parece que hay un problema de conexión con nuestro servidor. No se preocupe, inténtelo más tarde.'
 }
+
+// --- INSTRUCCIONES REFRÁN ---
+export const instruccionesRefranFacil = [
+  '📖 Verás la primera parte de un refrán popular español. ¡Seguro que lo conoces!',
+  '👆 Pulsa la opción que creas que completa el refrán correctamente. Hay tres opciones para elegir.',
+  '✅ Si aciertas, ¡genial! Ganas 10 puntos y puedes seguir al siguiente.',
+  '❌ Si te equivocas, no te preocupes — te mostraremos cuál era la respuesta correcta.',
+  '⏭ Si no recuerdas un refrán, puedes saltarlo sin ninguna penalización. ¡No pasa nada!',
+  '🏁 Cuando termines los 10 refranes, verás un resumen con tu puntuación final.'
+]
+
+export const instruccionesRefranDificil = [
+  '📖 Verás la primera parte de un refrán popular español. ¡A ver si lo recuerdas!',
+  '✍️ Escribe tú mismo en el cuadro de texto cómo termina el refrán.',
+  '⏱ Tienes 30 segundos para escribir tu respuesta. ¡Tómate tu tiempo pero no te despistes!',
+  '✅ Si aciertas, ¡estupendo! Ganas 10 puntos y sigues adelante.',
+  '❌ Si se acaba el tiempo o te equivocas, te mostraremos la respuesta correcta.',
+  '⏭ Si no recuerdas un refrán, puedes saltarlo cuando quieras sin penalización.',
+  '🏁 Al terminar los 10 refranes, verás un resumen con tu puntuación final.'
+]

@@ -49,11 +49,11 @@ const emit = defineEmits(['seleccionar', 'cerrar'])
 }
 
 .modal-content {
-    background-color: var(--color-fondo);
+    background-color: var(--color-caja);
     border-radius: 20px;
     padding: 2.5rem;
     width: 90%;
-    max-width: 480px;
+    max-width: 620px;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -121,7 +121,7 @@ h2 {
 }
 
 .btn-descripcion {
-    font-size: 0.9rem;
+    font-size: 1rem;
     opacity: 0.85;
 }
 

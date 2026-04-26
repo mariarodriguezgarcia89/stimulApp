@@ -8,25 +8,25 @@
   --color-fondo: #f5f0e8;
   --color-principal: #7b1f2e;
   --color-principal-hover: #5e1622;
-  --color-texto: #000000; /* Texto base en negro puro para máxima legibilidad */
+  --color-texto: #000000;
   --color-texto-suave: #555555;
   --color-borde: #ccbbaa;
-  --color-caja: white; 
+  --color-caja: white;
 }
 
 /* ========================================================
-   2. MODO OSCURO (REASIGNACIÓN DE VARIABLES)
+   2. MODO OSCURO
    ======================================================== */
 [data-theme="dark"] {
   --color-fondo: #1a1a1a;
   --color-caja: #2d2d2d;
   --color-borde: #444444;
-  --color-texto: #f5f0e8; /* El texto principal pasa a beige claro */
+  --color-texto: #f5f0e8;
   --color-texto-suave: #ccbbaa;
 }
 
 [data-theme="dark"] .icono-oscuro {
-  filter: invert(1)  brightness(2);
+  filter: invert(1) brightness(2);
 }
 
 [data-theme="dark"] .juego-detalle h2 {
@@ -34,35 +34,19 @@
 }
 
 /* ========================================================
-   3. SISTEMA DE ESCALADO (ZOOM PROPORCIONAL)
+   3. SISTEMA DE ESCALADO (ZOOM)
    ======================================================== */
-/* Base: Preparamos los contenedores para que la animación sea fluida al ir y volver
-/* .pagina-container,
-.juego-container,
-.registro-container,
-.perfil-container,
-.menu-container,
-.login-container {
-  transform-origin: top center;
-  transition: transform 0.3s ease, margin-top 0.3s ease;
-} */
-
-/* Estado activo: Aumenta el tamaño un 15% */
-/* [data-size="large"] .pagina-container,
-[data-size="large"] .juego-container,
-[data-size="large"] .registro-container,
-[data-size="large"] .perfil-container,
-[data-size="large"] .menu-container,
-[data-size="large"] .login-container {
-  zoom: 1.15;
-} */ 
-
 html[data-size="large"] {
   zoom: 1.15;
 }
 
+/* Los modales tienen position:fixed y necesitan zoom propio */
+html[data-size="large"] .modal-content {
+  zoom: 1.15;
+}
+
 /* ========================================================
-   4. RESET BÁSICO Y ESTILOS DE ETIQUETAS GLOBALES
+   4. RESET Y ESTILOS GLOBALES
    ======================================================== */
 * {
   box-sizing: border-box;
@@ -75,7 +59,7 @@ html, body {
   width: 100%;
   margin: 0;
   padding: 0;
-  background-color: var(--color-fondo); /* Aplica el fondo a la raíz también */
+  background-color: var(--color-fondo);
 }
 
 body {
@@ -84,9 +68,16 @@ body {
   font-size: 18px;
   line-height: 1.6;
   transition: background-color 0.3s ease;
-  /* Centramos el contenido verticalmente para que quede perfecto */
   display: flex;
   flex-direction: column;
+}
+
+#app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-fondo);
+  min-height: 100vh;
 }
 
 a {
@@ -106,88 +97,81 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* Títulos en modo oscuro */
 [data-theme="dark"] h1 {
-  color: var(--color-texto) !important; 
+  color: var(--color-texto) !important;
 }
 
-/* Textos clave forzados a contrastar bien en ambos modos */
-.bienvenida, 
-label, 
-.help-text, 
+/* ========================================================
+   5. TEXTOS Y ETIQUETAS GLOBALES
+   ======================================================== */
+.bienvenida,
+label,
+.help-text,
 .registro-link {
   color: #000000 !important;
   font-weight: 700;
 }
 
-[data-theme="dark"] .bienvenida, 
-[data-theme="dark"] label, 
-[data-theme="dark"] .help-text, 
+[data-theme="dark"] .bienvenida,
+[data-theme="dark"] label,
+[data-theme="dark"] .help-text,
 [data-theme="dark"] .registro-link {
   color: var(--color-texto) !important;
 }
 
-/* Nuevo bloque exclusivo para el texto de ayuda */
-/* Nuevo bloque exclusivo para el texto de ayuda */
 .help-text {
-  font-size: 16px; /* Lo subimos para que sea mucho más cómodo de leer */
+  font-size: 16px;
   display: block;
-  margin-top: 4px; /* Un poco de aire para separarlo del cuadro de texto */
+  margin-top: 4px;
 }
 
-/* Enlace especial de registro/login */
 .registro-link a {
   color: #7b1f2e !important;
   text-decoration: underline;
 }
 
 [data-theme="dark"] .registro-link a {
-  color: #60a5fa !important; /* Azul celeste para destacar sobre negro */
+  color: #60a5fa !important;
 }
 
-/* El Logo en modo oscuro (se invierte a blanco) */
+/* Logo en modo oscuro */
 [data-theme="dark"] .logo {
   filter: invert(1) brightness(2) !important;
 }
 
 /* ========================================================
-   5. BOTONES FLOTANTES DE ACCESIBILIDAD (App.vue)
+   6. BOTONES FLOTANTES DE ACCESIBILIDAD (App.vue)
    ======================================================== */
-/* Colores por defecto para los iconos dentro de los botones */
 .control-group button {
   color: #000000;
 }
 
-/* Sol (siempre naranja/amarillo) */
 .control-group:first-child button {
-  color: #f39c12 !important; 
+  color: #f39c12 !important;
 }
 
-/* Botones en modo oscuro */
 [data-theme="dark"] .control-group button {
   background-color: #333333 !important;
   border-color: var(--color-texto) !important;
 }
 
-/* La letra Aa se vuelve beige en modo oscuro */
 [data-theme="dark"] .control-group:last-child button {
   color: var(--color-texto) !important;
 }
 
-/* La luna en modo oscuro */
 [data-theme="dark"] .control-group:first-child button {
-  color: #f1c40f !important; 
+  color: #f1c40f !important;
 }
 
-/* Textos bajo los botones flotantes */
 [data-theme="dark"] .etiqueta {
   color: var(--color-texto) !important;
 }
 
 /* ========================================================
-   6. COMPONENTES REUTILIZABLES (CAJAS Y FORMULARIOS)
+   7. COMPONENTES REUTILIZABLES
    ======================================================== */
-/* Contenedor blanco/oscuro principal */
+
+/* Caja principal */
 .caja {
   background-color: var(--color-caja);
   border-radius: 16px;
@@ -202,7 +186,7 @@ label,
   transition: background-color 0.3s ease;
 }
 
-/* Estructura de campos */
+/* Campos de formulario */
 .campo {
   width: 100%;
   display: flex;
@@ -210,7 +194,7 @@ label,
   gap: 6px;
 }
 
-/* Entradas de texto generales */
+/* Inputs */
 input {
   width: 100%;
   padding: 14px;
@@ -219,7 +203,7 @@ input {
   border-radius: 8px;
   font-family: inherit;
   color: #000000;
-  background-color: white; 
+  background-color: white;
 }
 
 input:focus {
@@ -227,14 +211,18 @@ input:focus {
   outline: none;
 }
 
-/* Inputs en modo oscuro */
 [data-theme="dark"] input {
   background-color: #1a1a1a;
-  color: var(--color-texto);
+  color: var(--color-texto) !important;
   border-color: var(--color-borde);
 }
 
-/* Wrapper para los inputs de contraseña con botón Mostrar/Ocultar */
+[data-theme="dark"] input::placeholder {
+  color: #aaaaaa;
+  opacity: 1;
+}
+
+/* Wrapper contraseña */
 .password-wrapper {
   display: flex;
   gap: 8px;
@@ -264,7 +252,7 @@ input:focus {
   border-color: var(--color-texto);
 }
 
-/* Botón de acción principal */
+/* Botón principal */
 .btn-principal {
   width: 100%;
   padding: 16px;
@@ -283,7 +271,63 @@ input:focus {
   background-color: var(--color-principal-hover);
 }
 
-/* Caja de errores globales */
+/* Botón volver (PerfilView) */
+.btn-volver {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: inherit;
+  background-color: transparent;
+  color: var(--color-principal);
+  border: 2px solid var(--color-principal);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-volver:hover {
+  background-color: var(--color-fondo);
+}
+
+[data-theme="dark"] .btn-volver {
+  color: var(--color-texto);
+  border-color: var(--color-texto);
+}
+
+[data-theme="dark"] .btn-volver:hover {
+  background-color: #333333;
+}
+
+/* Botón cerrar sesión (PerfilView) */
+.btn-cerrar {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: inherit;
+  background-color: transparent;
+  color: #d32f2f;
+  border: 2px solid #d32f2f;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cerrar:hover {
+  background-color: #fdecea;
+}
+
+[data-theme="dark"] .btn-cerrar {
+  color: #e57373;
+  border-color: #e57373;
+}
+
+[data-theme="dark"] .btn-cerrar:hover {
+  background-color: #3a1a1a;
+}
+
+/* Caja de errores */
 .error {
   color: #ffffff;
   font-size: 0.95rem;
@@ -300,24 +344,21 @@ input:focus {
 }
 
 /* ========================================================
-   8. SISTEMA DE REJILLA (GRID) RESPONSIVE PARA FORMULARIOS
+   8. GRID DE FORMULARIOS
    ======================================================== */
-/* Por defecto (móvil): 1 columna */
 .formulario-grid {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* En pantallas grandes (ordenador/tablet horizontal): 2 columnas */
 @media (min-width: 768px) {
   .formulario-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Dos columnas del mismo ancho */
+    grid-template-columns: 1fr 1fr;
     gap: 24px 20px;
   }
-  
-  /* Utilidad para obligar a un campo a ocupar todo el ancho (ej: Email) */
+
   .fila-completa {
     grid-column: 1 / -1;
   }
@@ -325,7 +366,7 @@ input:focus {
 
 .fecha-selector-grid {
   display: grid;
-  grid-template-columns: 1fr 2fr 1.5fr; /* El mes necesita más espacio */
+  grid-template-columns: 1fr 2fr 1.5fr;
   gap: 10px;
 }
 
@@ -345,75 +386,85 @@ input:focus {
   color: #f5f0e8;
 }
 
-/* Color de los textos de ejemplo (placeholder) en modo oscuro */
-[data-theme="dark"] input::placeholder {
-  color: #aaaaaa; /* Un gris mucho más claro para que resalte */
-  opacity: 1; /* Evita que el navegador le baje la intensidad */
-}
-
-/* También aseguramos que el texto que escribe el usuario sea claro */
-[data-theme="dark"] input {
-  color: var(--color-texto) !important;
-}
-
-#app {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--color-fondo);
-  min-height: 100vh;
-}
-
-.btn-volver {
-  width: 100%;
-  padding: 14px;
-  font-size: 1rem;
-  font-weight: bold;
-  font-family: inherit;
-  background-color: transparent;
-  color: var(--color-principal);
-  border: 2px solid var(--color-principal);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-cerrar {
-  width: 100%;
-  padding: 14px;
-  font-size: 1rem;
-  font-weight: bold;
-  font-family: inherit;
-  background-color: transparent;
-  color: #d32f2f;
-  border: 2px solid #d32f2f;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-[data-theme="dark"] .btn-volver {
-  color: var(--color-texto);
-  border-color: var(--color-texto);
-}
-
-[data-theme="dark"] .btn-cerrar {
-  color: #e57373;
-  border-color: #e57373;
-}
-
-
-
-[data-theme="dark"] .btn-volver:hover {
-  background-color: #333333;
-}
-
-[data-theme="dark"] .btn-cerrar:hover {
-  background-color: #3a1a1a;
-}
-
+/* ========================================================
+   9. PERFIL — SECCIONES CON BORDE DISCONTINUO
+   ======================================================== */
 [data-theme="dark"] .seccion-cuidador,
 [data-theme="dark"] .bloque-foto,
 [data-theme="dark"] .bloque-datos {
   border-color: #888888;
+}
+
+/* ========================================================
+   10. MODALES
+   ======================================================== */
+.modal-content {
+  background-color: var(--color-caja);
+  border-top: 6px solid var(--color-principal);
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: #2d2d2d;
+  border: 2px solid #666666;
+  border-top: 6px solid var(--color-principal);
+}
+
+[data-theme="dark"] .modal-content h2 {
+  color: #f5f0e8 !important;
+}
+
+/* Tarjetas de estadísticas (ModalFinPartida) */
+.stat-card {
+  border: 1px solid var(--color-borde);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .stat-card {
+  background-color: #1a1a1a;
+  border-color: var(--color-principal);
+  border-top: 4px solid var(--color-principal);
+  box-shadow: none;
+}
+
+[data-theme="dark"] .stat-numero {
+  color: #ff6b6b;
+}
+
+[data-theme="dark"] .stat-label {
+  color: #f5f0e8;
+  font-weight: 800;
+}
+
+[data-theme="dark"] .historico {
+  background-color: #1a1a1a;
+}
+
+[data-theme="dark"] .historico-label {
+  color: #f5f0e8;
+}
+
+[data-theme="dark"] .historico-valor {
+  color: #ff6b6b;
+}
+
+/* Botón jugar otra vez (ModalFinPartida) */
+[data-theme="dark"] .btn-jugar {
+  color: #f5f0e8;
+  border-color: #e05555;
+  background-color: transparent;
+}
+
+[data-theme="dark"] .btn-jugar:hover {
+  background-color: #e05555;
+  color: white;
+}
+
+/* Botón cancelar (ModalSalir) */
+[data-theme="dark"] .btn-cancelar {
+  color: var(--color-texto);
+  border-color: #555555;
+}
+
+[data-theme="dark"] .btn-cancelar:hover {
+  background-color: #444444;
 }
