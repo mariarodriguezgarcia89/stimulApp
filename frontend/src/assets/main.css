@@ -28,6 +28,11 @@
 [data-theme="dark"] .icono-oscuro {
   filter: invert(1)  brightness(2);
 }
+
+[data-theme="dark"] .juego-detalle h2 {
+  color: var(--color-texto) !important;
+}
+
 /* ========================================================
    3. SISTEMA DE ESCALADO (ZOOM PROPORCIONAL)
    ======================================================== */
@@ -357,4 +362,58 @@ input:focus {
   flex-direction: column;
   background-color: var(--color-fondo);
   min-height: 100vh;
+}
+
+.btn-volver {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: inherit;
+  background-color: transparent;
+  color: var(--color-principal);
+  border: 2px solid var(--color-principal);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cerrar {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: inherit;
+  background-color: transparent;
+  color: #d32f2f;
+  border: 2px solid #d32f2f;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+[data-theme="dark"] .btn-volver {
+  color: var(--color-texto);
+  border-color: var(--color-texto);
+}
+
+[data-theme="dark"] .btn-cerrar {
+  color: #e57373;
+  border-color: #e57373;
+}
+
+
+
+[data-theme="dark"] .btn-volver:hover {
+  background-color: #333333;
+}
+
+[data-theme="dark"] .btn-cerrar:hover {
+  background-color: #3a1a1a;
+}
+
+[data-theme="dark"] .seccion-cuidador,
+[data-theme="dark"] .bloque-foto,
+[data-theme="dark"] .bloque-datos {
+  border-color: #888888;
 }

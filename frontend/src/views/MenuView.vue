@@ -111,7 +111,6 @@ function toggleFontSize() {
       <nav class="panel-navigation">
         <button class="btn-panel-link" @click="router.push('/perfil'); menuAbierto = false">👤 Mi perfil</button>
         <button class="btn-panel-link deshabilitado" disabled>📊 Mis estadísticas</button>
-        <hr class="divisor-panel" />
         <button class="btn-panel-link cerrar-rojo" @click="cerrarSesion">🚪 Cerrar sesión</button>
       </nav>
 
@@ -354,10 +353,10 @@ function toggleFontSize() {
 .saludo-box h1 { color: var(--color-principal); font-size: 32px; }
 
 
-:global([data-theme="dark"]) .saludo-box h1,
+/* :global([data-theme="dark"]) .saludo-box h1,
 :global([data-theme="dark"]) .juego-detalle h2 {
   color: var(--color-texto) !important;
-}
+} */
 
 
 .grid-juegos-principal {
