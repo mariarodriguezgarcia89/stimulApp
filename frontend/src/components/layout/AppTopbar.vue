@@ -59,15 +59,25 @@ const props = defineProps({
 
     <div class="nav-col-derecha">
       <div class="accesibilidad-nav">
-        <button class="btn-nav-acc" @click="toggleDarkMode">
-          <span class="circulo-acc">{{ isDark ? '☀️' : '🌙' }}</span>
-          <span class="label-acc">Modo</span>
-        </button>
-        <button class="btn-nav-acc" @click="toggleFontSize">
-          <span class="circulo-acc">Aa</span>
-          <span class="label-acc">Zoom</span>
-        </button>
-      </div>
+  <button 
+    class="btn-nav-acc" 
+    @click="toggleDarkMode"
+    :aria-label="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+    :aria-pressed="isDark"
+    :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+    <span class="circulo-acc" aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
+    <span class="label-acc" aria-hidden="true">Modo</span>
+  </button>
+  <button 
+    class="btn-nav-acc" 
+    @click="toggleFontSize"
+    :aria-label="isLarge ? 'Reducir tamaño de letra al normal' : 'Aumentar tamaño de letra'"
+    :aria-pressed="isLarge"
+    :title="isLarge ? 'Reducir tamaño de letra' : 'Aumentar tamaño de letra'">
+    <span class="circulo-acc" aria-hidden="true">Aa</span>
+    <span class="label-acc" aria-hidden="true">Zoom</span>
+  </button>
+</div>
     </div>
   </header>
 

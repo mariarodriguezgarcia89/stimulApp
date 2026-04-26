@@ -17,19 +17,28 @@ function toggleFontSize() {
   document.documentElement.setAttribute('data-size', size)
 }
 </script>
-
 <template>
   <div class="accesibilidad-float">
     <div class="control-group">
-      <button @click="toggleDarkMode">
+      <button 
+        @click="toggleDarkMode"
+        :aria-label="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+        :aria-pressed="isDark"
+        :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
         {{ isDark ? '☀️' : '🌙' }}
       </button>
-      <span class="etiqueta">MODO</span>
+      <span class="etiqueta" aria-hidden="true">MODO</span>
     </div>
 
     <div class="control-group">
-      <button @click="toggleFontSize">Aa</button>
-      <span class="etiqueta">ZOOM</span>
+      <button 
+        @click="toggleFontSize"
+        :aria-label="isLarge ? 'Reducir tamaño de letra al normal' : 'Aumentar tamaño de letra'"
+        :aria-pressed="isLarge"
+        :title="isLarge ? 'Reducir tamaño de letra' : 'Aumentar tamaño de letra'">
+        Aa
+      </button>
+      <span class="etiqueta" aria-hidden="true">ZOOM</span>
     </div>
   </div>
   <router-view></router-view>

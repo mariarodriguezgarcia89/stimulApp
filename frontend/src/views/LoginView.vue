@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import authService from '@/services/authService'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter, useRoute } from 'vue-router'
+import fondoLogin from '@/assets/fondo-login.png'
 
 const email = ref('')
 const password = ref('')
@@ -29,9 +30,19 @@ function handleLogin() {
 }
 </script>
 
-<template>
+  <template>
   <div class="login-container">
     <img src="@/assets/logo.png" alt="Logo StimulApp" class="logo" />
+    
+    <div class="login-layout">
+      <!-- Ilustración decorativa -->
+      <div class="ilustracion-wrapper">
+        <img 
+          :src="fondoLogin" 
+          alt="" 
+          aria-hidden="true"
+          class="ilustracion" />
+      </div>
     
     <div class="caja">
         <h1>Iniciar sesión</h1>
@@ -46,6 +57,8 @@ function handleLogin() {
             id="email" 
             v-model="email" 
             type="email" 
+            autocomplete="username"
+            inputmode="email"
             placeholder="ejemplo@correo.com" />
         </div>
 
@@ -56,9 +69,15 @@ function handleLogin() {
                 id="password" 
                 v-model="password" 
                 :type="mostrarPassword ? 'text' : 'password'"
+                autocomplete="current-password"
                 @keyup.enter="handleLogin"
                />
-              <button type="button" @click="mostrarPassword = !mostrarPassword">
+              <button 
+                type="button" 
+                class="btn-mostrar"
+                @click="mostrarPassword = !mostrarPassword"
+                :aria-label="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                :aria-pressed="mostrarPassword">
                 {{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}
               </button>
           </div>
@@ -79,19 +98,22 @@ function handleLogin() {
           <RouterLink to="/registro">Regístrate aquí</RouterLink>
         </p>
     </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-/* ─── SOLO POSICIONAMIENTO Y ESTILOS ÚNICOS DE ESTA VISTA ─── */
+/* ─── CONTENEDOR PRINCIPAL ─── */
 .login-container {
-  max-width: 650px;
+  max-width: 600px;
+  width: 100%;
   margin: 0 auto;
   padding: 20px 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  position: relative;
 }
 
 .logo {
@@ -100,6 +122,45 @@ function handleLogin() {
   margin: 0 auto -40px auto;
 }
 
+.login-container .caja {
+  width: 500px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── ILUSTRACIÓN (a la izquierda, sin afectar a la caja) ─── */
+.ilustracion-wrapper {
+  position: absolute;
+  left: -480px;
+  top: 75%;
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ilustracion {
+  width: 650px;
+  height: auto;
+  display: block;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1500px) {
+  .ilustracion-wrapper {
+    left: -430px;
+  }
+  .ilustracion {
+    width: 380px;
+  }
+}
+
+@media (max-width: 1300px) {
+  .ilustracion-wrapper {
+    display: none;
+  }
+}
+
+/* ─── Estilos existentes ─── */
 .exito {
   color: #27ae60;
   font-size: 16px;
@@ -112,14 +173,6 @@ function handleLogin() {
   text-align: center;
 }
 
-/* Exito en modo oscuro (usamos :global para que funcione bien en el componente) */
-:global([data-theme="dark"]) .exito {
-  background-color: #1e3a29;
-  color: #4ade80;
-  border-color: #27ae60;
-}
-
-/* La clase dinámica de error para el input */
 .input-error {
   border-color: #c0392b !important;
 }

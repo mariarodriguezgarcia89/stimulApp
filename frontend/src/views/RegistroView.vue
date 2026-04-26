@@ -91,24 +91,30 @@ function handleRegistro() {
         
         <div class="campo">
           <label for="nombre">Nombre</label>
-          <input id="nombre" v-model="nombre" type="text" placeholder="Su nombre" />
+          <input id="nombre" v-model="nombre" type="text" autocomplete="given-name" placeholder="Su nombre" />
         </div>
 
         <div class="campo">
           <label for="apellidos">Apellidos</label>
-          <input id="apellidos" v-model="apellidos" type="text" placeholder="Sus apellidos" />
+          <input id="apellidos" v-model="apellidos" type="text" autocomplete="family-name" placeholder="Sus apellidos" />
         </div>
 
         <div class="campo fila-completa">
           <label for="email">Correo electrónico</label>
-          <input id="email" v-model="email" type="email" placeholder="ejemplo@correo.com" />
+          <input id="email" v-model="email" type="email" autocomplete="email"
+              inputmode="email" placeholder="ejemplo@correo.com" />
         </div>
 
         <div class="campo">
           <label for="password">Contraseña</label>
           <div class="password-wrapper">
-            <input id="password" v-model="password" :type="mostrarPassword ? 'text' : 'password'" @keyup.enter="handleRegistro" />
-            <button type="button" @click="mostrarPassword = !mostrarPassword">
+            <input id="password" v-model="password" :type="mostrarPassword ? 'text' : 'password'" autocomplete="new-password" @keyup.enter="handleRegistro" />
+            <button 
+              type="button" 
+              class="btn-mostrar"
+              @click="mostrarPassword = !mostrarPassword"
+              :aria-label="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              :aria-pressed="mostrarPassword">
               {{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}
             </button>
           </div>
@@ -118,8 +124,13 @@ function handleRegistro() {
         <div class="campo">
           <label for="confirmarPassword">Confirmar contraseña</label>
           <div class="password-wrapper">
-            <input id="confirmarPassword" v-model="confirmarPassword" :type="mostrarConfirmar ? 'text' : 'password'" @keyup.enter="handleRegistro" />
-            <button type="button" @click="mostrarConfirmar = !mostrarConfirmar">
+            <input id="confirmarPassword" v-model="confirmarPassword" :type="mostrarConfirmar ? 'text' : 'password'" autocomplete="new-password" @keyup.enter="handleRegistro" />
+            <button 
+              type="button" 
+              class="btn-mostrar"
+              @click="mostrarConfirmar = !mostrarConfirmar"
+              :aria-label="mostrarConfirmar ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              :aria-pressed="mostrarConfirmar">
               {{ mostrarConfirmar ? 'Ocultar' : 'Mostrar' }}
             </button>
           </div>
@@ -152,11 +163,12 @@ function handleRegistro() {
         <div class="formulario-grid">
           <div class="campo">
             <label for="nombreCuidador">Nombre del cuidador</label>
-            <input id="nombreCuidador" v-model="nombreCuidador" type="text" placeholder="Nombre de su cuidador o familiar" />
+            <input id="nombreCuidador" v-model="nombreCuidador" type="text" autocomplete="off" placeholder="Nombre de su cuidador o familiar" />
           </div>
           <div class="campo">
             <label for="emailCuidador">Correo del cuidador</label>
-            <input id="emailCuidador" v-model="emailCuidador" type="email" placeholder="correo@cuidador.com" />
+            <input id="emailCuidador" v-model="emailCuidador" type="email" autocomplete="off"
+              inputmode="email" placeholder="correo@cuidador.com" />
           </div>
         </div>
         
