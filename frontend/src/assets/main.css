@@ -410,6 +410,14 @@ button:focus-visible {
   .fila-completa {
     grid-column: 1 / -1;
   }
+
+  .caja {
+    padding: 32px 24px;
+  }
+
+  html[data-size="large"] .caja {
+    padding: 24px 14px;
+  }
 }
 
 .fecha-selector-grid {

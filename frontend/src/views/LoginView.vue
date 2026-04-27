@@ -111,7 +111,6 @@ function handleLogin() {
   padding: 20px 30px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 8px;
   position: relative;
 }
@@ -123,7 +122,6 @@ function handleLogin() {
 }
 
 .login-container .caja {
-  width: 500px;
   position: relative;
   z-index: 2;
 }
@@ -176,4 +174,92 @@ function handleLogin() {
 .input-error {
   border-color: #c0392b !important;
 }
+
+@media (max-width: 768px) {
+  .logo {
+    width: 200px;
+  }
+
+  .login-container {
+    padding: 10px 8px; /* Reducimos el padding exterior en móvil */
+  }
+
+  .registro-link {
+    text-align: center;
+  }
+  
+  .registro-link a {
+    display: block;
+  }
+
+  /* 👇 LA SOLUCIÓN DEFINITIVA PARA JUNTAR ELEMENTOS (MÓVIL + ZOOM) 👇 */
+
+  /* 1. Reducir drásticamente el espacio interno de la caja blanca y el hueco entre bloques */
+  html[data-size="large"] .caja {
+    padding: 20px 16px !important; /* Estaba en 40px 36px */
+    gap: 8px !important; /* ESTA ES LA CLAVE: Reduce la separación entre título, correo, contraseña... */
+  }
+
+  /* 2. Reducir el hueco entre la etiqueta (ej: "Correo") y su input */
+  html[data-size="large"] .campo {
+    gap: 2px !important; 
+  }
+
+  /* 3. Reducir la separación entre el input de contraseña y el botón "Mostrar" */
+  html[data-size="large"] .password-wrapper {
+    gap: 4px !important;
+  }
+
+  /* 4. Achicar un poco los inputs por dentro para que ocupen menos alto */
+  html[data-size="large"] input {
+    padding: 8px 12px !important; 
+  }
+
+  /* 5. Quitar la altura mínima del botón "Mostrar" y achicarlo */
+  html[data-size="large"] .btn-mostrar {
+    min-height: auto !important; /* Tu global lo forzaba a 48px de alto */
+    padding: 6px 12px !important;
+  }
+
+  /* 6. Ajustar el botón principal */
+  html[data-size="large"] .btn-principal {
+    padding: 10px !important;
+    margin-top: 0 !important;
+  }
+  
+  /* 7. Eliminar márgenes sobrantes de los textos */
+  html[data-size="large"] h1 {
+    margin-bottom: 0 !important;
+  }
+
+  /* 1. Volver a mostrar la ilustración y reposicionarla para móvil */
+  .ilustracion-wrapper {
+    display: block !important; /* Anular el 'none' de la regla de max-width: 1300px */
+    position: static; /* Volver a posicionamiento normal en el flujo */
+    transform: none; /* Quitar la transformación de escritorio */
+    left: auto; /* Quitar el left de escritorio */
+    top: auto; /* Quitar el top de escritorio */
+    z-index: 1; /* Mantener z-index */
+    margin: 0 auto -20px 20px; /* Centrar y margen inferior negativo para "apoyarlo" en la caja */
+    text-align: center; /* Centrar la imagen si es más pequeña que el contenedor */
+  }
+
+  /* 2. Reducir el tamaño de la ilustración para que sea "pequeña" */
+  .ilustracion {
+    width: 150px; /* Tamaño "pequeño" para móvil. Ajustar si la quieres más grande/pequeña */
+    height: auto;
+    display: block; /* Asegurar que sea un bloque para centrar */
+    margin: 0;
+    filter: none; /* Asegurar que no tenga filtros heredados no deseados */
+  }
+
+  /* 3. Ajustar el tamaño de la ilustración si el zoom está activado en móvil */
+  html[data-size="large"] .ilustracion-wrapper {
+    margin: 0 0 -25px 15px; /* Un poco más de superposición con zoom */
+  }
+  html[data-size="large"] .ilustracion {
+    width: 170px; /* Un poco más grande con zoom */
+  }
+}
+
 </style>

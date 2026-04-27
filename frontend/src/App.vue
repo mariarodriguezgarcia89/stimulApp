@@ -17,6 +17,7 @@ function toggleFontSize() {
   document.documentElement.setAttribute('data-size', size)
 }
 </script>
+
 <template>
   <div class="accesibilidad-float">
     <div class="control-group">
@@ -51,7 +52,8 @@ function toggleFontSize() {
   top: 20px;
   right: 20px;
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 12px;
   z-index: 1000;
 }
 
@@ -64,12 +66,12 @@ function toggleFontSize() {
 }
 
 .control-group button {
-  width: 65px; 
-  height: 65px; 
+  width: 50px; 
+  height: 50px; 
   border-radius: 50%;
   border: 3px solid var(--color-principal);
   background: var(--color-caja); /* Usa la variable global */
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   display: flex;
@@ -79,9 +81,15 @@ function toggleFontSize() {
 }
 
 .etiqueta {
-  font-size: 14px; 
+  font-size: 10px; 
   font-weight: bold;
   /* El color se lo da el main.css dependiendo del tema */
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  .accesibilidad-float {
+    position: absolute;
+  }
 }
 </style>
