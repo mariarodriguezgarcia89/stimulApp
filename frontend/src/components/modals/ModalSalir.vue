@@ -21,87 +21,57 @@ const emit = defineEmits(['confirmar', 'cancelar'])
         </div>
     </div>
 </template>
-
 <style scoped>
-.modal {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
 .modal-content {
-    background-color: var(--color-caja);
-    border-radius: 20px;
-    padding: 2.5rem;
-    width: 90%;
-    max-width: 480px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-}
-
-.modal-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.icono-principal {
-    font-size: 3rem;
-}
-
-h2 {
-    color: var(--color-principal);
-    font-size: 1.5rem;
-    text-align: center;
-    margin: 0;
-}
-
-.acciones {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.btn-confirmar {
-    background-color: var(--color-principal);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.btn-cancelar {
-    background-color: transparent;
-    color: var(--color-texto-suave);
-    border: 1px solid var(--color-borde);
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.btn-confirmar:hover {
-    background-color: var(--color-principal-hover);
-}
-
-.btn-cancelar:hover {
-    background-color: var(--color-borde);
+  max-width: 480px;
 }
 
 p {
-    font-size: 20px;
-    color: var(--color-texto-suave);
-    text-align: center;
-    margin: 0;
+  font-size: 1.15rem;
+  color: var(--color-texto-suave);
+  text-align: center;
+  margin: 0;
 }
 
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.btn-confirmar {
+  background-color: var(--color-principal);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-confirmar:hover {
+  background-color: var(--color-principal-hover);
+}
+
+.btn-cancelar {
+  background-color: transparent;
+  color: var(--color-texto-suave);
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-cancelar:hover {
+  background-color: var(--color-borde);
+}
+
+@media (max-width: 768px) {
+  .acciones {
+    flex-direction: column;
+  }
+}
 </style>

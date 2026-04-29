@@ -53,107 +53,85 @@ const emit = defineEmits(['cerrar'])
 </template>
 
 <style scoped>
-.modal {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-}
-
-.modal-content {
-    width: 90%;
-    max-width: 900px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-}
-
-.modal-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    text-align: center;
-}
-
-.icono-principal { font-size: 3rem; }
-
-/* Grid de dos columnas */
 .secciones-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    align-items: start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
 }
 
-/* Secciones */
 .seccion {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .seccion-titulo {
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--color-principal);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-principal);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-/* Instrucciones */
 .instrucciones-lista {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 20px;
 }
 
 .instrucciones-lista li {
-    font-size: 1.2rem;
-    color: var(--color-texto);
-    line-height: 1.5;
+  font-size: 1.1rem;
+  color: var(--color-texto);
+  line-height: 1.5;
 }
 
-/* Elementos del tablero */
 .elementos-lista {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .elemento {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background-color: var(--color-fondo);
-    border-radius: 12px;
-    padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--color-fondo);
+  border-radius: 12px;
+  padding: 10px 14px;
 }
 
 .elemento-icono {
-    font-size: 1.4rem;
-    flex-shrink: 0;
+  font-size: 1.4rem;
+  flex-shrink: 0;
 }
 
 .elemento-texto {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .elemento-nombre {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: var(--color-texto);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-texto);
 }
 
 .elemento-descripcion {
-    font-size: 0.85rem;
-    color: var(--color-texto-suave);
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+}
+
+@media (max-width: 768px) {
+  .secciones-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .instrucciones-lista li {
+    font-size: 1rem;
+  }
 }
 </style>

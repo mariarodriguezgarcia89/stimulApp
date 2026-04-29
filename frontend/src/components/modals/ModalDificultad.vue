@@ -36,107 +36,80 @@ const emit = defineEmits(['seleccionar', 'cerrar'])
         </div>
     </div>
 </template>
-
 <style scoped>
-.modal {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background-color: var(--color-caja);
-    border-radius: 20px;
-    padding: 2.5rem;
-    width: 90%;
-    max-width: 620px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-}
-
-.modal-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.icono-principal {
-    font-size: 3rem;
-}
-
-h2 {
-    color: var(--color-principal);
-    font-size: 1.5rem;
-    text-align: center;
-    margin: 0;
-}
-
 .dificultades {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .btn-dificultad {
-    background-color: var(--color-principal);
-    color: white;
-    border: none;
-    border-radius: 16px;
-    padding: 1.2rem 1.5rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    text-align: left;
+  background-color: var(--color-principal);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 1.2rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
+  font-family: inherit;
 }
 
 .btn-dificultad:hover {
-    background-color: var(--color-principal-hover);
-    transform: scale(1.02);
+  background-color: var(--color-principal-hover);
+  transform: scale(1.02);
 }
 
 .btn-icono {
-    font-size: 2rem;
-    flex-shrink: 0;
+  font-size: 2rem;
+  flex-shrink: 0;
 }
 
 .btn-texto {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .btn-titulo {
-    font-size: 1.2rem;
-    font-weight: bold;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 .btn-descripcion {
-    font-size: 1rem;
-    opacity: 0.85;
+  font-size: 1rem;
+  opacity: 0.85;
 }
 
 .btn-cerrar {
-    background-color: transparent;
-    color: var(--color-texto-suave);
-    border: 1px solid var(--color-borde);
-    border-radius: 12px;
-    padding: 0.75rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  background-color: transparent;
+  color: var(--color-texto-suave);
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .btn-cerrar:hover {
-    background-color: var(--color-borde);
+  background-color: var(--color-borde);
+}
+
+@media (max-width: 768px) {
+  .btn-dificultad {
+    padding: 1rem 1.2rem;
+  }
+  .btn-titulo {
+    font-size: 1rem;
+  }
+  .btn-descripcion {
+    font-size: 0.9rem;
+  }
 }
 </style>

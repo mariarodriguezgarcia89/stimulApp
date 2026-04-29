@@ -41,11 +41,9 @@ function cerrarSesion() {
 const props = defineProps({
   modoJuego: { type: Boolean, default: false }
 })
-
 </script>
 
 <template>
-  <!-- TOPBAR -->
   <header class="navbar-solida" :class="{ 'modo-juego': modoJuego }">
     <div class="nav-col-izquierda">
         <button v-if="!modoJuego" class="btn-sidebar-trigger" @click="menuAbierto = !menuAbierto">
@@ -59,29 +57,28 @@ const props = defineProps({
 
     <div class="nav-col-derecha">
       <div class="accesibilidad-nav">
-  <button 
-    class="btn-nav-acc" 
-    @click="toggleDarkMode"
-    :aria-label="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
-    :aria-pressed="isDark"
-    :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-    <span class="circulo-acc" aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
-    <span class="label-acc" aria-hidden="true">Modo</span>
-  </button>
-  <button 
-    class="btn-nav-acc" 
-    @click="toggleFontSize"
-    :aria-label="isLarge ? 'Reducir tamaño de letra al normal' : 'Aumentar tamaño de letra'"
-    :aria-pressed="isLarge"
-    :title="isLarge ? 'Reducir tamaño de letra' : 'Aumentar tamaño de letra'">
-    <span class="circulo-acc" aria-hidden="true">Aa</span>
-    <span class="label-acc" aria-hidden="true">Zoom</span>
-  </button>
-</div>
+        <button 
+          class="btn-nav-acc" 
+          @click="toggleDarkMode"
+          :aria-label="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+          :aria-pressed="isDark"
+          :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+          <span class="circulo-acc" aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
+          <span class="label-acc" aria-hidden="true">Modo</span>
+        </button>
+        <button 
+          class="btn-nav-acc" 
+          @click="toggleFontSize"
+          :aria-label="isLarge ? 'Reducir tamaño de letra al normal' : 'Aumentar tamaño de letra'"
+          :aria-pressed="isLarge"
+          :title="isLarge ? 'Reducir tamaño de letra' : 'Aumentar tamaño de letra'">
+          <span class="circulo-acc" aria-hidden="true">Aa</span>
+          <span class="label-acc" aria-hidden="true">Zoom</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- PANEL LATERAL -->
   <aside  v-if="!modoJuego" class="panel-lateral" :class="{ abierto: menuAbierto }">
     <div class="panel-header-user">
       <img
@@ -102,11 +99,13 @@ const props = defineProps({
     <button class="btn-principal secundario-btn" @click="menuAbierto = false">✕ Volver</button>
   </aside>
 
-  <!-- OVERLAY -->
   <div v-if="!modoJuego && menuAbierto" class="overlay-fixed" @click="menuAbierto = false"></div>
 </template>
 
 <style scoped>
+/* =========================================
+   1. ESCRITORIO: CÓDIGO ORIGINAL FUNCIONAL
+   ========================================= */
 .navbar-solida {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -114,7 +113,7 @@ const props = defineProps({
   background-color: var(--color-principal);
   width: 100%;
   height: 170px;
-  position: sticky;
+  position: sticky; /* <- ESTO ES CLAVE PARA QUE NO SE ROMPA EL ESCRITORIO */
   top: 0;
   z-index: 50;
   padding: 0;
@@ -148,6 +147,11 @@ const props = defineProps({
   width: auto;
   display: block;
   filter: brightness(0) invert(1) !important;
+}
+
+.nav-col-centro {
+  display: flex;
+  justify-content: center;
 }
 
 .nav-col-derecha {
@@ -299,4 +303,64 @@ const props = defineProps({
   justify-content: flex-start;
   padding-left: 20px;
 }
+@media (max-width: 768px) {
+  /* 1. Quitamos el recorte limpiamente */
+  .navbar-solida {
+    height: auto;
+    min-height: auto;
+    padding: 15px 20px;
+    overflow: visible; /* Permite que el logo sobresalga si es muy grande */
+    
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "acc  acc"
+      "menu logo";
+    row-gap: 15px;
+    align-items: center;
+  }
+
+  /* 2. El contenedor del logo es el ancla (relative) */
+  .navbar-solida .nav-col-centro {
+    grid-area: logo;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  /* 3. Aumentamos la jerarquía (.padre .hijo) para ganar limpiamente al escritorio */
+  .navbar-solida .logo-nav {
+    position: absolute;
+    height: 150px; /* Aquí controlas el tamaño libremente */
+    width: auto;
+    
+    /* Controles exactos de posición */
+    right: -10px; /* Modifica esto para moverlo en el eje X */
+    top: 0%; 
+    
+    z-index: 10;
+  }
+
+  /* El resto de elementos de móvil se mantienen normales */
+  .nav-col-derecha {
+    grid-area: acc;
+    justify-content: flex-start;
+    padding-right: 0;
+  }
+
+  .nav-col-izquierda {
+    grid-area: menu;
+    justify-content: flex-start;
+  }
+
+  .btn-sidebar-trigger {
+    padding: 0;
+    font-size: 22px;
+  }
+
+  .accesibilidad-nav { gap: 15px; }
+  .circulo-acc { width: 45px; height: 45px; font-size: 20px; }
+  .label-acc { font-size: 11px; }
+}
+
 </style>

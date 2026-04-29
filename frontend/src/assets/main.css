@@ -588,3 +588,170 @@ button:focus-visible {
     gap: 8px !important;
   }
 }
+/* ========================================================
+   MODO OSCURO - TEXTOS DE LOS JUEGOS
+   ======================================================== */
+[data-theme="dark"] .tablero-valor,
+[data-theme="dark"] .primera-parte {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .tablero-etiqueta {
+  color: #ccbbaa !important;
+}
+
+[data-theme="dark"] .etiqueta {
+  color: #cccccc !important;
+}
+
+/* Botones de opción en modo oscuro - SOLO los que NO están respondidos */
+[data-theme="dark"] .btn-opcion:not(.correcta):not(.incorrecta) {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #555 !important;
+}
+
+[data-theme="dark"] .btn-opcion:not(.correcta):not(.incorrecta):hover:not(:disabled) {
+  background-color: #2d1a1c !important;
+  border-color: #ffffff !important;
+}
+
+/* Respuesta correcta: verde más vivo en oscuro */
+[data-theme="dark"] .btn-opcion.correcta {
+  background-color: #1e5128 !important;
+  border-color: #4ade80 !important;
+  color: #ffffff !important;
+}
+
+/* Respuesta incorrecta: rojo más vivo en oscuro */
+[data-theme="dark"] .btn-opcion.incorrecta {
+  background-color: #5c1a1f !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+}
+
+/* Feedback "La respuesta correcta era..." en oscuro */
+[data-theme="dark"] .feedback.incorrecto {
+  background-color: #5c1a1f !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .feedback.correcto {
+  background-color: #1e5128 !important;
+  border-color: #4ade80 !important;
+  color: #ffffff !important;
+}
+
+/* Botones Salir y Ayuda en modo oscuro */
+[data-theme="dark"] .tablero-salir {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+[data-theme="dark"] .tablero-salir:hover {
+  background-color: #d32f2f !important;
+  border-color: #d32f2f !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .tablero-ayuda {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+[data-theme="dark"] .tablero-ayuda:hover {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+}
+
+/* Barra de progreso en modo oscuro */
+[data-theme="dark"] .barra-progreso-fill {
+  background-color: #ffffff !important;
+}
+
+[data-theme="dark"] .barra-progreso-wrapper {
+  background-color: #444 !important;
+}
+[data-theme="dark"] .seccion-titulo {
+  color: #ffffff !important;
+}
+
+/* ========================================================
+   MODALES - ESTILOS COMUNES A TODOS
+   ======================================================== */
+
+/* Overlay y posicionamiento */
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* Contenedor del modal */
+.modal-content {
+  background-color: var(--color-caja);
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 90%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  border-top: 6px solid var(--color-principal);
+}
+
+/* Cabecera del modal (icono + título) */
+.modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.modal-header .icono-principal {
+  font-size: 3rem;
+}
+
+.modal-content h2 {
+  color: var(--color-principal);
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 0;
+}
+
+/* Modo oscuro */
+[data-theme="dark"] .modal-content {
+  background-color: #2d2d2d;
+  border: 2px solid #666666;
+  border-top: 6px solid var(--color-principal);
+}
+
+[data-theme="dark"] .modal-content h2 {
+  color: #ffffff;
+}
+
+/* Responsive móvil */
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 1.5rem 1.2rem;
+    gap: 1rem;
+  }
+
+  .modal-header .icono-principal {
+    font-size: 2.2rem;
+  }
+
+  .modal-content h2 {
+    font-size: 1.2rem;
+  }
+}

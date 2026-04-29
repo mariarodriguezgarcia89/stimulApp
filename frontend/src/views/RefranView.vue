@@ -559,4 +559,67 @@ function abrirModalAyuda() {
   font-size: 1.2rem;
   color: var(--color-texto-suave);
 }
+
+@media (max-width: 768px) {
+
+  :deep(.navbar-solida .logo-nav) {
+    transform: none !important; 
+    top: -10px !important; 
+  }
+
+  .tablero {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .tablero-salir,
+  .tablero-ayuda {
+    flex: 1;
+    justify-content: center;
+  }
+
+
+  .refran-container {
+    padding: 16px 12px 40px;
+    gap: 16px;
+  }
+
+  .refran-card {
+    padding: 18px 16px;
+  }
+
+  .etiqueta {
+    font-size: 11px;
+  }
+
+  .primera-parte {
+    font-size: 1.3rem;
+    line-height: 1.3;
+  }
+
+  .btn-opcion {
+    padding: 14px 16px;
+    font-size: 1rem;
+  }
+
+  .feedback {
+    padding: 14px 16px;
+    font-size: 1rem;
+  }
+
+  .input-respuesta {
+    padding: 14px 16px;
+    font-size: 1rem;
+  }
+
+  .btn-siguiente {
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .btn-saltar {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+}
 </style>
