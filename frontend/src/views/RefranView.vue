@@ -8,6 +8,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePartida } from '@/composables/usePartida'
 import ModalAyuda from '@/components/modals/ModalAyuda.vue'
 import { instruccionesRefranFacil, instruccionesRefranDificil } from '@/utils/mensajes.js'
+import fondoRefran from '@/assets/fondo-refran.png'
 
 const router = useRouter()
 const route = useRoute()
@@ -149,10 +150,19 @@ function abrirModalAyuda() {
 
     <AppTopbar :modoJuego="true" />
 
+    
+      <div class="ilustracion-wrapper">
+        <img 
+          :src="fondoRefran" 
+          alt="" 
+          aria-hidden="true"
+          class="ilustracion" />
+      </div>
+
     <div class="refran-container" v-if="refranActual">
 
       <!-- TABLERO DE DATOS -->
-      <div class="tablero">
+      <div class="tablero" :class="{ 'tablero--dificil': dificultad === 'dificil' }">
         <div class="tablero-dato">
           <span class="tablero-icono">📖</span>
           <span class="tablero-valor">{{ indiceActual + 1 }}/{{ refranes.length }}</span>
@@ -311,6 +321,30 @@ function abrirModalAyuda() {
   flex-direction: column;
   gap: 24px;
   width: 100%;
+}
+
+
+.ilustracion-wrapper {
+  position: absolute;
+  left: 0px;
+  top: 75%;
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ilustracion {
+  width: 800px;
+  height: auto;
+  display: block;
+}
+
+html[data-size="large"] .ilustracion-wrapper {
+  margin: 0 15px -25px auto; 
+}
+  
+html[data-size="large"] .ilustracion {
+  width: 500px; 
 }
 
 /* ── TABLERO ── */
@@ -562,6 +596,11 @@ function abrirModalAyuda() {
 
 @media (max-width: 768px) {
 
+    /* 1. APAGAR LA ILUSTRACIÓN DEFINITIVAMENTE EN MÓVIL */
+  .ilustracion-wrapper {
+    display: none !important;
+  }
+
   :deep(.navbar-solida .logo-nav) {
     transform: none !important; 
     top: -10px !important; 
@@ -577,7 +616,38 @@ function abrirModalAyuda() {
     flex: 1;
     justify-content: center;
   }
+.tablero--dificil {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  padding: 12px;
+}
 
+.tablero--dificil .tablero-dato {
+  padding: 0 2px;
+}
+
+.tablero--dificil .tablero-icono {
+  font-size: 1.1rem;
+}
+
+.tablero--dificil .tablero-valor {
+  font-size: 1.1rem;
+}
+
+.tablero--dificil .tablero-etiqueta {
+  font-size: 0.6rem;
+}
+
+.tablero--dificil .tablero-salir,
+.tablero--dificil .tablero-ayuda {
+  grid-column: span 2;
+  width: 100%;
+  justify-content: center;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  min-width: auto;
+}
 
   .refran-container {
     padding: 16px 12px 40px;

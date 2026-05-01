@@ -9,7 +9,7 @@ const emit = defineEmits(['cerrar'])
 
 <template>
     <div class="modal">
-        <div class="modal-content caja">
+        <div class="modal-content caja modal-content--ancho">
 
             <div class="modal-header">
                 <span class="icono-principal">❓</span>
@@ -53,6 +53,11 @@ const emit = defineEmits(['cerrar'])
 </template>
 
 <style scoped>
+
+.modal-content--ancho {
+  max-width: 1000px;
+}
+
 .secciones-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -132,6 +137,11 @@ const emit = defineEmits(['cerrar'])
 
   .instrucciones-lista li {
     font-size: 1rem;
+  }
+
+  .modal-content--ancho {
+    width: 96%;
+    padding: 1.5rem 1rem;
   }
 }
 </style>
