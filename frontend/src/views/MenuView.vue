@@ -172,36 +172,36 @@ html[data-size="large"] .ilustracion {
 @media (max-width: 768px) {
   /* Reducimos el margen superior por si la navbar lo pisa un poco al hacer scroll */
   .main-content-menu {
-    padding: 20px 15px; 
+    padding: 20px 10px; 
   }
 
   /* Reducimos el hueco entre tarjetas y forzamos 1 sola columna */
   .grid-juegos-principal {
-    gap: 15px; 
+    gap: 10px; 
     grid-template-columns: 1fr; 
   }
 
   /* Hacemos la caja menos alta quitando relleno (padding) */
   .tarjeta-juego {
-    padding: 20px 15px; 
+    padding: 10px 10px; 
   }
 
   /* Achicamos la ilustración central */
   .logo-juego { 
-    width: 80px; /* Antes 130px */
-    margin-bottom: 12px; 
+    width: 110px; /* Antes 130px */
+    margin-bottom: 0px; 
   }
 
   /* Reducimos el tamaño de la fuente del título */
   .juego-detalle h2 { 
     font-size: 20px; /* Antes 24px */
-    margin-bottom: 8px; 
+    margin-bottom: 6px; 
   }
 
   /* Reducimos la descripción y le quitamos el espacio vacío obligatorio */
   .juego-detalle p { 
     font-size: 14px; /* Antes 17px */
-    margin-bottom: 15px; 
+    margin-bottom: 10px; 
     min-height: auto; /* Esto es clave para que la tarjeta encoja */
   }
 

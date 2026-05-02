@@ -262,125 +262,6 @@ function voltearCarta(carta){
   width: 100%;
 }
 
-/* ── TABLERO ── */
-.tablero {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: var(--color-caja);
-  border-radius: 16px;
-  padding: 16px 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  border-top: 4px solid var(--color-principal);
-}
-
-.tablero-dato {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  border-right: 1px solid var(--color-borde);
-  padding: 0 8px;
-}
-
-.tablero-dato:last-of-type {
-  border-right: none;
-}
-
-.tablero-icono {
-  font-size: 1.4rem;
-}
-
-.tablero-valor {
-  font-size: 1.4rem;
-  font-weight: 900;
-  color: var(--color-principal);
-  line-height: 1;
-}
-
-.tablero-etiqueta {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-texto-suave);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.tiempo-urgente {
-  color: #dc3545 !important;
-  animation: pulso 0.5s infinite alternate;
-}
-
-@keyframes pulso {
-  from { opacity: 1; }
-  to { opacity: 0.5; }
-}
-
-.tablero-salir {
-  background-color: transparent;
-  color: #d32f2f;
-  border: 2px solid #f5c6cb;
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 0.9rem;
-  font-weight: 800;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.tablero-salir:hover {
-  background-color: #d32f2f;
-  border-color: #d32f2f;
-  color: white;
-}
-
-.tablero-ayuda {
-  background-color: transparent;
-  color: var(--color-principal);
-  border: 2px solid var(--color-principal);
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 0.9rem;
-  font-weight: 800;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-width: 90px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.tablero-ayuda:hover {
-  background-color: var(--color-principal);
-  border-color: var(--color-principal);
-  color: white;
-}
-
-/* ── BARRA DE PROGRESO ── */
-.barra-progreso-wrapper {
-  height: 8px;
-  background-color: var(--color-borde);
-  border-radius: 99px;
-  overflow: hidden;
-}
-
-.barra-progreso-fill {
-  height: 100%;
-  background-color: var(--color-principal);
-  border-radius: 99px;
-  transition: width 0.4s ease;
-}
-
 /* ── CONTENEDOR DEL TABLERO DE CARTAS ── */
 .cartas-card {
   background-color: var(--color-caja);
@@ -397,7 +278,7 @@ function voltearCarta(carta){
   width: 100%;
 }
 
-/* ── CARTAS (estilos básicos provisionales — Bloque 2 los pulirá) ── */
+/* ── CARTAS ── */
 .carta {
   background-color: var(--color-principal);
   border-radius: 12px;
@@ -437,7 +318,7 @@ function voltearCarta(carta){
 
 /* ── ILUSTRACIÓN LATERAL ── */
 .ilustracion-wrapper {
-  position: fixed;
+  position: absolute;
   left: 0px;
   top: 70%;
   transform: translateY(-50%);
@@ -482,60 +363,16 @@ html[data-size="large"] .ilustracion {
     aspect-ratio: 3 / 4;
   }
 
-  .tablero {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .tablero-salir,
-  .tablero-ayuda {
-    flex: 1;
-    justify-content: center;
-  }
-
-  .tablero--dificil {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
-    padding: 12px;
-  }
-
-  .tablero--dificil .tablero-dato {
-    padding: 0 2px;
-  }
-
-  .tablero--dificil .tablero-icono {
-    font-size: 1.1rem;
-  }
-
-  .tablero--dificil .tablero-valor {
-    font-size: 1.1rem;
-  }
-
-  .tablero--dificil .tablero-etiqueta {
-    font-size: 0.6rem;
-  }
-
-  .tablero--dificil .tablero-salir,
-  .tablero--dificil .tablero-ayuda {
-    grid-column: span 2;
-    width: 100%;
-    justify-content: center;
-    padding: 8px 10px;
-    font-size: 0.85rem;
-    min-width: auto;
-  }
-
   .cartas-card--dificil {
-  padding: 10px;
-}
+    padding: 10px;
+  }
 
-.cartas-card--dificil .tablero-cartas {
-  gap: 6px;
-}
+  .cartas-card--dificil .tablero-cartas {
+    gap: 6px;
+  }
 
-.cartas-card--dificil .carta {
-  aspect-ratio: 1;
-}
+  .cartas-card--dificil .carta {
+    aspect-ratio: 1;
+  }
 }
 </style>

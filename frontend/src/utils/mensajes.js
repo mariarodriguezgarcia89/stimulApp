@@ -58,3 +58,22 @@ export const instruccionesMemoryDificil = [
   '❌ Si fallas, pierdes 3 puntos y las cartas se vuelven a voltear.',
   '⏱ Tienes 60 segundos para encontrar todas las parejas. ¡Concentración!'
 ]
+
+export const instruccionesIntrusoFacil = [
+  '🖼️ Verás 4 imágenes en pantalla. Tres pertenecen a la misma categoría (por ejemplo, animales) y una no pertenece (el "intruso").',
+  '🔍 Tu tarea es encontrar cuál es el intruso, el que no encaja con los demás.',
+  '👆 Pulsa la imagen que crees que es el intruso para responder.',
+  '✅ Si aciertas, ganas 10 puntos.',
+  '💡 Después de cada respuesta, te explicaremos por qué ese era el intruso.',
+  '🏁 La partida acaba después de 3 rondas.'
+]
+
+export const instruccionesIntrusoDificil = [
+  '🖼️ Verás 4 imágenes en pantalla. Tres pertenecen a la misma categoría y una no pertenece (el "intruso").',
+  '🤔 En este nivel las categorías son más sutiles, así que tendrás que pensar bien.',
+  '⏱ Tienes 30 segundos para responder cada ronda. ¡No te despistes!',
+  '👆 Pulsa la imagen que crees que es el intruso para responder.',
+  '✅ Si aciertas, ganas 10 puntos.',
+  '💡 Después de cada respuesta, te explicaremos por qué ese era el intruso.',
+  '🏁 La partida acaba después de 3 rondas.'
+]
