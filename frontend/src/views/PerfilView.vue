@@ -5,6 +5,8 @@ import { useAuthStore } from '@/stores/auth'
 import usuarioService from '@/services/usuarioService'
 import { mensajes } from '@/utils/mensajes.js'
 import avatarDefault from '@/assets/avatar-default.jpg'
+import fondoPerfil from '@/assets/fondo-perfil.png'
+import AppTopbar from '@/components/layout/AppTopbar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -111,176 +113,199 @@ function cerrarSesion() {
 </script>
 
 <template>
-  <div class="perfil-container">
-    <img src="@/assets/logo.png" alt="Logo StimulApp" class="logo" />
+  <div class="perfil-page">
 
-    <div class="caja perfil-layout">
+    <AppTopbar :modoJuego="true" />
 
-      <!-- CABECERA CENTRADA -->
-      <div class="perfil-header">
-        <h1>Mi perfil</h1>
-        <p class="bienvenida">Aquí puede consultar y modificar sus datos 😊</p>
+    <div class="perfil-container">
+      
+      <div class="ilustracion-wrapper">
+        <img 
+          :src="fondoPerfil" 
+          alt="" 
+          aria-hidden="true"
+          class="ilustracion" />
       </div>
-<div class="perfil-columnas">
 
-  <!-- Foto arriba izquierda -->
-  <div class="bloque-foto">
-    <img :src="fotoPerfil || avatarDefault" alt="Foto de perfil" class="foto-perfil" />
-    <small class="help-text">📷 La edición de la foto estará disponible próximamente</small>
-  </div>
+      <div class="perfil-layout">
 
-  <!-- Derecha: ocupa dos filas -->
-  <div class="columna-derecha">
-    <div class="seccion-cuidador">
-      <p class="seccion-titulo">Cambiar contraseña <span>(opcional)</span></p>
-      <div class="campo">
-        <label for="nuevaPassword">Nueva contraseña</label>
-        <div class="password-wrapper">
-          <input id="nuevaPassword" v-model="nuevaPassword" :type="mostrarPassword ? 'text' : 'password'" placeholder="Mínimo 6 caracteres" />
-          <button type="button" @click="mostrarPassword = !mostrarPassword">{{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}</button>
+        <div class="perfil-header">
+          <h1>Mi perfil</h1>
+          <p class="bienvenida">Aquí puede consultar y modificar sus datos 😊</p>
         </div>
-      </div>
-      <div class="campo">
-        <label for="confirmarPassword">Confirmar contraseña</label>
-        <div class="password-wrapper">
-          <input id="confirmarPassword" v-model="confirmarPassword" :type="mostrarConfirmar ? 'text' : 'password'" placeholder="Repita la nueva contraseña" />
-          <button type="button" @click="mostrarConfirmar = !mostrarConfirmar">{{ mostrarConfirmar ? 'Ocultar' : 'Mostrar' }}</button>
+
+        <div class="perfil-columnas">
+
+          <div class="bloque-foto">
+            <img :src="fotoPerfil || avatarDefault" alt="Foto de perfil" class="foto-perfil" />
+            <small class="help-text">📷 La edición de la foto estará disponible próximamente</small>
+          </div>
+
+          <div class="columna-derecha">
+            <div class="seccion-cuidador">
+              <p class="seccion-titulo">Cambiar contraseña <span>(opcional)</span></p>
+              <div class="campo">
+                <label for="nuevaPassword">Nueva contraseña</label>
+                <div class="password-wrapper">
+                  <input id="nuevaPassword" v-model="nuevaPassword" :type="mostrarPassword ? 'text' : 'password'" placeholder="Mínimo 6 caracteres" />
+                  <button type="button" @click="mostrarPassword = !mostrarPassword">{{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}</button>
+                </div>
+              </div>
+              <div class="campo">
+                <label for="confirmarPassword">Confirmar contraseña</label>
+                <div class="password-wrapper">
+                  <input id="confirmarPassword" v-model="confirmarPassword" :type="mostrarConfirmar ? 'text' : 'password'" placeholder="Repita la nueva contraseña" />
+                  <button type="button" @click="mostrarConfirmar = !mostrarConfirmar">{{ mostrarConfirmar ? 'Ocultar' : 'Mostrar' }}</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="seccion-cuidador">
+              <p class="seccion-titulo">Datos del cuidador <span>(opcional)</span></p>
+              <div class="campo">
+                <label for="nombreCuidador">Nombre del cuidador</label>
+                <input id="nombreCuidador" v-model="nombreCuidador" type="text" placeholder="Nombre de su cuidador o familiar" />
+              </div>
+              <div class="campo">
+                <label for="emailCuidador">Correo del cuidador</label>
+                <input id="emailCuidador" v-model="emailCuidador" type="email" placeholder="correo@cuidador.com" />
+              </div>
+              <small class="help-text">📧 Su cuidador recibirá informes de su progreso en esta dirección</small>
+            </div>
+          </div>
+
+          <div class="bloque-datos">
+            <div class="formulario-grid">
+              <div class="campo">
+                <label for="nombre">Nombre</label>
+                <input id="nombre" v-model="nombre" type="text" placeholder="Su nombre" />
+              </div>
+              <div class="campo">
+                <label for="apellidos">Apellidos</label>
+                <input id="apellidos" v-model="apellidos" type="text" placeholder="Sus apellidos" />
+              </div>
+              <div class="campo fila-completa">
+                <label for="email">Correo electrónico</label>
+                <input id="email" v-model="email" type="email" disabled />
+                <small class="help-text">📧 El correo electrónico no puede modificarse</small>
+              </div>
+              <div class="campo fila-completa">
+                <label>Fecha de nacimiento</label>
+                <div class="fecha-selector-grid">
+                  <select v-model="dia" class="select-grande">
+                    <option value="" disabled>Día</option>
+                    <option v-for="d in dias" :key="d" :value="d">{{ d }}</option>
+                  </select>
+                  <select v-model="mes" class="select-grande">
+                    <option value="" disabled>Mes</option>
+                    <option v-for="(m, index) in meses" :key="m" :value="index + 1">{{ m }}</option>
+                  </select>
+                  <select v-model="anio" class="select-grande">
+                    <option value="" disabled>Año</option>
+                    <option v-for="a in anios" :key="a" :value="a">{{ a }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </div>
-    </div>
 
-    <div class="seccion-cuidador">
-      <p class="seccion-titulo">Datos del cuidador <span>(opcional)</span></p>
-      <div class="campo">
-        <label for="nombreCuidador">Nombre del cuidador</label>
-        <input id="nombreCuidador" v-model="nombreCuidador" type="text" placeholder="Nombre de su cuidador o familiar" />
-      </div>
-      <div class="campo">
-        <label for="emailCuidador">Correo del cuidador</label>
-        <input id="emailCuidador" v-model="emailCuidador" type="email" placeholder="correo@cuidador.com" />
-      </div>
-      <small class="help-text">📧 Su cuidador recibirá informes de su progreso en esta dirección</small>
-    </div>
-  </div>
+        <div class="perfil-footer">
+          <ul v-if="errores.length > 0" class="error">
+            <li v-for="e in errores" :key="e">⚠️ {{ e }}</li>
+          </ul>
+          <p v-if="exito" class="exito">{{ exito }}</p>
 
-  <!-- Datos personales abajo izquierda -->
-  <div class="bloque-datos">
-    <div class="formulario-grid">
-      <div class="campo">
-        <label for="nombre">Nombre</label>
-        <input id="nombre" v-model="nombre" type="text" placeholder="Su nombre" />
-      </div>
-      <div class="campo">
-        <label for="apellidos">Apellidos</label>
-        <input id="apellidos" v-model="apellidos" type="text" placeholder="Sus apellidos" />
-      </div>
-      <div class="campo fila-completa">
-        <label for="email">Correo electrónico</label>
-        <input id="email" v-model="email" type="email" disabled />
-        <small class="help-text">📧 El correo electrónico no puede modificarse</small>
-      </div>
-      <div class="campo fila-completa">
-        <label>Fecha de nacimiento</label>
-        <div class="fecha-selector-grid">
-          <select v-model="dia" class="select-grande">
-            <option value="" disabled>Día</option>
-            <option v-for="d in dias" :key="d" :value="d">{{ d }}</option>
-          </select>
-          <select v-model="mes" class="select-grande">
-            <option value="" disabled>Mes</option>
-            <option v-for="(m, index) in meses" :key="m" :value="index + 1">{{ m }}</option>
-          </select>
-          <select v-model="anio" class="select-grande">
-            <option value="" disabled>Año</option>
-            <option v-for="a in anios" :key="a" :value="a">{{ a }}</option>
-          </select>
+          <div class="botones-footer">
+            <button class="btn-volver" @click="router.push('/menu')">← Volver al menú</button>
+            <button class="btn-principal" @click="handleGuardar">Guardar cambios</button>
+            <button class="btn-cerrar" @click="cerrarSesion">🚪 Cerrar sesión</button>
+          </div>
         </div>
+
       </div>
-    </div>
-  </div>
-
-</div>
-
-      <!-- PIE: errores, éxito y botones -->
-      <div class="perfil-footer">
-        <ul v-if="errores.length > 0" class="error">
-          <li v-for="e in errores" :key="e">⚠️ {{ e }}</li>
-        </ul>
-        <p v-if="exito" class="exito">{{ exito }}</p>
-
-        <div class="botones-footer">
-          <button class="btn-volver" @click="router.push('/menu')">← Volver al menú</button>
-          <button class="btn-principal" @click="handleGuardar">Guardar cambios</button>
-          <button class="btn-cerrar" @click="cerrarSesion">🚪 Cerrar sesión</button>
-        </div>
-      </div>
-
     </div>
   </div>
 </template>
 
 <style scoped>
+/* ── BASE DE LA PÁGINA (Sin scroll exterior) ── */
+.perfil-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Obliga a medir exactamente el 100% de la ventana */
+  overflow: hidden; /* Elimina el scroll global */
+}
+
 .perfil-container {
   max-width: 1100px;
+  width: 100%;
   margin: 0 auto;
-  padding: 20px 30px 40px;
+  padding: 16px 24px; /* Reducido drásticamente (antes 60px abajo) */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  position: relative;
+  flex: 1;
+  min-height: 0;
 }
 
-.logo {
-  width: 220px;
+/* ── ILUSTRACIÓN LATERAL ── */
+.ilustracion-wrapper {
+  position: absolute;
+  left: -400px;
+  bottom: 0; /* Anclada abajo para que no se corte raro */
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ilustracion {
+  width: 600px; /* Un pelín más pequeña para que no moleste */
+  height: auto;
   display: block;
-  margin: 0 auto -20px auto;
 }
 
-/* Layout principal de la caja */
+/* ── TARJETA DEL PERFIL ── */
 .perfil-layout {
+  background-color: var(--color-caja, #ffffff);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px; /* Reducido de 32px a 20px */
+  width: 100%;
+  max-width: 900px; 
+  padding: 24px 32px; /* Reducido para ganar espacio vertical */
+  z-index: 2;
+  flex: 1; /* Se estira para ocupar el espacio central */
+  min-height: 0;
+  overflow-y: auto; /* Seguro de vida: si el monitor es enano, hará scroll por dentro, no por fuera */
 }
 
-/* Cabecera centrada */
+/* ── CABECERA CENTRADA ── */
 .perfil-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   text-align: center;
 }
 
-.avatar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+.perfil-header h1 {
+  margin: 0;
+  color: var(--color-principal);
+  font-size: 1.8rem;
 }
 
-.foto-perfil {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid var(--color-principal);
-}
-
-
-.columna {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
+/* ── CUADRÍCULA DE SECCIONES ── */
 .perfil-columnas {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-areas: 
     "foto derecha"
     "datos derecha";
-  gap: 24px 40px;
+  gap: 16px 32px; /* Menos separación vertical entre cajas */
   align-items: start;
 }
 
@@ -292,74 +317,113 @@ function cerrarSesion() {
   gap: 8px;
   border: 2px dashed var(--color-borde);
   border-radius: 12px;
-  padding: 24px;
+  padding: 16px; /* Reducido */
   text-align: center;
+}
+
+.foto-perfil {
+  width: 85px; /* Foto ligeramente más pequeña */
+  height: 85px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--color-principal);
 }
 
 .bloque-datos {
   grid-area: datos;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   border: 2px dashed var(--color-borde);
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
 }
-
-:global([data-theme="dark"]) .bloque-datos {
-  border-color: #555555;
-}
-
 
 .columna-derecha {
   grid-area: derecha;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
-/* Secciones con borde discontinuo */
+
 .seccion-cuidador {
   border: 2px dashed var(--color-borde);
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
 .seccion-titulo {
-  font-size: 18px;
+  font-size: 16px; /* Títulos un poquito más discretos */
   color: var(--color-texto);
   font-weight: 700;
+  margin: 0;
 }
 
 .seccion-titulo span {
   font-weight: normal;
   color: var(--color-texto-suave);
-  font-size: 15px;
+  font-size: 14px;
 }
 
-:global([data-theme="dark"]) .seccion-cuidador {
-  border-color: #555555;
+/* ── CAMPOS DE FORMULARIO ── */
+.formulario-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 10px 16px; /* Menos aire entre filas de inputs */
 }
 
-/* Input deshabilitado */
+.fila-completa {
+  grid-column: 1 / -1; 
+}
+
+.fecha-selector-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; 
+  gap: 8px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campo label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.help-text {
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.password-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.password-wrapper input {
+  flex: 1;
+}
+
 input:disabled {
   background-color: #f0f0f0;
   color: var(--color-texto-suave);
   cursor: not-allowed;
 }
 
-:global([data-theme="dark"]) input:disabled {
-  background-color: #333333;
-  color: var(--color-texto-suave);
-}
-
-/* Pie de página */
+/* ── PIE DE PÁGINA ── */
 .perfil-footer {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: auto; /* Empuja los botones hacia abajo si sobra espacio */
 }
 
 .botones-footer {
@@ -369,23 +433,111 @@ input:disabled {
   align-items: center;
 }
 
-/* Mensaje de éxito */
+.botones-footer button {
+  padding: 10px; /* Botones más estilizados para ahorrar espacio vertical */
+  font-size: 1rem;
+}
+
+.exito, .error {
+  margin: 0;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  font-weight: bold;
+}
+
 .exito {
   color: #27ae60;
-  font-size: 16px;
-  font-weight: bold;
   background-color: #eafaf1;
   border: 1px solid #27ae60;
-  border-radius: 8px;
-  padding: 10px;
-  width: 100%;
-  text-align: center;
 }
 
-:global([data-theme="dark"]) .exito {
-  background-color: #1e3a29;
-  color: #4ade80;
-  border-color: #27ae60;
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #dc3545;
+  list-style-type: none;
 }
 
+/* ── MODO OSCURO ── */
+:global([data-theme="dark"]) .perfil-layout {
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+:global([data-theme="dark"]) .bloque-datos,
+:global([data-theme="dark"]) .bloque-foto,
+:global([data-theme="dark"]) .seccion-cuidador {
+  border-color: #444;
+}
+
+:global([data-theme="dark"]) input:disabled {
+  background-color: #333333;
+  color: var(--color-texto-suave);
+}
+
+/* ── RESPONSIVE (MÓVILES Y TABLETS PEQUEÑAS) ── */
+@media (max-width: 768px) {
+  /* 1. Devolvemos el scroll natural a la página entera */
+  .perfil-page {
+    height: auto;
+    overflow: visible;
+  }
+
+  .perfil-container {
+    padding: 16px 12px 30px;
+  }
+
+  /* 2. Ocultamos al señor de la ilustración para hacer sitio */
+  .ilustracion-wrapper {
+    display: none !important;
+  }
+
+  /* 3. Ajustamos la caja blanca */
+  .perfil-layout {
+    padding: 24px 16px;
+    gap: 24px;
+    overflow-y: visible; /* El scroll lo hace la página, no la caja */
+  }
+
+  /* 4. Magia: Pasamos de 2 columnas a 1 sola, apilando todo hacia abajo */
+  .perfil-columnas {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "foto"
+      "datos"
+      "derecha";
+    gap: 20px;
+  }
+
+  /* 5. Apilamos también "Nombre" y "Apellidos" uno encima del otro */
+  .formulario-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Reducimos un poco el padding de los selectores de fecha para que quepan bien */
+  .select-grande {
+    padding: 10px 4px;
+    font-size: 0.95rem;
+  }
+
+  /* 6. Apilamos los botones del final para que sean fáciles de pulsar con el dedo */
+  .botones-footer {
+    grid-template-columns: 1fr; /* Uno debajo del otro */
+    gap: 12px;
+  }
+
+  .botones-footer button {
+    padding: 16px; /* Botones más altos (mejor accesibilidad táctil) */
+    font-size: 1.1rem;
+  }
+  
+  /* Ajuste para el botón de mostrar/ocultar contraseña */
+  .password-wrapper button {
+    padding: 0 12px;
+    font-size: 0.9rem;
+  }
+}
 </style>

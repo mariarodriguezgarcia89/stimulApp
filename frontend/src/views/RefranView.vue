@@ -151,7 +151,7 @@ function abrirModalAyuda() {
 
     <AppTopbar :modoJuego="true" />
 
-    
+    <div class="refran-container">
       <div class="ilustracion-wrapper">
         <img 
           :src="fondoRefran" 
@@ -160,103 +160,93 @@ function abrirModalAyuda() {
           class="ilustracion" />
       </div>
 
-    <div class="refran-container" v-if="refranActual">
-
-      <!-- TABLERO DE DATOS -->
-      <div class="tablero" :class="{ 'tablero--dificil': dificultad === 'dificil' }">
-        <div class="tablero-dato">
-          <span class="tablero-icono">📖</span>
-          <span class="tablero-valor">{{ indiceActual + 1 }}/{{ refranes.length }}</span>
-          <span class="tablero-etiqueta">Refrán</span>
+      <div class="zona-juego" v-if="refranes && refranes.length > 0 && indiceActual < refranes.length">
+        
+        <div class="tablero" :class="{ 'tablero--dificil': dificultad === 'dificil' }">
+          <div class="tablero-dato">
+            <span class="tablero-icono">📖</span>
+            <span class="tablero-valor">{{ indiceActual + 1 }}/{{ refranes.length }}</span>
+            <span class="tablero-etiqueta">Refrán</span>
+          </div>
+          <div class="tablero-dato">
+            <span class="tablero-icono">⭐</span>
+            <span class="tablero-valor">{{ puntos }}</span>
+            <span class="tablero-etiqueta">Puntos</span>
+          </div>
+          <div class="tablero-dato" v-if="dificultad === 'dificil'">
+            <span class="tablero-icono">⏱</span>
+            <span class="tablero-valor" :class="{ 'tiempo-urgente': tiempoRestante <= 10 }">{{ tiempoRestante }}s</span>
+            <span class="tablero-etiqueta">Tiempo</span>
+          </div>
+          <div class="tablero-dato">
+            <span class="tablero-icono">✅</span>
+            <span class="tablero-valor">{{ acertados }}</span>
+            <span class="tablero-etiqueta">Acertados</span>
+          </div>
+          <button class="tablero-salir" @click="abrirModalSalir">✕ <span>Salir</span></button>
+          <button class="tablero-ayuda" @click="abrirModalAyuda">❓ <span>Ayuda</span></button>
         </div>
-        <div class="tablero-dato">
-          <span class="tablero-icono">⭐</span>
-          <span class="tablero-valor">{{ puntos }}</span>
-          <span class="tablero-etiqueta">Puntos</span>
+
+        <div class="barra-progreso-wrapper">
+          <div class="barra-progreso-fill" :style="{ width: ((indiceActual + 1) / refranes.length * 100) + '%' }"></div>
         </div>
-        <div class="tablero-dato" v-if="dificultad === 'dificil'">
-          <span class="tablero-icono">⏱</span>
-          <span class="tablero-valor" :class="{ 'tiempo-urgente': tiempoRestante <= 10 }">{{ tiempoRestante }}s</span>
-          <span class="tablero-etiqueta">Tiempo</span>
+
+        <div class="refran-card">
+          <p class="etiqueta">Completa el refrán:</p>
+          <h2 class="primera-parte">{{ refranActual.primera_parte }}</h2>
         </div>
-        <div class="tablero-dato">
-          <span class="tablero-icono">✅</span>
-          <span class="tablero-valor">{{ acertados }}</span>
-          <span class="tablero-etiqueta">Acertados</span>
+
+        <div class="opciones" v-if="dificultad === 'facil'">
+          <button
+            v-for="opcion in opcionesAleatorias"
+            :key="opcion"
+            class="btn-opcion"
+            :class="{
+              'correcta': respondido && opcion === refranActual.opcion_correcta,
+              'incorrecta': respondido && opcion !== refranActual.opcion_correcta && opcion === opcionElegida
+            }"
+            :disabled="respondido"
+            @click="responder(opcion)"
+          >
+            {{ opcion }}
+          </button>
         </div>
-        <button class="tablero-salir" @click="abrirModalSalir">✕ <span>Salir</span></button>
-        <button class="tablero-ayuda" @click="abrirModalAyuda">❓ <span>Ayuda</span></button>
+
+        <div class="opciones" v-if="dificultad === 'dificil'">
+          <input
+            v-model="respuestaTexto"
+            class="input-respuesta"
+            type="text"
+            placeholder="Escribe cómo termina el refrán..."
+            :disabled="respondido"
+            @keyup.enter="responderTexto"
+          />
+          <button class="btn-principal" :disabled="respondido" @click="responderTexto">
+            Confirmar respuesta
+          </button>
+        </div>
+
+        <div class="feedback correcto" v-if="respondido && ultimaRespuestaCorrecta">
+          ✅ ¡Correcto!
+        </div>
+        <div class="feedback incorrecto" v-if="respondido && !ultimaRespuestaCorrecta">
+          ❌ La respuesta correcta era: <strong>{{ refranActual.opcion_correcta }}</strong>
+        </div>
+
+        <div class="acciones">
+          <button v-if="respondido" class="btn-siguiente" @click="siguiente">
+            {{ indiceActual + 1 < refranes.length ? 'Siguiente refrán ➡' : 'Ver resultados 🏁' }}
+          </button>
+          <button v-if="!respondido" class="btn-saltar" @click="saltar">
+            Saltar este refrán ⏭
+          </button>
+        </div>
+
+      </div> <div class="cargando" v-else>
+        <p>Cargando refranes...</p>
       </div>
 
-      <!-- BARRA DE PROGRESO -->
-      <div class="barra-progreso-wrapper">
-        <div class="barra-progreso-fill" :style="{ width: ((indiceActual + 1) / refranes.length * 100) + '%' }"></div>
-      </div>
-
-      <!-- CARTA DEL REFRÁN -->
-      <div class="refran-card">
-        <p class="etiqueta">Completa el refrán:</p>
-        <h2 class="primera-parte">{{ refranActual.primera_parte }}</h2>
-      </div>
-
-      <!-- OPCIONES NIVEL NORMAL -->
-      <div class="opciones" v-if="dificultad === 'facil'">
-        <button
-          v-for="opcion in opcionesAleatorias"
-          :key="opcion"
-          class="btn-opcion"
-          :class="{
-            'correcta': respondido && opcion === refranActual.opcion_correcta,
-            'incorrecta': respondido && opcion !== refranActual.opcion_correcta && opcion === opcionElegida
-          }"
-          :disabled="respondido"
-          @click="responder(opcion)"
-        >
-          {{ opcion }}
-        </button>
-      </div>
-
-      <!-- OPCIONES NIVEL AVANZADO -->
-      <div class="opciones" v-if="dificultad === 'dificil'">
-        <input
-          v-model="respuestaTexto"
-          class="input-respuesta"
-          type="text"
-          placeholder="Escribe cómo termina el refrán..."
-          :disabled="respondido"
-          @keyup.enter="responderTexto"
-        />
-        <button class="btn-principal" :disabled="respondido" @click="responderTexto">
-          Confirmar respuesta
-        </button>
-      </div>
-
-      <!-- FEEDBACK -->
-      <div class="feedback correcto" v-if="respondido && ultimaRespuestaCorrecta">
-        ✅ ¡Correcto!
-      </div>
-      <div class="feedback incorrecto" v-if="respondido && !ultimaRespuestaCorrecta">
-        ❌ La respuesta correcta era: <strong>{{ refranActual.opcion_correcta }}</strong>
-      </div>
-
-      <!-- ACCIONES -->
-      <div class="acciones">
-        <button v-if="respondido" class="btn-siguiente" @click="siguiente">
-          {{ indiceActual + 1 < refranes.length ? 'Siguiente refrán ➡' : 'Ver resultados 🏁' }}
-        </button>
-        <button v-if="!respondido" class="btn-saltar" @click="saltar">
-          Saltar este refrán ⏭
-        </button>
-      </div>
-
-    </div>
-
-    <!-- CARGANDO -->
-    <div class="cargando" v-else>
-      <p>Cargando refranes...</p>
-    </div>
-
-    <ModalSalir
+    </div> <ModalSalir
       v-if="mostrarModalSalir"
       @confirmar="router.push('/menu')"
       @cancelar="mostrarModalSalir = false; if (dificultad === 'dificil' && !respondido) iniciarTemporizador(tiempoGuardado)"
@@ -272,12 +262,12 @@ function abrirModalAyuda() {
       @jugarOtraVez="jugarOtraVez"
       @cerrar="router.push('/menu')"
     />
-   <ModalAyuda
-    v-if="mostrarModalAyuda"
-    :instrucciones="instruccionesRefran"
-    :elementos="elementosTablero"
-    @cerrar="mostrarModalAyuda = false; if (dificultad === 'dificil') iniciarTemporizador(tiempoGuardado)"
-  />
+    <ModalAyuda
+      v-if="mostrarModalAyuda"
+      :instrucciones="instruccionesRefran"
+      :elementos="elementosTablero"
+      @cerrar="mostrarModalAyuda = false; if (dificultad === 'dificil') iniciarTemporizador(tiempoGuardado)"
+    />
 
   </div>
 </template>
@@ -287,6 +277,13 @@ function abrirModalAyuda() {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+.perfil-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .refran-container {
