@@ -40,3 +40,21 @@ export const instruccionesRefranDificil = [
   '⏭ Si no recuerdas un refrán, puedes saltarlo cuando quieras sin penalización.',
   '🏁 Al terminar los 10 refranes, verás un resumen con tu puntuación final.'
 ]
+
+export const instruccionesMemoryFacil = [
+  '🃏 Verás 8 cartas boca arriba durante 3 segundos. ¡Memoriza dónde está cada una!',
+  '🔄 Después se voltearán y tendrás que encontrar las 4 parejas iguales.',
+  '👆 Pulsa una carta para voltearla, luego pulsa otra para intentar emparejarla.',
+  '✅ Si aciertas, ganas 10 puntos y las cartas se quedan visibles.',
+  '❌ Si fallas, pierdes 3 puntos y las cartas se vuelven a voltear.',
+  '🏁 La partida acaba cuando encuentras todas las parejas.'
+]
+
+export const instruccionesMemoryDificil = [
+  '🃏 Verás 16 cartas boca arriba durante 3 segundos. ¡Memoriza dónde está cada una!',
+  '🔄 Después se voltearán y tendrás que encontrar las 8 parejas iguales.',
+  '👆 Pulsa una carta para voltearla, luego pulsa otra para intentar emparejarla.',
+  '✅ Si aciertas, ganas 10 puntos y las cartas se quedan visibles.',
+  '❌ Si fallas, pierdes 3 puntos y las cartas se vuelven a voltear.',
+  '⏱ Tienes 60 segundos para encontrar todas las parejas. ¡Concentración!'
+]

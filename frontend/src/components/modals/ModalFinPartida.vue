@@ -4,6 +4,8 @@ const props = defineProps({
     acertados: Number,
     total: Number,
     saltados: { type: Number, default: null },
+    fallos: { type: Number, default: null },
+    tiempo: { type: Number, default: null },
     puntuacionHistorica: Number,
     labelAcertados: { type: String, default: 'elementos' }
 })
@@ -19,21 +21,28 @@ const emit = defineEmits(['jugarOtraVez', 'cerrar'])
                 <span class="icono-principal">🎉</span>
                 <h2>¡Partida terminada!</h2>
             </div>
-
-            <div class="estadisticas">
-                <div class="stat-card">
-                    <span class="stat-numero">{{ puntos }}</span>
-                    <span class="stat-label">Puntos</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-numero">{{ acertados }}/{{ total }}</span>
-                    <span class="stat-label">{{ labelAcertados }} acertados</span>
-                </div>
-                <div class="stat-card" v-if="saltados !== null">
-                    <span class="stat-numero">{{ saltados }}</span>
-                    <span class="stat-label">Saltados</span>
-                </div>
-            </div>
+               <div class="estadisticas">
+    <div class="stat-card">
+        <span class="stat-numero">{{ puntos }}</span>
+        <span class="stat-label">Puntos</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-numero">{{ acertados }}/{{ total }}</span>
+        <span class="stat-label">{{ labelAcertados }} acertados</span>
+    </div>
+    <div class="stat-card" v-if="saltados !== null">
+        <span class="stat-numero">{{ saltados }}</span>
+        <span class="stat-label">Saltados</span>
+    </div>
+    <div class="stat-card" v-if="fallos !== null">
+        <span class="stat-numero">{{ fallos }}</span>
+        <span class="stat-label">Fallos</span>
+    </div>
+    <div class="stat-card" v-if="tiempo !== null">
+        <span class="stat-numero">{{ tiempo }}s</span>
+        <span class="stat-label">Tiempo</span>
+    </div>
+</div>
 
             <div class="historico" v-if="puntuacionHistorica">
                 <span class="historico-label">📊 Tu media histórica</span>
@@ -51,7 +60,7 @@ const emit = defineEmits(['jugarOtraVez', 'cerrar'])
 <style scoped>
 .estadisticas {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 1rem;
 }
 
@@ -126,11 +135,10 @@ const emit = defineEmits(['jugarOtraVez', 'cerrar'])
 }
 
 @media (max-width: 768px) {
-  .estadisticas {
-    grid-template-columns: repeat(3, 1fr);
+.estadisticas {
+    grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
     gap: 0.5rem;
-  }
-
+}
    .stat-card {
     padding: 1rem 0.5rem;
   }

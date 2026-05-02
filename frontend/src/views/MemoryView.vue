@@ -5,6 +5,10 @@ import { usePartida } from '@/composables/usePartida'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import cartaReverso from '@/assets/carta-reverso.png'
+import AppTopbar from '@/components/layout/AppTopbar.vue'
+import ModalAyuda from '@/components/modals/ModalAyuda.vue'
+import fondoMemory from '@/assets/fondo-memory.png'
+import { instruccionesMemoryFacil, instruccionesMemoryDificil } from '@/utils/mensajes.js'
 
 const { finalizarPartida } = usePartida()
 const route = useRoute()
@@ -14,7 +18,7 @@ let temporizador = null
 const cartas = ref([])
 const cartasVolteadas = ref([])
 const puntos = ref(0)
-const tiempoRestante = ref(30)
+const tiempoRestante = ref(60)
 const mostrarModalSalir = ref(false)
 const mostrarModalFin = ref(false)
 const fechaInicio = ref(null)
@@ -23,15 +27,29 @@ const bloqueado = ref(false)
 const fallos = ref(0)
 const acertados = ref(0)
 
+const mostrarModalAyuda = ref(true)
+const instruccionesMemory = dificultad === 'facil' ? instruccionesMemoryFacil : instruccionesMemoryDificil
+
+const elementosTablero = [
+  { icono: '✅', nombre: 'Aciertos', descripcion: 'Cuántas parejas has encontrado.' },
+  { icono: '⭐', nombre: 'Puntos', descripcion: 'Los puntos que llevas. Ganas 10 por cada pareja, pierdes 3 por fallo.' },
+  { icono: '❌', nombre: 'Fallos', descripcion: 'Veces que has volteado dos cartas que no formaban pareja.' },
+  ...(dificultad === 'dificil' ? [{ icono: '⏱', nombre: 'Tiempo', descripcion: 'Los segundos que te quedan para encontrar todas las parejas.' }] : []),
+  { icono: '✕', nombre: 'Salir', descripcion: 'Abandona la partida y vuelve al menú principal.' },
+  { icono: '❓', nombre: 'Ayuda', descripcion: 'Vuelve a ver estas instrucciones en cualquier momento.' }
+]
+
+const totalParejas = dificultad === 'facil' ? 4 : 8
+let tiempoGuardado = 60
+
 const EMOJIS_FACIL = ['🍎', '🚗', '🐶', '🎵']
 const EMOJIS_DIFICIL = ['🍎', '🚗', '🐶', '🎵', '⚽', '📚', '🌟', '🏆']
 
 function generarCartas() {
     const emojis = dificultad === 'facil' ? EMOJIS_FACIL : EMOJIS_DIFICIL
-
     const pares = emojis.flatMap((emoji, index) => [
-        { id: index * 2,     valor: emoji, visible: false, emparejada: false },
-        { id: index * 2 + 1, valor: emoji, visible: false, emparejada: false }
+    { id: index * 2,     valor: emoji, visible: false, emparejada: false, incorrecta: false },
+    { id: index * 2 + 1, valor: emoji, visible: false, emparejada: false, incorrecta: false }
     ])
 
     cartas.value = pares.sort(() => Math.random() - 0.5)
@@ -48,8 +66,8 @@ onMounted(() => {
     if (dificultad === 'dificil') iniciarTemporizador()
 })
 
-function iniciarTemporizador() {
-    tiempoRestante.value = 30
+function iniciarTemporizador(desde = 60) {
+    tiempoRestante.value = desde
     clearInterval(temporizador)
     temporizador = setInterval(() => {
         tiempoRestante.value--
@@ -59,6 +77,18 @@ function iniciarTemporizador() {
                 finalizarPartida(3, puntos.value, duracion, dificultad, mostrarModalFin)
         }
     }, 1000)
+}
+
+function abrirModalSalir() {
+    tiempoGuardado = tiempoRestante.value
+    clearInterval(temporizador)
+    mostrarModalSalir.value = true
+}
+
+function abrirModalAyuda() {
+    tiempoGuardado = tiempoRestante.value
+    clearInterval(temporizador)
+    mostrarModalAyuda.value = true
 }
 
 function voltearCarta(carta){
@@ -85,26 +115,29 @@ function voltearCarta(carta){
             carta2.emparejada = true
             acertados.value++
             puntos.value += 10
-            const totalParejas = dificultad === 'facil' ? 4 : 8
             if (acertados.value === totalParejas) {
+                clearInterval(temporizador)
                 const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
                 finalizarPartida(3, puntos.value, duracion, dificultad, mostrarModalFin)
             }
             cartasVolteadas.value = []
         } else {
-            bloqueado.value = true
-                setTimeout(() => {
-                    carta1.visible = false
-                    carta2.visible = false
-                    fallos.value++
-                    puntos.value -= 3
-                    cartasVolteadas.value = []
-                    bloqueado.value = false
-                }, 1000)
-        }
+    bloqueado.value = true
+    carta1.incorrecta = true
+    carta2.incorrecta = true
+    setTimeout(() => {
+        carta1.visible = false
+        carta2.visible = false
+        carta1.incorrecta = false
+        carta2.incorrecta = false
+        fallos.value++
+        puntos.value -= 3
+        cartasVolteadas.value = []
+        bloqueado.value = false
+    }, 1000)
+}
     }
-
-    }
+}
 
     function jugarOtraVez() {
     puntos.value = 0
@@ -122,89 +155,249 @@ function voltearCarta(carta){
     fechaInicio.value = Date.now()
     if (dificultad === 'dificil') iniciarTemporizador()
 }
-
-
 </script>
+
 <template>
+  <div class="memory-page">
+
+    <AppTopbar :modoJuego="true" />
+
+    <div class="ilustracion-wrapper">
+      <img :src="fondoMemory" alt="" aria-hidden="true" class="ilustracion" />
+    </div>
+
     <div class="memory-container">
 
-        <div class="caja cabecera-juego">
-            <div class="juego-cabecera">
-                <div class="cabecera-izquierda">
-                    <h1>🧠 Juego de Memoria</h1>
-                    <div class="info">
-                        <span>Puntos: <strong>{{ puntos }}</strong></span>
-                        <span v-if="dificultad === 'dificil'"
-                              :class="['temporizador', { urgente: tiempoRestante <= 10 }]">
-                            ⏱ {{ tiempoRestante }}s
-                        </span>
-                    </div>
-                </div>
-                <button class="btn-salir" @click="mostrarModalSalir = true">✕ Salir</button>
-            </div>
+      <!-- TABLERO DE DATOS -->
+      <div class="tablero" :class="{ 'tablero--dificil': dificultad === 'dificil' }">
+        <div class="tablero-dato">
+          <span class="tablero-icono">✅</span>
+          <span class="tablero-valor">{{ acertados }}/{{ totalParejas }}</span>
+          <span class="tablero-etiqueta">Aciertos</span>
         </div>
-
-        <div class="tablero-container">
-            <div class="tablero">
-                <div 
-                    v-for="carta in cartas" 
-                    :key="carta.id" 
-                    class="carta" 
-                    :class="{ visible: carta.visible, emparejada: carta.emparejada }"
-                    @click="voltearCarta(carta)"
-                >
-                    <img v-if="!carta.visible && !carta.emparejada" :src="cartaReverso" class="carta-img" />
-                    <span v-else>{{ carta.valor }}</span>
-                </div>
-            </div>
+        <div class="tablero-dato">
+          <span class="tablero-icono">⭐</span>
+          <span class="tablero-valor">{{ puntos }}</span>
+          <span class="tablero-etiqueta">Puntos</span>
         </div>
+        <div class="tablero-dato">
+          <span class="tablero-icono">❌</span>
+          <span class="tablero-valor">{{ fallos }}</span>
+          <span class="tablero-etiqueta">Fallos</span>
+        </div>
+        <div class="tablero-dato" v-if="dificultad === 'dificil'">
+          <span class="tablero-icono">⏱</span>
+          <span class="tablero-valor" :class="{ 'tiempo-urgente': tiempoRestante <= 10 }">{{ tiempoRestante }}s</span>
+          <span class="tablero-etiqueta">Tiempo</span>
+        </div>
+        <button class="tablero-salir" @click="abrirModalSalir">✕ <span>Salir</span></button>
+        <button class="tablero-ayuda" @click="abrirModalAyuda">❓ <span>Ayuda</span></button>
+      </div>
 
-        <ModalSalir v-if="mostrarModalSalir" 
-            @confirmar="router.push('/menu')" 
-            @cancelar="mostrarModalSalir = false" 
-        />
-        <ModalFinPartida 
-            v-if="mostrarModalFin" 
-            :puntos="puntos" 
-            :acertados="acertados" 
-            :total="dificultad === 'facil' ? 4 : 8" 
-            :saltados="null"
-            :puntuacionHistorica="0"
-            @cerrar="router.push('/menu')"
-            @jugarOtraVez="jugarOtraVez"
-        />
+      <!-- BARRA DE PROGRESO -->
+      <div class="barra-progreso-wrapper">
+        <div class="barra-progreso-fill" :style="{ width: (acertados / totalParejas * 100) + '%' }"></div>
+      </div>
+
+      <!-- TABLERO DE CARTAS -->
+      <div class="cartas-card" :class="{ 'cartas-card--dificil': dificultad === 'dificil' }">
+        <div class="tablero-cartas">
+          <div
+            v-for="carta in cartas"
+            :key="carta.id"
+            class="carta"
+            :class="{ visible: carta.visible, emparejada: carta.emparejada, incorrecta: carta.incorrecta }"
+            @click="voltearCarta(carta)"
+          >
+            <img v-if="!carta.visible && !carta.emparejada" :src="cartaReverso" class="carta-img" />
+            <span v-else>{{ carta.valor }}</span>
+          </div>
+        </div>
+      </div>
 
     </div>
+
+    <ModalSalir
+      v-if="mostrarModalSalir"
+      @confirmar="router.push('/menu')"
+      @cancelar="mostrarModalSalir = false; if (dificultad === 'dificil') iniciarTemporizador(tiempoGuardado)"
+    />
+ <ModalFinPartida
+    v-if="mostrarModalFin"
+    :puntos="puntos"
+    :acertados="acertados"
+    :total="totalParejas"
+    :saltados="null"
+    :fallos="fallos"
+    :tiempo="dificultad === 'dificil' ? (60 - tiempoRestante) : null"
+    labelAcertados="parejas"
+    :puntuacionHistorica="0"
+    @cerrar="router.push('/menu')"
+    @jugarOtraVez="jugarOtraVez"
+/>
+    <ModalAyuda
+      v-if="mostrarModalAyuda"
+      :instrucciones="instruccionesMemory"
+      :elementos="elementosTablero"
+      @cerrar="mostrarModalAyuda = false; if (dificultad === 'dificil') iniciarTemporizador(tiempoGuardado)"
+    />
+
+  </div>
 </template>
 
 <style scoped>
+.memory-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .memory-container {
-  max-width: 860px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 24px 30px 60px;
+  padding: 32px 24px 60px;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
 }
 
-.cabecera-izquierda {
+/* ── TABLERO ── */
+.tablero {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-caja);
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-top: 4px solid var(--color-principal);
+}
+
+.tablero-dato {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 2px;
+  border-right: 1px solid var(--color-borde);
+  padding: 0 8px;
 }
 
-.cabecera-juego {
-  padding: 20px 28px;
-  border-top: 6px solid var(--color-principal);
+.tablero-dato:last-of-type {
+  border-right: none;
 }
 
-.tablero {
+.tablero-icono {
+  font-size: 1.4rem;
+}
+
+.tablero-valor {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--color-principal);
+  line-height: 1;
+}
+
+.tablero-etiqueta {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tiempo-urgente {
+  color: #dc3545 !important;
+  animation: pulso 0.5s infinite alternate;
+}
+
+@keyframes pulso {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+}
+
+.tablero-salir {
+  background-color: transparent;
+  color: #d32f2f;
+  border: 2px solid #f5c6cb;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tablero-salir:hover {
+  background-color: #d32f2f;
+  border-color: #d32f2f;
+  color: white;
+}
+
+.tablero-ayuda {
+  background-color: transparent;
+  color: var(--color-principal);
+  border: 2px solid var(--color-principal);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 90px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tablero-ayuda:hover {
+  background-color: var(--color-principal);
+  border-color: var(--color-principal);
+  color: white;
+}
+
+/* ── BARRA DE PROGRESO ── */
+.barra-progreso-wrapper {
+  height: 8px;
+  background-color: var(--color-borde);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.barra-progreso-fill {
+  height: 100%;
+  background-color: var(--color-principal);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ── CONTENEDOR DEL TABLERO DE CARTAS ── */
+.cartas-card {
+  background-color: var(--color-caja);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-left: 6px solid var(--color-principal);
+}
+
+.tablero-cartas {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   width: 100%;
 }
 
+/* ── CARTAS (estilos básicos provisionales — Bloque 2 los pulirá) ── */
 .carta {
   background-color: var(--color-principal);
   border-radius: 12px;
@@ -231,23 +424,118 @@ function voltearCarta(carta){
   cursor: default;
 }
 
+.carta.incorrecta.incorrecta {
+  background-color: #f8d7da;
+  border: 2px solid #dc3545;
+}
+
 .carta-img {
   width: 70%;
   height: 70%;
   object-fit: contain;
 }
 
-.info {
-  display: flex;
-  gap: 2rem;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: var(--color-texto);
+/* ── ILUSTRACIÓN LATERAL ── */
+.ilustracion-wrapper {
+  position: fixed;
+  left: 0px;
+  top: 70%;
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: none;
 }
 
-h1 {
-  font-size: 1.6rem;
-  color: var(--color-principal);
-  font-weight: 700;
+.ilustracion {
+  width: 600px;
+  height: auto;
+  display: block;
+}
+
+html[data-size="large"] .ilustracion-wrapper {
+  margin: 0 15px -25px auto;
+}
+
+html[data-size="large"] .ilustracion {
+  width: 400px;
+}
+
+@media (max-width: 768px) {
+  .ilustracion-wrapper {
+    display: none !important;
+  }
+
+  .memory-container {
+    padding: 16px 12px 40px;
+    gap: 16px;
+  }
+
+  .cartas-card {
+    padding: 16px;
+  }
+
+  .tablero-cartas {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .carta {
+    aspect-ratio: 3 / 4;
+  }
+
+  .tablero {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .tablero-salir,
+  .tablero-ayuda {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .tablero--dificil {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    padding: 12px;
+  }
+
+  .tablero--dificil .tablero-dato {
+    padding: 0 2px;
+  }
+
+  .tablero--dificil .tablero-icono {
+    font-size: 1.1rem;
+  }
+
+  .tablero--dificil .tablero-valor {
+    font-size: 1.1rem;
+  }
+
+  .tablero--dificil .tablero-etiqueta {
+    font-size: 0.6rem;
+  }
+
+  .tablero--dificil .tablero-salir,
+  .tablero--dificil .tablero-ayuda {
+    grid-column: span 2;
+    width: 100%;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    min-width: auto;
+  }
+
+  .cartas-card--dificil {
+  padding: 10px;
+}
+
+.cartas-card--dificil .tablero-cartas {
+  gap: 6px;
+}
+
+.cartas-card--dificil .carta {
+  aspect-ratio: 1;
+}
 }
 </style>

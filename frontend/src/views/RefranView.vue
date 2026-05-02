@@ -86,6 +86,7 @@ function responderTexto() {
 
 function siguiente() {
     if (indiceActual.value + 1 >= refranes.value.length) {
+      clearInterval(temporizador)
       const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
       finalizarPartida(1, puntos.value, duracion, dificultad, mostrarModalFin)
       return
