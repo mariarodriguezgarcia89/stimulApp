@@ -90,13 +90,18 @@ const props = defineProps({
       <h2 class="usuario-nombre">{{ authStore.nombre }}</h2>
     </div>
 
-    <nav class="panel-navigation">
-      <button class="btn-panel-link" @click="router.push('/perfil'); menuAbierto = false">👤 Mi perfil</button>
-      <button class="btn-panel-link deshabilitado" disabled>📊 Mis estadísticas</button>
-      <button class="btn-panel-link cerrar-rojo" @click="cerrarSesion">🚪 Cerrar sesión</button>
-    </nav>
+   <nav class="panel-navigation">
+  <button 
+    v-if="$route.name !== 'Menu'"
+    class="btn-panel-link" 
+    @click="router.push('/menu'); menuAbierto = false"
+  >🏠 Menú principal</button>
+  <button class="btn-panel-link" @click="router.push('/perfil'); menuAbierto = false">👤 Mi perfil</button>
+  <button class="btn-panel-link" @click="router.push('/estadisticas'); menuAbierto = false">📊 Mis estadísticas</button>
+  <button class="btn-panel-link cerrar-rojo" @click="cerrarSesion">🚪 Cerrar sesión</button>
+</nav>
 
-    <button class="btn-principal secundario-btn" @click="menuAbierto = false">✕ Volver</button>
+    <button class="btn-principal secundario-btn" @click="menuAbierto = false">✕ Cerrar</button>
   </aside>
 
   <div v-if="!modoJuego && menuAbierto" class="overlay-fixed" @click="menuAbierto = false"></div>

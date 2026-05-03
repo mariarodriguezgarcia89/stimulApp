@@ -960,3 +960,75 @@ select:focus {
     gap: 8px !important;
   }
 }
+
+/* ========================================================
+   17. ESTADÍSTICAS — MODO OSCURO
+   ======================================================== */
+[data-theme="dark"] .tarjeta-juego:not(.activa) {
+  border-color: var(--color-texto-suave);
+  background: var(--color-caja);
+}
+
+[data-theme="dark"] .nombre-juego {
+  color: var(--color-texto);
+}
+
+[data-theme="dark"] .tarjeta-juego[data-juego="1"] .icono-juego,
+[data-theme="dark"] .tarjeta-juego[data-juego="2"] .icono-juego {
+  filter: invert(1);
+}
+
+/* Estadísticas — paneles de tendencia en modo oscuro */
+[data-theme="dark"] .panel-tendencia.positiva {
+  background: linear-gradient(135deg, #1b3a1f 0%, var(--color-caja) 60%);
+}
+
+[data-theme="dark"] .panel-tendencia.negativa {
+  background: linear-gradient(135deg, #3a1818 0%, var(--color-caja) 60%);
+}
+
+[data-theme="dark"] .panel-tendencia.neutra {
+  background: linear-gradient(135deg, #2a2a2a 0%, var(--color-caja) 60%);
+}
+
+[data-theme="dark"] .tendencia-consejo {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .tendencia-consejo strong {
+  color: var(--color-texto);
+}
+
+/* Estadísticas — gráfico en modo oscuro */
+[data-theme="dark"] .grafico-titulo {
+  color: var(--color-texto);
+}
+
+/* ApexCharts inserta SVG con colores fijos. Los sobrescribimos con !important. */
+[data-theme="dark"] .apexcharts-text tspan,
+[data-theme="dark"] .apexcharts-yaxis-label,
+[data-theme="dark"] .apexcharts-xaxis-label,
+[data-theme="dark"] .apexcharts-yaxis-title text,
+[data-theme="dark"] .apexcharts-xaxis-title text {
+  fill: var(--color-texto) !important;
+}
+
+[data-theme="dark"] .apexcharts-gridline {
+  stroke: #444 !important;
+}
+
+[data-theme="dark"] .apexcharts-tooltip {
+  background: #1a1a1a !important;
+  color: var(--color-texto) !important;
+  border: 1px solid var(--color-borde) !important;
+}
+
+[data-theme="dark"] .apexcharts-tooltip-title {
+  background: #2d2d2d !important;
+  border-bottom: 1px solid var(--color-borde) !important;
+}
+
+/* Estadísticas — Comparativa en modo oscuro */
+[data-theme="dark"] .tarjeta-comparar {
+  background: #1a1a1a;
+}

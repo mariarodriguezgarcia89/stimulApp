@@ -77,3 +77,67 @@ export const instruccionesIntrusoDificil = [
   '💡 Después de cada respuesta, te explicaremos por qué ese era el intruso.',
   '🏁 La partida acaba después de 3 rondas.'
 ]
+
+// (en mensajes.js, añadir esta sección)
+
+export const mensajesTendencia = {
+  // Títulos según el caso
+  titulos: {
+    cargando: 'Calculando tu tendencia...',
+    sin_datos: '¡Aún no has empezado!',
+    pocas_partidas: 'Estás dando tus primeros pasos 🎯',
+    mejora: (cambio) => `¡Has mejorado un ${cambio.toFixed(1)}%!`,
+    bajada: (cambio) => `Has bajado un ${Math.abs(cambio).toFixed(1)}%`,
+    estable: 'Te mantienes estable'
+  },
+
+  // Subtítulos: explicación de qué se compara
+  subtitulos: {
+    sin_datos: 'Cuando juegues tu primera partida, aquí aparecerá tu progreso.',
+    pocas_partidas: (partidas) =>
+      `Llevas ${partidas} partida${partidas === 1 ? '' : 's'}. Necesitamos al menos 6 para empezar a ver tu evolución.`,
+    ok: 'Estamos comparando tus 5 últimas partidas con todas las anteriores.'
+  },
+
+  // Consejos: recomendación práctica
+  consejos: {
+    sin_datos: 'Empieza por una partida en nivel Normal. ¡Lo importante es disfrutar mientras juegas!',
+    pocas_partidas: 'Sigue jugando con tranquilidad. Cuantas más partidas tengamos, mejor podremos acompañarte.',
+    mejora: '¡Sigue así! Si las partidas te resultan fáciles, puedes probar el nivel Avanzado para mantener el reto.',
+    bajada: 'No te preocupes, las bajadas son normales y forman parte del aprendizaje. Prueba a jugar cuando estés descansado/a, sin prisa, y si lo necesitas vuelve al nivel Normal.',
+    estable: 'Mantenerse estable también es un logro. Si te apetece avanzar, prueba a subir la dificultad poco a poco.'
+  }
+}
+
+export const mensajesStats = {
+  total_partidas: 'Cuántas veces has jugado a este juego en total.',
+  mejor_puntuacion: 'La puntuación más alta que has conseguido. ¡Tu marca personal!',
+  puntuacion_media: 'El promedio de todas tus partidas. Refleja tu nivel habitual.',
+  ultima_partida: 'El día que jugaste por última vez a este juego.'
+}
+
+// Mensajes específicos del gráfico de evolución
+export const mensajesGrafico = {
+  titulo: 'Evolución de tus puntuaciones',
+  descripcion: 'Cada punto representa una partida. La línea muestra cómo van cambiando tus resultados con el tiempo.',
+  // Caso: solo hay 1 partida, no hay línea que dibujar
+  unaSolaPartida: 'Solo tienes una partida registrada. Juega al menos una más para ver cómo evoluciona tu rendimiento.'
+}
+
+// Mensajes específicos del comparativo entre juegos
+export const mensajesComparar = {
+  titulo: 'Comparar mis juegos',
+  subtitulo: 'Aquí puedes ver cómo te va en cada uno de los tres juegos.',
+  etiquetas: {
+    mejor: 'Donde más destacas',
+    estable: 'Donde te mantienes',
+    peor: 'Donde puedes mejorar',
+    sin_datos: 'Aún sin datos suficientes'
+  },
+  consejos: {
+    mejor: '¡Sigue jugando aquí, lo estás haciendo genial!',
+    estable: 'Mantenerte estable también es un logro. Si quieres avanzar, prueba la dificultad Avanzada.',
+    peor: 'Tranquilo/a, las bajadas son normales. Prueba a jugar más relajado/a o vuelve al nivel Normal.',
+    sin_datos: 'Juega unas cuantas partidas más y aquí podrás ver tu evolución.'
+  }
+}
