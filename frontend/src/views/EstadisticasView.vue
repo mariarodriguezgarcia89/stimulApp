@@ -709,7 +709,8 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
 
 .comparar-tarjetas {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  /* Cambio: Forzamos 3 columnas fijas en desktop */
+  grid-template-columns: repeat(3, 1fr); 
   gap: 16px;
 }
 
@@ -892,7 +893,7 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
   padding: 14px 12px;  /* antes 16px 14px */
 }  
 
-  .comparar-tarjetas {
+.comparar-tarjetas {
     grid-template-columns: 1fr;
   }
 

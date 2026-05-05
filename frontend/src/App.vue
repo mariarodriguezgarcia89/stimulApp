@@ -6,7 +6,6 @@ const isLarge = ref(false)
 
 function toggleDarkMode() {
   isDark.value = !isDark.value
-  console.log('toggleDarkMode llamado, isDark ahora es:', isDark.value)
   const theme = isDark.value ? 'dark' : 'light'
   document.documentElement.setAttribute('data-theme', theme)
 }

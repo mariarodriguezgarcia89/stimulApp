@@ -33,15 +33,16 @@ router.put('/me', auth, async (req, res) => {
     try {
         // Extraemos del body solo los campos que el usuario tiene permitido modificar
         // El email y el password_hash no están incluidos
-        const { nombre, apellidos, fecha_nacimiento, foto_perfil, email_cuidador, nombre_cuidador } = req.body;
+        const { nombre, apellidos, fecha_nacimiento, foto_perfil, email_cuidador, nombre_cuidador, password } = req.body;
 
-        // Usuario.update() genera un UPDATE de SQL.
-        // Usamos req.user.id del token (no del body) para garantizar que cada usuario
-        // solo puede modificar su propio perfil, nunca el de otro usuario.
-        await Usuario.update(
-            { nombre, apellidos, fecha_nacimiento, foto_perfil, email_cuidador, nombre_cuidador },
-            { where: { id_usuario: req.user.id } }
-        );
+        const datosActualizar = { nombre, apellidos, fecha_nacimiento, foto_perfil, email_cuidador, nombre_cuidador };
+
+        if (password) {
+            const bcrypt = require('bcryptjs');
+            datosActualizar.password_hash = await bcrypt.hash(password, 10);
+        }
+
+        await Usuario.update(datosActualizar, { where: { id_usuario: req.user.id } });
 
         res.json({ message: 'Usuario actualizado exitosamente.' });
 

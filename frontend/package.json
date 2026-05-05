@@ -1,8 +1,10 @@
 {
   "name": "stimulapp-frontend",
+  "description": "Interfaz Vue 3 para StimulApp — plataforma de estimulación cognitiva",
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "author": "María Rodríguez García",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
