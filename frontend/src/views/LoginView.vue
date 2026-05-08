@@ -24,9 +24,14 @@ function handleLogin() {
       authStore.login(datos.token, datos.nombre, datos.foto_perfil)
       router.push('/menu')
     })
-    .catch(() => {
-      error.value = 'Correo o contraseña incorrectos. Por favor, inténtelo de nuevo.'
-    })
+    .catch(err => {
+      const status = err.response?.status
+      if (status === 403) {
+        error.value = 'Esta cuenta ha sido desactivada. Contacte con su cuidador para recuperarla.'
+      } else {
+        error.value = 'Correo o contraseña incorrectos. Por favor, inténtelo de nuevo.'
+  }
+})
 }
 </script>
 

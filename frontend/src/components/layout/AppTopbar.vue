@@ -341,7 +341,7 @@ const props = defineProps({
     
     /* Controles exactos de posición */
     right: -10px; /* Modifica esto para moverlo en el eje X */
-    top: 0%; 
+    top: -10%; 
     
     z-index: 10;
   }

@@ -90,6 +90,10 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Credenciales inválidas' });
         }
 
+        if (!user.activo) {
+            return res.status(403).json({ message: 'Esta cuenta ha sido desactivada' });
+        }
+
         // Comparamos la contraseña recibida con el hash guardado en la BD
         // bcrypt.compare() 
         // Nunca desencripta: compara hash con hash

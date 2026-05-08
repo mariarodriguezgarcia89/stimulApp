@@ -18,4 +18,13 @@ function actualizarPerfil(datos) {
     })
 }
 
-export default { obtenerPerfil, actualizarPerfil }
+function eliminarCuenta() {
+  return api.delete('/usuarios/me')
+    .then(res => res.data)
+    .catch(err => {
+      console.error('Error al eliminar la cuenta:', err)
+      throw err
+    })
+}
+
+export default { obtenerPerfil, actualizarPerfil, eliminarCuenta }

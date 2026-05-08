@@ -52,4 +52,24 @@ router.put('/me', auth, async (req, res) => {
     }
 });
 
+// DELETE /usuarios/me
+// Desactiva la cuenta del usuario autenticado (borrado lógico)
+// Ruta protegida: requiere token JWT válido en la cabecera Authorization
+router.delete('/me', auth, async (req, res) => {
+    try {
+        await Usuario.update(
+            { activo: false },
+            { where: { id_usuario: req.user.id } }
+        );
+
+        res.json({ message: 'Cuenta desactivada correctamente.' });
+
+    } catch (error) {
+        console.error('Error al desactivar la cuenta:', error);
+        res.status(500).json({ error: 'Error al desactivar la cuenta.' });
+    }
+});
+
+
+
 module.exports = router;

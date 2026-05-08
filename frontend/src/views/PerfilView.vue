@@ -7,6 +7,7 @@ import { mensajes } from '@/utils/mensajes.js'
 import avatarDefault from '@/assets/avatar-default.jpg'
 import fondoPerfil from '@/assets/fondo-perfil.png'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
+import ModalEliminarCuenta from '@/components/modals/ModalEliminarCuenta.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -109,6 +110,20 @@ function handleGuardar() {
 function cerrarSesion() {
   authStore.logout()
   router.push('/login')
+}
+
+const mostrarModalEliminar = ref(false)
+
+function handleEliminarCuenta() {
+  console.log('Token enviado:', authStore.token)
+  usuarioService.eliminarCuenta()
+    .then(() => {
+      authStore.logout()
+      router.push('/login')
+    })
+    .catch(() => {
+      errores.value.push('No se ha podido eliminar la cuenta. Inténtalo de nuevo.')
+    })
 }
 </script>
 
@@ -224,6 +239,16 @@ function cerrarSesion() {
           </div>
         </div>
 
+          <div class="zona-peligro">
+              <p class="zona-peligro-titulo">⚠️ Zona de peligro</p>
+              <button class="btn-eliminar" @click="mostrarModalEliminar = true">Eliminar cuenta</button>
+            </div>
+
+            <ModalEliminarCuenta
+              v-if="mostrarModalEliminar"
+              @confirmar="handleEliminarCuenta"
+              @cancelar="mostrarModalEliminar = false"
+            />
       </div>
     </div>
   </div>
@@ -475,6 +500,38 @@ input:disabled {
 :global([data-theme="dark"]) input:disabled {
   background-color: #333333;
   color: var(--color-texto-suave);
+}
+
+.zona-peligro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #e74c3c;
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+.zona-peligro-titulo {
+  font-size: 0.9rem;
+  color: #e74c3c;
+  font-weight: 600;
+  margin: 0;
+}
+
+.btn-eliminar {
+  background-color: transparent;
+  color: #c0392b;
+  border: 1px solid #c0392b;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-eliminar:hover {
+  background-color: #fdecea;
 }
 
 /* ── RESPONSIVE (MÓVILES Y TABLETS PEQUEÑAS) ── */
