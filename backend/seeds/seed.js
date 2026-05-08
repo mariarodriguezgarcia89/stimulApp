@@ -14,8 +14,6 @@ const bcryptjs = require('bcryptjs');
 async function seed() {
     try {
         // Insertamos los 3 juegos de StimulApp
-        // findOrCreate busca por 'nombre' (campo único). Si no existe, lo crea con 'defaults'.
-        // Si ya existe, no hace nada. Así el seed es seguro de ejecutar varias veces.
         const juegosData = [
             {
                 nombre: 'Acaba el refrán',
@@ -39,8 +37,8 @@ async function seed() {
 
         for (const juegoData of juegosData) {
             await Juego.findOrCreate({
-                where: { nombre: juegoData.nombre }, // Criterio de búsqueda: el nombre es único
-                defaults: juegoData                  // Valores a usar solo si se crea el registro
+                where: { nombre: juegoData.nombre },
+                defaults: juegoData
             });
         }
 
@@ -49,20 +47,20 @@ async function seed() {
 
         const usuariosData = [
             {
-                nombre: 'Rodrigo', apellidos: 'García',
-                email: 'rodrigo.garcia@example.com',
+                nombre: 'Sergio', apellidos: 'González',
+                email: 'sergio.gonzalez@example.com',
                 password_hash: passwordHash,
-                fecha_nacimiento: '1950-01-01',
-                foto_perfil: 'https://example.com/foto.jpg',
+                fecha_nacimiento: '1988-08-29',
+                foto_perfil: null,
                 email_cuidador: 'cuidador@example.com', nombre_cuidador: 'María',
                 activo: true
             },
             {
-                nombre: 'María', apellidos: 'López',
-                email: 'maria.lopez@example.com',
+                nombre: 'María', apellidos: 'Rodríguez',
+                email: 'maria.rodriguez@example.com',
                 password_hash: passwordHash,
-                fecha_nacimiento: '1960-01-01',
-                foto_perfil: 'https://example.com/foto2.jpg',
+                fecha_nacimiento: '1989-03-14',
+                foto_perfil: null,
                 email_cuidador: 'cuidador2@example.com', nombre_cuidador: 'Juan',
                 activo: true
             },
@@ -71,7 +69,7 @@ async function seed() {
                 email: 'juan.perez@example.com',
                 password_hash: passwordHash,
                 fecha_nacimiento: '1970-01-01',
-                foto_perfil: 'https://example.com/foto3.jpg',
+                foto_perfil: null,
                 email_cuidador: 'cuidador3@example.com', nombre_cuidador: 'Ana',
                 activo: true
             }
@@ -79,160 +77,153 @@ async function seed() {
 
         for (const usuarioData of usuariosData) {
             await Usuario.findOrCreate({
-                where: { email: usuarioData.email }, // El email es único: sirve como criterio de búsqueda
+                where: { email: usuarioData.email },
                 defaults: usuarioData
             });
         }
 
         const refranesData = [
-    {
-        primera_parte: 'A caballo regalado,',
-        opcion_uno: 'se le mira el precio',
-        opcion_dos: 'se le mira la edad',
-        opcion_correcta: 'no se le mira el diente'
-    },
-    {
-        primera_parte: 'Más vale tarde,',
-        opcion_uno: 'que pronto',
-        opcion_dos: 'que siempre',
-        opcion_correcta: 'que nunca'
-    },
-    {
-        primera_parte: 'En casa de herrero,',
-        opcion_uno: 'cuchillo de oro',
-        opcion_dos: 'cuchillo de hierro',
-        opcion_correcta: 'cuchillo de palo'
-    },
-    {
-        primera_parte: 'No hay mal que por bien,',
-        opcion_uno: 'se vaya',
-        opcion_dos: 'venga solo',
-        opcion_correcta: 'no venga'
-    },
-    {
-        primera_parte: 'Ojos que no ven,',
-        opcion_uno: 'corazón que siente',
-        opcion_dos: 'alma que no duerme',
-        opcion_correcta: 'corazón que no siente'
-    },
-    {
-        primera_parte: 'Dime con quién andas,',
-        opcion_uno: 'y te diré qué comes',
-        opcion_dos: 'y te diré adónde vas',
-        opcion_correcta: 'y te diré quién eres'
-    },
-    {
-        primera_parte: 'A buen hambre,',
-        opcion_uno: 'no hay mal vino',
-        opcion_dos: 'no hay buena mesa',
-        opcion_correcta: 'no hay mal pan'
-    },
-    {
-        primera_parte: 'El que mucho abarca,',
-        opcion_uno: 'mucho aprieta',
-        opcion_dos: 'todo lo pierde',
-        opcion_correcta: 'poco aprieta'
-    },
-    {
-        primera_parte: 'Agua que no has de beber,',
-        opcion_uno: 'guárdala bien',
-        opcion_dos: 'no la toques',
-        opcion_correcta: 'déjala correr'
-    },
-    {
-        primera_parte: 'Camarón que se duerme,',
-        opcion_uno: 'se lo lleva el viento',
-        opcion_dos: 'pierde el camino',
-        opcion_correcta: 'se lo lleva la corriente'
-    }
-];
+            {
+                primera_parte: 'A caballo regalado,',
+                opcion_uno: 'se le mira el precio',
+                opcion_dos: 'se le mira la edad',
+                opcion_correcta: 'no se le mira el diente'
+            },
+            {
+                primera_parte: 'Más vale tarde,',
+                opcion_uno: 'que pronto',
+                opcion_dos: 'que siempre',
+                opcion_correcta: 'que nunca'
+            },
+            {
+                primera_parte: 'En casa de herrero,',
+                opcion_uno: 'cuchillo de oro',
+                opcion_dos: 'cuchillo de hierro',
+                opcion_correcta: 'cuchillo de palo'
+            },
+            {
+                primera_parte: 'No hay mal que por bien,',
+                opcion_uno: 'se vaya',
+                opcion_dos: 'venga solo',
+                opcion_correcta: 'no venga'
+            },
+            {
+                primera_parte: 'Ojos que no ven,',
+                opcion_uno: 'corazón que siente',
+                opcion_dos: 'alma que no duerme',
+                opcion_correcta: 'corazón que no siente'
+            },
+            {
+                primera_parte: 'Dime con quién andas,',
+                opcion_uno: 'y te diré qué comes',
+                opcion_dos: 'y te diré adónde vas',
+                opcion_correcta: 'y te diré quién eres'
+            },
+            {
+                primera_parte: 'A buen hambre,',
+                opcion_uno: 'no hay mal vino',
+                opcion_dos: 'no hay buena mesa',
+                opcion_correcta: 'no hay mal pan'
+            },
+            {
+                primera_parte: 'El que mucho abarca,',
+                opcion_uno: 'mucho aprieta',
+                opcion_dos: 'todo lo pierde',
+                opcion_correcta: 'poco aprieta'
+            },
+            {
+                primera_parte: 'Agua que no has de beber,',
+                opcion_uno: 'guárdala bien',
+                opcion_dos: 'no la toques',
+                opcion_correcta: 'déjala correr'
+            },
+            {
+                primera_parte: 'Camarón que se duerme,',
+                opcion_uno: 'se lo lleva el viento',
+                opcion_dos: 'pierde el camino',
+                opcion_correcta: 'se lo lleva la corriente'
+            }
+        ];
 
         for (const refranData of refranesData) {
             await Refran.findOrCreate({
-                where: { primera_parte: refranData.primera_parte }, // La primera parte del refrán es única
+                where: { primera_parte: refranData.primera_parte },
                 defaults: refranData
             });
         }
 
-    const intrusosData = [
-  // FÁCIL
-  {
-    imagen_uno: '/intrusos/facil_p1_perro.png',
-    imagen_dos: '/intrusos/facil_p1_pajaro.png',
-    imagen_tres: '/intrusos/facil_p1_gato.png',
-    imagen_cuatro: '/intrusos/facil_p1_coche.png',
-    imagen_intrusa: '/intrusos/facil_p1_coche.png',
-    nivel: 'facil',
-    explicacion: 'El coche es el intruso porque es un vehículo, mientras que el resto son animales.'
-  },
-  {
-    imagen_uno: '/intrusos/facil_p2_bici.png',
-    imagen_dos: '/intrusos/facil_p2_bus.png',
-    imagen_tres: '/intrusos/facil_p2_coche.png',
-    imagen_cuatro: '/intrusos/facil_p2_perro.png',
-    imagen_intrusa: '/intrusos/facil_p2_perro.png',
-    nivel: 'facil',
-    explicacion: 'El perro es el intruso porque es un animal, mientras que el resto son vehículos.'
-  },
-  {
-    imagen_uno: '/intrusos/facil_p3_camiseta.png',
-    imagen_dos: '/intrusos/facil_p3_pantalones.png',
-    imagen_tres: '/intrusos/facil_p3_tenis.png',
-    imagen_cuatro: '/intrusos/facil_p3_perro.png',
-    imagen_intrusa: '/intrusos/facil_p3_perro.png',
-    nivel: 'facil',
-    explicacion: 'El perro es el intruso porque es un animal, mientras que el resto son prendas de ropa.'
-  },
-  // DIFÍCIL
-  {
-    imagen_uno: '/intrusos/dificil_p1_perro.png',
-    imagen_dos: '/intrusos/dificil_p1_gato.png',
-    imagen_tres: '/intrusos/dificil_p1_lobo.png',
-    imagen_cuatro: '/intrusos/dificil_p1_delfin.png',
-    imagen_intrusa: '/intrusos/dificil_p1_delfin.png',
-    nivel: 'dificil',
-    explicacion: 'El delfín es el intruso porque es el único animal acuático, mientras que el resto son animales terrestres.'
-  },
-  {
-    imagen_uno: '/intrusos/dificil_p2_silla.png',
-    imagen_dos: '/intrusos/dificil_p2_mesa.png',
-    imagen_tres: '/intrusos/dificil_p2_sofa.png',
-    imagen_cuatro: '/intrusos/dificil_p2_nevera.png',
-    imagen_intrusa: '/intrusos/dificil_p2_nevera.png',
-    nivel: 'dificil',
-    explicacion: 'La nevera es el intruso porque es un electrodoméstico, mientras que el resto son muebles.'
-  },
-  {
-    imagen_uno: '/intrusos/dificil_p3_coche.png',
-    imagen_dos: '/intrusos/dificil_p3_bici.png',
-    imagen_tres: '/intrusos/dificil_p3_moto.png',
-    imagen_cuatro: '/intrusos/dificil_p3_barco.png',
-    imagen_intrusa: '/intrusos/dificil_p3_barco.png',
-    nivel: 'dificil',
-    explicacion: 'El barco es el intruso porque es el único medio de transporte acuático, mientras que el resto circulan por tierra.'
-  }
-];
+        const intrusosData = [
+            {
+                imagen_uno: '/intrusos/facil_p1_perro.png',
+                imagen_dos: '/intrusos/facil_p1_pajaro.png',
+                imagen_tres: '/intrusos/facil_p1_gato.png',
+                imagen_cuatro: '/intrusos/facil_p1_coche.png',
+                imagen_intrusa: '/intrusos/facil_p1_coche.png',
+                nivel: 'facil',
+                explicacion: 'El coche es el intruso porque es un vehículo, mientras que el resto son animales.'
+            },
+            {
+                imagen_uno: '/intrusos/facil_p2_bici.png',
+                imagen_dos: '/intrusos/facil_p2_bus.png',
+                imagen_tres: '/intrusos/facil_p2_coche.png',
+                imagen_cuatro: '/intrusos/facil_p2_perro.png',
+                imagen_intrusa: '/intrusos/facil_p2_perro.png',
+                nivel: 'facil',
+                explicacion: 'El perro es el intruso porque es un animal, mientras que el resto son vehículos.'
+            },
+            {
+                imagen_uno: '/intrusos/facil_p3_camiseta.png',
+                imagen_dos: '/intrusos/facil_p3_pantalones.png',
+                imagen_tres: '/intrusos/facil_p3_tenis.png',
+                imagen_cuatro: '/intrusos/facil_p3_perro.png',
+                imagen_intrusa: '/intrusos/facil_p3_perro.png',
+                nivel: 'facil',
+                explicacion: 'El perro es el intruso porque es un animal, mientras que el resto son prendas de ropa.'
+            },
+            {
+                imagen_uno: '/intrusos/dificil_p1_perro.png',
+                imagen_dos: '/intrusos/dificil_p1_gato.png',
+                imagen_tres: '/intrusos/dificil_p1_lobo.png',
+                imagen_cuatro: '/intrusos/dificil_p1_delfin.png',
+                imagen_intrusa: '/intrusos/dificil_p1_delfin.png',
+                nivel: 'dificil',
+                explicacion: 'El delfín es el intruso porque es el único animal acuático, mientras que el resto son animales terrestres.'
+            },
+            {
+                imagen_uno: '/intrusos/dificil_p2_silla.png',
+                imagen_dos: '/intrusos/dificil_p2_mesa.png',
+                imagen_tres: '/intrusos/dificil_p2_sofa.png',
+                imagen_cuatro: '/intrusos/dificil_p2_nevera.png',
+                imagen_intrusa: '/intrusos/dificil_p2_nevera.png',
+                nivel: 'dificil',
+                explicacion: 'La nevera es el intruso porque es un electrodoméstico, mientras que el resto son muebles.'
+            },
+            {
+                imagen_uno: '/intrusos/dificil_p3_coche.png',
+                imagen_dos: '/intrusos/dificil_p3_bici.png',
+                imagen_tres: '/intrusos/dificil_p3_moto.png',
+                imagen_cuatro: '/intrusos/dificil_p3_barco.png',
+                imagen_intrusa: '/intrusos/dificil_p3_barco.png',
+                nivel: 'dificil',
+                explicacion: 'El barco es el intruso porque es el único medio de transporte acuático, mientras que el resto circulan por tierra.'
+            }
+        ];
 
-for (const intrusoData of intrusosData) {
-  await Intruso.findOrCreate({
-    where: { imagen_intrusa: intrusoData.imagen_intrusa, nivel: intrusoData.nivel },
-    defaults: intrusoData
-  });
-}
+        for (const intrusoData of intrusosData) {
+            await Intruso.findOrCreate({
+                where: { imagen_intrusa: intrusoData.imagen_intrusa, nivel: intrusoData.nivel },
+                defaults: intrusoData
+            });
+        }
 
-console.log('✅ Intrusos insertados correctamente');
-
-        console.log('Datos de prueba insertados correctamente.');
+        console.log('✅ Datos de prueba insertados correctamente.');
 
     } catch (error) {
         console.error('Error al insertar datos de prueba:', error);
 
     } finally {
-        // Cerramos la conexión a la BD siempre, tanto si el seed fue bien como si falló.
-        // Sin esto, el proceso de Node quedaría colgado esperando conexiones abiertas.
         await sequelize.close();
     }
 }
 
-// Ejecutamos la función principal
 seed();
