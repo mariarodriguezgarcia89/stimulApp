@@ -30,7 +30,6 @@ router.post('/nueva-partida', auth, async (req, res) => {
         fecha: new Date()
     });
 
-    console.log('Llegamos al findOrCreate', req.user.id, juego_id);
     const [estadisticaUsuario, creada] = await Estadistica.findOrCreate({
     where: { usuario_id: req.user.id, juego_id: juego_id },
     defaults: { 
@@ -58,7 +57,6 @@ router.post('/nueva-partida', auth, async (req, res) => {
             const nombreJuego = juego ? juego.nombre : 'el juego';
             // Enviar correo al cuidador
             const usuario = await Usuario.findByPk(req.user.id);
-            
             await enviarCorreoAlCuidador(usuario.email_cuidador, usuario.nombre, nombreJuego, puntuacion, mediaAnterior);
         }   
     }

@@ -115,7 +115,6 @@ function cerrarSesion() {
 const mostrarModalEliminar = ref(false)
 
 function handleEliminarCuenta() {
-  console.log('Token enviado:', authStore.token)
   usuarioService.eliminarCuenta()
     .then(() => {
       authStore.logout()

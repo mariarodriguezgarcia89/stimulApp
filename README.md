@@ -32,7 +32,7 @@ StimulApp/
 │   ├── routes/          # Endpoints de la API REST organizados por entidad
 │   ├── seeds/           # Script para poblar la base de datos con datos de ejemplo
 │   ├── services/        # Lógica de negocio: generación de informes y envío de correos
-│   ├── templates/       # Plantilla HTML base para los informes quincenales
+│   ├── templates/       # Plantilla HTML base para los informes mensuales
 │   ├── .env.example     # Plantilla de configuración (ver sección de configuración)
 │   └── app.js           # Punto de entrada del servidor
 └── frontend/
@@ -133,7 +133,7 @@ DB_PASSWORD=tu_contraseña
 # Autenticación
 JWT_SECRET=una_clave_secreta_larga_y_segura   # Cadena aleatoria usada para firmar los tokens
 
-# Correo (necesario para alertas al cuidador e informes quincenales)
+# Correo (necesario para alertas al cuidador e informes mensuales)
 EMAIL_USER=tu_correo@gmail.com
 EMAIL_PASS=tu_contraseña_de_aplicacion
 ```
@@ -228,7 +228,7 @@ Cada juego tiene dos niveles de dificultad: **Normal** y **Avanzado**.
 
 ### 📧 Comunicación con el cuidador
 - **Alertas automáticas**: si el rendimiento cae más de un 30% respecto a la media histórica, se envía un correo de aviso al cuidador registrado.
-- **Informes quincenales en PDF**: cada 15 días se genera y envía automáticamente un informe detallado al usuario y al cuidador, con gráficas, análisis por juego y recomendaciones personalizadas.
+- **Informes mensuales en PDF**: cada 15 días se genera y envía automáticamente un informe detallado al usuario y al cuidador, con gráficas, análisis por juego y recomendaciones personalizadas.
 - **Recordatorio de inactividad**: si el usuario lleva más de 10 días sin jugar, recibe un correo de recordatorio.
 
 ### ♿ Accesibilidad

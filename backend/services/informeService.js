@@ -1,5 +1,5 @@
 const { Usuario, Partida, Estadistica } = require('../models/index.js');
-const { transporter } = require('./emailService.js');
+const { transporter, generarHTMLEmail } = require('./emailService.js');
 const puppeteer = require('puppeteer');
 const { Op } = require('sequelize');
 const fs = require('fs');
@@ -185,10 +185,10 @@ function generarHTML(usuario, partidas, mediasPorJuego, diasUnicos) {
 
     // ── 6. FECHAS Y MENSAJE FINAL ──
     const hoy      = new Date();
-    const hace15   = new Date(); hace15.setDate(hoy.getDate() - 15);
+    const hace30   = new Date(); hace30.setDate(hoy.getDate() - 30);
     const opcFecha = { day: 'numeric', month: 'long', year: 'numeric' };
     const fechaHoy = hoy.toLocaleDateString('es-ES', opcFecha);
-    const fechaIni = hace15.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const fechaIni = hace30.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
     const fechaFin = hoy.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 
     const mensajeFinal = diasUnicos >= 7
@@ -196,7 +196,7 @@ function generarHTML(usuario, partidas, mediasPorJuego, diasUnicos) {
         : `Recordamos que cuantos más días use StimulApp, más completo y fiable será su informe. ¡Ánimo, ${usuario.nombre}! Su mente merece ese cuidado diario.`;
 
     // ── 7. SUSTITUIR PLACEHOLDERS ──
-    html = html.replace('{{NOMBRE_USUARIO}}',      usuario.nombre);
+    html = html.replaceAll('{{NOMBRE_USUARIO}}', usuario.nombre);
     html = html.replace('{{INICIAL_USUARIO}}',     usuario.nombre.charAt(0).toUpperCase());
     html = html.replace('{{TOTAL_PARTIDAS}}',      partidas.length);
     html = html.replace('{{DIAS_USO}}',            diasUnicos);
@@ -211,6 +211,85 @@ function generarHTML(usuario, partidas, mediasPorJuego, diasUnicos) {
     html = html.replace('{{DATOS_RADIAL_JSON}}',   JSON.stringify(datosRadial));
     html = html.replace('{{DATOS_LINEA_JSON}}',    JSON.stringify(datosLinea));
     html = html.replace('{{COLORES_ACTUAL_JSON}}', JSON.stringify(coloresActual));
+
+    return html;
+}
+
+function generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos) {
+
+    let html = fs.readFileSync(
+        path.join(__dirname, '../templates/informe-usuario.html'),
+        'utf8'
+    );
+
+    const INFO_JUEGOS = {
+        1: { nombre: 'Acaba el Refrán' },
+        2: { nombre: 'Encuentra el Intruso' },
+        3: { nombre: 'Memory' }
+    };
+
+    const partidasPorJuego = {};
+    partidas.forEach(partida => {
+        if (!partidasPorJuego[partida.juego_id]) {
+            partidasPorJuego[partida.juego_id] = [];
+        }
+        partidasPorJuego[partida.juego_id].push(partida);
+    });
+
+    const mediaActualPorJuego = {};
+    Object.keys(partidasPorJuego).forEach(juegoId => {
+        const puntuaciones = partidasPorJuego[juegoId].map(p => p.puntuacion);
+        mediaActualPorJuego[juegoId] = Math.round(puntuaciones.reduce((a, b) => a + b, 0) / puntuaciones.length);
+    });
+
+    const juegosConDatos = Object.keys(partidasPorJuego).map(Number);
+
+    const MENSAJES = {
+        bien:   '¡Lo está haciendo muy bien! 🎉',
+        bajo:   'Este mes puede mejorar un poco. ¡Ánimo!',
+        alerta: 'Este mes ha costado un poco más. No se preocupe, ¡lo irá mejorando!'
+    };
+
+    let tarjetasHTML = '';
+    juegosConDatos.forEach(id => {
+        const mediaAnterior  = Math.round(mediasPorJuego[id] || 0);
+        const mediaActual    = mediaActualPorJuego[id];
+        const porcentaje     = mediaAnterior > 0 ? Math.round((mediaActual / mediaAnterior) * 100) : 100;
+        const recomendaciones = obtenerRecomendaciones(id, porcentaje);
+        const nivel          = porcentaje >= 70 ? 'bien' : porcentaje >= 40 ? 'bajo' : 'alerta';
+
+        tarjetasHTML += `
+        <div class="juego-card ${nivel}">
+            <div class="juego-nombre">${INFO_JUEGOS[id]?.nombre || `Juego ${id}`}</div>
+            <div class="juego-mensaje ${nivel}">${MENSAJES[nivel]}</div>
+            <div class="recomendaciones-titulo">Le recomendamos</div>
+            <ul class="recomendaciones-lista">
+                ${recomendaciones.map(r => `<li>${r}</li>`).join('')}
+            </ul>
+        </div>`;
+    });
+
+    const hoy    = new Date();
+    const hace30 = new Date(); hace30.setDate(hoy.getDate() - 30);
+    const fechaHoy = hoy.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    const fechaIni = hace30.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const fechaFin = hoy.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    const mensajeFinal = diasUnicos >= 7
+        ? `¡Excelente trabajo, ${usuario.nombre}! Cada día que practica está cuidando su mente. ¡Siga adelante con ese ánimo!`
+        : `Recuerde que cuantos más días use StimulApp, mejor se irá sintiendo. ¡Ánimo, ${usuario.nombre}!`;
+
+    html = html.replaceAll('{{NOMBRE_USUARIO}}',   usuario.nombre);
+    html = html.replace('{{INICIAL_USUARIO}}',  usuario.nombre.charAt(0).toUpperCase());
+    html = html.replace('{{TOTAL_PARTIDAS}}',   partidas.length);
+    html = html.replace('{{DIAS_USO}}',         diasUnicos);
+    html = html.replace('{{TOTAL_JUEGOS}}',     juegosConDatos.length);
+    html = html.replace('{{FECHA_INICIO}}',     fechaIni);
+    html = html.replace('{{FECHA_FIN}}',        fechaFin);
+    html = html.replace('{{FECHA_GENERACION}}', fechaHoy);
+    html = html.replace('{{MENSAJE_FINAL}}',    mensajeFinal);
+    html = html.replace('{{EMAIL_REMITENTE}}',  process.env.EMAIL_USER || 'stimulapp.alertas@gmail.com');
+    html = html.replace('{{TARJETAS_JUEGOS}}',  tarjetasHTML);
 
     return html;
 }
@@ -290,11 +369,11 @@ async function enviarInformes() {
         const emailCuidador  = usuario.email_cuidador;
 
         const hoy = new Date();
-        const hace15dias = new Date();
-        hace15dias.setDate(hoy.getDate() - 15);
+        const hace30dias = new Date();
+        hace30dias.setDate(hoy.getDate() - 30);
 
         const partidas = await Partida.findAll({
-            where: { usuario_id: usuario.id_usuario, fecha: { [Op.gte]: hace15dias } }
+            where: { usuario_id: usuario.id_usuario, fecha: { [Op.gte]: hace30dias } }
         });
 
         if (partidas.length === 0) continue;
@@ -312,6 +391,20 @@ async function enviarInformes() {
         const diasUnicos = diasUso.size;
 
         const htmlInforme = generarHTML(usuario, partidas, mediasPorJuego, diasUnicos);
+        const htmlInformeUsuario = generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos);
+
+        // Guardar HTML del usuario en disco
+        const nombreFicheroUsuario = `informe-usuario_${usuario.nombre}_${Date.now()}.html`;
+        const rutaFicheroUsuario = path.join(__dirname, '../public/informes', nombreFicheroUsuario);
+        fs.writeFileSync(rutaFicheroUsuario, htmlInformeUsuario);
+        const enlaceUsuario = `http://localhost:3000/informes/${nombreFicheroUsuario}`;
+
+        // Generar PDF del usuario
+        const browserUsuario = await puppeteer.launch();
+        const pageUsuario = await browserUsuario.newPage();
+        await pageUsuario.setContent(htmlInformeUsuario, { waitUntil: 'networkidle0' });
+        const pdfBufferUsuario = await pageUsuario.pdf({ format: 'A4', printBackground: true });
+        await browserUsuario.close();
 
         const browser   = await puppeteer.launch();
         const page      = await browser.newPage();
@@ -328,25 +421,52 @@ async function enviarInformes() {
         const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
         await browser.close();
 
-        const asunto = 'Informe quincenal de StimulApp 📋';
+        const asunto = 'Informe mensual de StimulApp 📋';
+
+        const htmlCorreoUsuario = generarHTMLEmail({
+    saludo:  `Hola, ${nombreUsuario} 😊`,
+    icono:   '📋',
+    titulo:  'Su informe mensual está listo',
+    cuerpo:  `<p style="font-size:18px; line-height:1.9;">Le enviamos su informe de seguimiento del último mes en StimulApp.</p>
+              <p style="font-size:18px; line-height:1.9;">En él encontrará un resumen de todas las partidas que ha jugado, cómo ha evolucionado su rendimiento en cada juego y recomendaciones personalizadas para seguir mejorando.</p>
+              <p style="font-size:18px; line-height:1.9;">Puede verlo pulsando el botón o descargarlo en PDF desde el archivo adjunto.</p>
+              <p style="font-size:18px; line-height:1.9;">¡Siga adelante, ${nombreUsuario}! Cada día que practica está cuidando su mente. 🧠</p>`,
+    boton: `<div style="text-align:center; margin-top:8px;">
+          <a href="${enlaceUsuario}" style="display:inline-block; background-color:#7B2D3E; color:#ffffff; font-size:15px; font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none; letter-spacing:0.5px;">
+              Ver mi informe
+          </a>
+        </div>`
+});
 
         await transporter.sendMail({
-            from:    process.env.EMAIL_USER,
-            to:      emailUsuario,
-            subject: asunto,
-            text:    `Hola ${nombreUsuario},\n\nTe adjuntamos tu informe quincenal de StimulApp.\n\nPuedes verlo online aquí: ${enlace}\n\nTambién te lo adjuntamos en PDF por si prefieres descargarlo.\n\nAtentamente, el equipo de StimulApp`,
-            attachments: [{ filename: `informe_${nombreUsuario}.pdf`, content: pdfBuffer }]
+            from:        process.env.EMAIL_USER,
+            to:          emailUsuario,
+            subject: 'Su informe mensual de StimulApp 📋',
+            html:        htmlCorreoUsuario,
+            attachments: [{ filename: `informe_${nombreUsuario}.pdf`, content: pdfBufferUsuario }]
         });
 
         if (emailCuidador) {
-            await transporter.sendMail({
-                from:    process.env.EMAIL_USER,
-                to:      emailCuidador,
-                subject: asunto,
-                text:    `Hola ${nombreCuidador},\n\nAdjuntamos el informe quincenal de ${nombreUsuario}.\n\nPuedes verlo online aquí: ${enlace}\n\nTambién lo encontrará adjunto en PDF.\n\nAtentamente, el equipo de StimulApp`,
-                attachments: [{ filename: `informe_${nombreUsuario}.pdf`, content: pdfBuffer }]
-            });
-        }
+    const htmlCorreoCuidador = generarHTMLEmail({
+        saludo:  `Estimado/a ${nombreCuidador},`,
+        icono:   '📋',
+        titulo:  `Informe mensual de ${nombreUsuario}`,
+        cuerpo:  `<p>Le adjuntamos el informe de seguimiento cognitivo correspondiente al último mes de actividad de <strong>${nombreUsuario}</strong> en StimulApp. Puede consultarlo en PDF adjunto o verlo online pulsando el botón.</p>`,
+        boton:   `<div style="text-align:center; margin-top:8px;">
+                    <a href="${enlace}" style="display:inline-block; background-color:#7B2D3E; color:#ffffff; font-size:15px; font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none; letter-spacing:0.5px;">
+                        Ver informe online
+                    </a>
+                  </div>`
+    });
+
+    await transporter.sendMail({
+        from:        process.env.EMAIL_USER,
+        to:          emailCuidador,
+        subject:     `Informe mensual de ${nombreUsuario} — StimulApp 📋`,
+        html:        htmlCorreoCuidador,
+        attachments: [{ filename: `informe_${nombreUsuario}.pdf`, content: pdfBuffer }]
+    });
+}
 
         console.log(`✅ Informe enviado a ${emailUsuario}`);
     }
@@ -359,27 +479,39 @@ async function enviarInformes() {
 // ─────────────────────────────────────────────────────────────
 async function enviarRecordatorioInactividad() {
     const hoy = new Date();
-    const hace10dias = new Date();
-    hace10dias.setDate(hoy.getDate() - 10);
+    const hace7dias = new Date();
+    hace7dias.setDate(hoy.getDate() - 7);
 
     const usuarios = await Usuario.findAll();
     for (const usuario of usuarios) {
         const partidaReciente = await Partida.findOne({
             where: {
                 usuario_id: usuario.id_usuario,
-                fecha: { [Op.gte]: hace10dias }
+                fecha: { [Op.gte]: hace7dias }
             },
             order: [['fecha', 'DESC']]
         });
 
         if (!partidaReciente) {
-            await transporter.sendMail({
-                from:    process.env.EMAIL_USER,
-                to:      usuario.email,
-                subject: '¡Te echamos de menos! 🧠 - StimulApp',
-                text:    `Hola ${usuario.nombre},\n\n¡Te hemos echado de menos estos días! Tu gimnasio mental sigue abierto y tus juegos favoritos te están esperando para pasar un buen rato juntos. ¿Te animas con uno hoy?\n\nAtentamente, el equipo de StimulApp`
-            });
-            console.log(`📩 Recordatorio de inactividad enviado a ${usuario.email}`);
+            const htmlInactividad = generarHTMLEmail({
+    saludo:  `Hola, ${usuario.nombre}`,
+    icono:   '🧠',
+    titulo:  '¡Te echamos de menos!',
+    cuerpo:  `<p>Llevamos unos días sin verte por aquí. Tu gimnasio mental sigue abierto y tus juegos favoritos te están esperando.</p>
+              <p>Recuerda que unos pocos minutos al día marcan la diferencia. ¿Te animas con una partida hoy?</p>`,
+    boton:   `<div style="text-align:center; margin-top:8px;">
+                <a href="http://localhost:5173" style="display:inline-block; background-color:#7B2D3E; color:#ffffff; font-size:15px; font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none; letter-spacing:0.5px;">
+                    Volver a jugar
+                </a>
+              </div>`
+});
+
+await transporter.sendMail({
+    from:    process.env.EMAIL_USER,
+    to:      usuario.email,
+    subject: '¡Te echamos de menos! 🧠 — StimulApp',
+    html:    htmlInactividad
+});
         }
     }
 }

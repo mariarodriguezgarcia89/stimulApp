@@ -54,9 +54,8 @@ const { enviarInformes, enviarRecordatorioInactividad } = require('./services/in
 app.get('/test-informe', async (req, res) => {
     try {
         await enviarInformes();
-        res.json({ ok: true, mensaje: 'Informes enviados correctamente' });
+        res.json({ ok: true });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ ok: false, error: error.message });
     }
 });
@@ -64,9 +63,8 @@ app.get('/test-informe', async (req, res) => {
 app.get('/test-inactividad', async (req, res) => {
     try {
         await enviarRecordatorioInactividad();
-        res.json({ ok: true, mensaje: 'Recordatorios enviados correctamente' });
+        res.json({ ok: true });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ ok: false, error: error.message });
     }
 });
