@@ -295,13 +295,14 @@ function voltearCarta(carta){
   transform: scale(1.04);
 }
 
-.carta.visible,
-.carta.emparejada {
-  background-color: #d4edda;
-  border: 2px solid #28a745;
+.carta.visible {
+  background-color: #ffffff;
+  border: 2px solid #adb5bd;
 }
 
 .carta.emparejada {
+  background-color: #d4edda;
+  border: 2px solid #28a745;
   cursor: default;
 }
 

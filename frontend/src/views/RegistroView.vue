@@ -372,14 +372,4 @@ function handleRegistro() {
   */
 }
 
-/* --- MODO OSCURO --- */
-:global([data-theme="dark"]) .seccion-cuidador {
-  border-color: #555555;
-}
-:global([data-theme="dark"]) .seccion-titulo {
-  color: var(--color-texto);
-}
-:global([data-theme="dark"]) .seccion-titulo span {
-  color: var(--color-texto-suave);
-}
 </style>

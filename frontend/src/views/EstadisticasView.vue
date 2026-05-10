@@ -6,6 +6,7 @@ import iconoRefran from '@/assets/icono-refran.png'
 import iconoMemory from '@/assets/icono-memory.png'
 import iconoIntruso from '@/assets/icono-intruso.png'
 import { mensajesTendencia, mensajesStats, mensajesGrafico, mensajesComparar } from '@/utils/mensajes'
+import fondoEstadisticas from '@/assets/fondo-estadisticas.png'
 
 const juegos = [
   { id: 1, nombre: 'Acaba el refrán', icono: iconoRefran },
@@ -197,7 +198,11 @@ function formatearMedia(media) {
 }
 
 function seleccionarJuego(juegoId) {
-  juegoSeleccionado.value = juegoId
+  if (juegoSeleccionado.value === juegoId) {
+    juegoSeleccionado.value = null
+  } else {
+    juegoSeleccionado.value = juegoId
+  }
 }
 
 onMounted(async () => {
@@ -242,12 +247,26 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
     cargandoEvolucion.value = false
   }
 })
+
+function formatearPorcentaje(porcentaje) {
+  const abs = Math.abs(porcentaje)
+  if (abs >= 80) return porcentaje >= 0 ? '+80%↑' : '-80%↓'
+  return `${porcentaje >= 0 ? '+' : ''}${porcentaje.toFixed(1)}%`
+}
 </script>
 
 <template>
   <AppTopbar />
 
-  <main class="estadisticas-container">
+  <div class="estadisticas-page">
+    <div class="ilustracion-wrapper">
+      <img 
+        :src="fondoEstadisticas" 
+        alt="" 
+        aria-hidden="true"
+        class="ilustracion" />
+    </div>
+    <main class="estadisticas-container">
     <h1 class="titulo-estadisticas">📊 Mis estadísticas</h1>
 
     <!-- Selector de juego -->
@@ -271,7 +290,8 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
     </div>
 
     <div v-else-if="!juegoSeleccionado" class="area-detalles">
-      <p class="mensaje-vacio">Selecciona un juego para ver tus estadísticas</p>
+      <p class="mensaje-intro">📊 Aquí puede ver cómo va progresando en cada juego.</p>
+      <p class="mensaje-intro">Pulse en uno de los juegos de arriba para ver sus estadísticas detalladas 😊</p>
     </div>
 
     <div v-else-if="!datosJuegoActual" class="area-detalles">
@@ -369,7 +389,7 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
         <p class="tarjeta-comparar-etiqueta">🏆 {{ mensajesComparar.etiquetas.mejor }}</p>
         <p class="tarjeta-comparar-juego">{{ comparativaJuegos.mejor.nombre }}</p>
         <p class="tarjeta-comparar-porcentaje">
-          {{ comparativaJuegos.mejor.porcentaje >= 0 ? '+' : '' }}{{ comparativaJuegos.mejor.porcentaje.toFixed(1) }}%
+          {{ formatearPorcentaje(comparativaJuegos.mejor.porcentaje) }}
         </p>
         <p class="tarjeta-comparar-consejo">{{ mensajesComparar.consejos.mejor }}</p>
       </div>
@@ -379,7 +399,7 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
         <p class="tarjeta-comparar-etiqueta">➖ {{ mensajesComparar.etiquetas.estable }}</p>
         <p class="tarjeta-comparar-juego">{{ comparativaJuegos.estable.nombre }}</p>
         <p class="tarjeta-comparar-porcentaje">
-          {{ comparativaJuegos.estable.porcentaje >= 0 ? '+' : '' }}{{ comparativaJuegos.estable.porcentaje.toFixed(1) }}%
+          {{ formatearPorcentaje(comparativaJuegos.estable.porcentaje) }}
         </p>
         <p class="tarjeta-comparar-consejo">{{ mensajesComparar.consejos.estable }}</p>
       </div>
@@ -389,7 +409,7 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
         <p class="tarjeta-comparar-etiqueta">📉 {{ mensajesComparar.etiquetas.peor }}</p>
         <p class="tarjeta-comparar-juego">{{ comparativaJuegos.peor.nombre }}</p>
         <p class="tarjeta-comparar-porcentaje">
-          {{ comparativaJuegos.peor.porcentaje >= 0 ? '+' : '' }}{{ comparativaJuegos.peor.porcentaje.toFixed(1) }}%
+          {{ formatearPorcentaje(comparativaJuegos.peor.porcentaje) }}
         </p>
         <p class="tarjeta-comparar-consejo">{{ mensajesComparar.consejos.peor }}</p>
       </div>
@@ -404,9 +424,29 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
   </div>
 </section>
   </main>
+  </div>
 </template>
 
 <style scoped>
+
+.estadisticas-page {
+  position: relative;
+}
+
+.ilustracion-wrapper {
+  position: fixed;
+  right: -1%;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ilustracion {
+  width: 600px;
+  height: auto;
+  display: block;
+}
+
 .estadisticas-container {
   max-width: 1100px;
   margin: 0 auto;
@@ -503,12 +543,13 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
 
 .panel-tendencia.neutra {
   border-left-color: #6c757d;
-  background: linear-gradient(135deg, #f0f0f0 0%, var(--color-caja) 60%);
+  background: linear-gradient(135deg, #e8e8e8 0%, var(--color-caja) 60%);
 }
 
 .panel-tendencia.sin-datos,
 .panel-tendencia.cargando {
   border-left-color: var(--color-borde);
+  background: linear-gradient(135deg, #ede8e0 0%, var(--color-caja) 60%);
 }
 
 .tendencia-icono {
@@ -770,13 +811,27 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
   font-style: italic;
 }
 
+.mensaje-intro {
+  color: var(--color-texto);
+  font-size: 18px;
+  line-height: 1.6;
+  text-align: center;
+  margin: 4px 0;
+}
+
 @media (max-width: 900px) {
+
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
+
+   .ilustracion-wrapper {
+    display: none !important;
+  }
   .estadisticas-container {
     padding: 20px 12px;
   }

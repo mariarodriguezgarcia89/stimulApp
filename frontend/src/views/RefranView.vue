@@ -71,12 +71,22 @@ function responder(opcion) {
     }
 }
 
+function normalizarTexto(texto) {
+  return texto
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+}
+
 function responderTexto() {
     if (!respuestaTexto.value.trim()) return
     clearInterval(temporizador)
     respondido.value = true
-    const respuestaLimpia = respuestaTexto.value.trim().toLowerCase()
-    const correctaLimpia = refranActual.value.opcion_correcta.trim().toLowerCase()
+    const respuestaLimpia = normalizarTexto(respuestaTexto.value)
+    const correctaLimpia = normalizarTexto(refranActual.value.opcion_correcta)
     ultimaRespuestaCorrecta.value = respuestaLimpia === correctaLimpia
     if (ultimaRespuestaCorrecta.value) {
         puntos.value += 10

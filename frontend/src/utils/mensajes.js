@@ -78,8 +78,6 @@ export const instruccionesIntrusoDificil = [
   '🏁 La partida acaba después de 3 rondas.'
 ]
 
-// (en mensajes.js, añadir esta sección)
-
 export const mensajesTendencia = {
   // Títulos según el caso
   titulos: {
@@ -87,11 +85,15 @@ export const mensajesTendencia = {
     sin_datos: '¡Aún no has empezado!',
     pocas_partidas: 'Estás dando tus primeros pasos 🎯',
     mejora: (cambio) => `¡Has mejorado un ${cambio.toFixed(1)}%!`,
-    bajada: (cambio) => `Has bajado un ${Math.abs(cambio).toFixed(1)}%`,
+    bajada: (cambio) => {
+      const abs = Math.abs(cambio)
+      if (abs >= 80) return 'Este juego te está costando más estos días'
+      if (abs >= 50) return `Has bajado bastante (${abs.toFixed(1)}%)`
+      return `Has bajado un ${abs.toFixed(1)}%`
+    },
     estable: 'Te mantienes estable'
   },
 
-  // Subtítulos: explicación de qué se compara
   subtitulos: {
     sin_datos: 'Cuando juegues tu primera partida, aquí aparecerá tu progreso.',
     pocas_partidas: (partidas) =>

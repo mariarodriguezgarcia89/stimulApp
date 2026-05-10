@@ -484,23 +484,6 @@ input:disabled {
   list-style-type: none;
 }
 
-/* ── MODO OSCURO ── */
-:global([data-theme="dark"]) .perfil-layout {
-  background-color: #1a1a1a;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-}
-
-:global([data-theme="dark"]) .bloque-datos,
-:global([data-theme="dark"]) .bloque-foto,
-:global([data-theme="dark"]) .seccion-cuidador {
-  border-color: #444;
-}
-
-:global([data-theme="dark"]) input:disabled {
-  background-color: #333333;
-  color: var(--color-texto-suave);
-}
-
 .zona-peligro {
   display: flex;
   flex-direction: column;
