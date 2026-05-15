@@ -3,30 +3,23 @@ import refranService from '@/services/refranService'
 import ModalSalir from '@/components/modals/ModalSalir.vue'
 import ModalFinPartida from '@/components/modals/ModalFinPartida.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePartida } from '@/composables/usePartida'
+import { useTemporizador } from '@/composables/useTemporizador'
 import ModalAyuda from '@/components/modals/ModalAyuda.vue'
-import { instruccionesRefranFacil, instruccionesRefranDificil } from '@/utils/mensajes.js'
+import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE, instruccionesRefranFacil, instruccionesRefranDificil, elementosTableroRefran } from '@/utils/mensajes.js'
 import fondoRefran from '@/assets/fondo-refran.png'
 
 const router = useRouter()
 const route = useRoute()
 const dificultad = route.query.dificultad
 const instruccionesRefran = dificultad === 'facil' ? instruccionesRefranFacil : instruccionesRefranDificil
-const mostrarModalAyuda = ref(true) 
-
-const elementosTablero = [
-  { icono: '📖', nombre: 'Refrán', descripcion: 'Indica en qué refrán vas de los 10 en total.' },
-  { icono: '⭐', nombre: 'Puntos', descripcion: 'Los puntos que llevas acumulados. Ganas 10 por cada acierto.' },
-  { icono: '✅', nombre: 'Acertados', descripcion: 'Cuántos refranes has completado correctamente.' },
-  ...(dificultad === 'dificil' ? [{ icono: '⏱', nombre: 'Tiempo', descripcion: 'Los segundos que te quedan para escribir tu respuesta.' }] : []),
-  { icono: '✕', nombre: 'Salir', descripcion: 'Abandona la partida y vuelve al menú principal.' },
-  { icono: '❓', nombre: 'Ayuda', descripcion: 'Vuelve a ver estas instrucciones en cualquier momento.' }
-]
-
+const mostrarModalAyuda = ref(true)
+const avisoRespuestaVacia = ref(false)
+const elementosTablero = elementosTableroRefran(dificultad)
 const { finalizarPartida } = usePartida()
-
+const { tiempoRestante, tiempoGuardado, iniciarTemporizador, pausarTemporizador, detenerTemporizador } = useTemporizador(30)
 const refranes = ref([])
 const indiceActual = ref(0)
 const puntos = ref(0)
@@ -34,8 +27,6 @@ const respondido = ref(false)
 const opcionElegida = ref(null)
 const ultimaRespuestaCorrecta = ref(false)
 const respuestaTexto = ref('')
-const tiempoRestante = ref(30)
-let temporizador = null
 const mostrarModalSalir = ref(false)
 const mostrarModalFin = ref(false)
 const acertados = ref(0)
@@ -57,16 +48,17 @@ onMounted(() => {
     refranService.obtenerRefranes().then(data => {
         refranes.value = data
         fechaInicio.value = Date.now()
-        // if (dificultad === 'dificil') iniciarTemporizador()
     })
 })
+
+onUnmounted(() => detenerTemporizador())
 
 function responder(opcion) {
     respondido.value = true
     opcionElegida.value = opcion
     ultimaRespuestaCorrecta.value = opcion === refranActual.value.opcion_correcta
     if (ultimaRespuestaCorrecta.value) {
-        puntos.value += 10
+        puntos.value += PUNTOS_ACIERTO
         acertados.value++
     }
 }
@@ -80,23 +72,26 @@ function normalizarTexto(texto) {
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\s+/g, ' ')
 }
-
 function responderTexto() {
-    if (!respuestaTexto.value.trim()) return
-    clearInterval(temporizador)
+    if (!respuestaTexto.value.trim()) {
+        avisoRespuestaVacia.value = true
+        return
+    }
+    avisoRespuestaVacia.value = false
+    detenerTemporizador()
     respondido.value = true
     const respuestaLimpia = normalizarTexto(respuestaTexto.value)
     const correctaLimpia = normalizarTexto(refranActual.value.opcion_correcta)
     ultimaRespuestaCorrecta.value = respuestaLimpia === correctaLimpia
     if (ultimaRespuestaCorrecta.value) {
-        puntos.value += 10
+        puntos.value += PUNTOS_ACIERTO
         acertados.value++
     }
 }
 
 function siguiente() {
     if (indiceActual.value + 1 >= refranes.value.length) {
-      clearInterval(temporizador)
+      detenerTemporizador()
       const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
       finalizarPartida(1, puntos.value, duracion, dificultad, mostrarModalFin)
       return
@@ -106,7 +101,10 @@ function siguiente() {
     opcionElegida.value = null
     ultimaRespuestaCorrecta.value = false
     respuestaTexto.value = ''
-    if (dificultad === 'dificil') iniciarTemporizador()
+    if (dificultad === 'dificil') iniciarTemporizador(() => {
+        respondido.value = true
+        ultimaRespuestaCorrecta.value = false
+    })
 }
 
 function saltar() {
@@ -125,35 +123,29 @@ function jugarOtraVez() {
     acertados.value = 0
     saltados.value = 0
     fechaInicio.value = Date.now()
-    if (dificultad === 'dificil') iniciarTemporizador()
+    if (dificultad === 'dificil') iniciarTemporizador(() => {
+        respondido.value = true
+        ultimaRespuestaCorrecta.value = false
+    })
 }
-
-function iniciarTemporizador(desde = 30) {
-  tiempoRestante.value = desde
-  clearInterval(temporizador)
-  temporizador = setInterval(() => {
-    tiempoRestante.value--
-    if (tiempoRestante.value <= 0) {
-      clearInterval(temporizador)
-      respondido.value = true
-      ultimaRespuestaCorrecta.value = false
-    }
-  }, 1000)
-}
-
-let tiempoGuardado = 30
 
 function abrirModalSalir() {
-  tiempoGuardado = tiempoRestante.value
-  clearInterval(temporizador)
-  mostrarModalSalir.value = true
+    pausarTemporizador()
+    mostrarModalSalir.value = true
 }
 
 function abrirModalAyuda() {
-  tiempoGuardado = tiempoRestante.value
-  clearInterval(temporizador)
-  mostrarModalAyuda.value = true
+    pausarTemporizador()
+    mostrarModalAyuda.value = true
 }
+
+function reanudarTemporizador() {
+    iniciarTemporizador(() => {
+        respondido.value = true
+        ultimaRespuestaCorrecta.value = false
+    }, tiempoGuardado.value)
+}
+
 </script>
 
 <template>
@@ -185,7 +177,7 @@ function abrirModalAyuda() {
           </div>
           <div class="tablero-dato" v-if="dificultad === 'dificil'">
             <span class="tablero-icono">⏱</span>
-            <span class="tablero-valor" :class="{ 'tiempo-urgente': tiempoRestante <= 10 }">{{ tiempoRestante }}s</span>
+            <span class="tablero-valor" :class="{ 'tiempo-urgente': tiempoRestante <= UMBRAL_TIEMPO_URGENTE }">{{ tiempoRestante }}s</span>
             <span class="tablero-etiqueta">Tiempo</span>
           </div>
           <div class="tablero-dato">
@@ -231,6 +223,9 @@ function abrirModalAyuda() {
             :disabled="respondido"
             @keyup.enter="responderTexto"
           />
+          <p class="aviso-vacio" v-if="avisoRespuestaVacia">
+        ⚠️ Debes escribir la segunda parte del refrán antes de confirmar.
+          </p>
           <button class="btn-principal" :disabled="respondido" @click="responderTexto">
             Confirmar respuesta
           </button>
@@ -259,12 +254,12 @@ function abrirModalAyuda() {
     </div> <ModalSalir
       v-if="mostrarModalSalir"
       @confirmar="router.push('/menu')"
-      @cancelar="mostrarModalSalir = false; if (dificultad === 'dificil' && !respondido) iniciarTemporizador(tiempoGuardado)"
+      @cancelar="mostrarModalSalir = false; if (dificultad === 'dificil' && !respondido) reanudarTemporizador()"
     />
     <ModalFinPartida
       v-if="mostrarModalFin"
       :puntos="puntos"
-      puntuacionHistorica=""
+      puntuacionHistorica="0"
       labelAcertados="refranes"
       :acertados="acertados"
       :total="refranes.length"
@@ -276,7 +271,7 @@ function abrirModalAyuda() {
       v-if="mostrarModalAyuda"
       :instrucciones="instruccionesRefran"
       :elementos="elementosTablero"
-      @cerrar="mostrarModalAyuda = false; if (dificultad === 'dificil') iniciarTemporizador(tiempoGuardado)"
+      @cerrar="mostrarModalAyuda = false; if (dificultad === 'dificil') reanudarTemporizador()"
     />
 
   </div>
@@ -287,13 +282,6 @@ function abrirModalAyuda() {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-}
-
-.perfil-page {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
 .refran-container {
@@ -432,6 +420,17 @@ html[data-size="large"] .ilustracion {
   background-color: #f8d7da;
   color: #721c24;
   border: 2px solid #dc3545;
+}
+
+.aviso-vacio {
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
 }
 
 /* ── ACCIONES ── */

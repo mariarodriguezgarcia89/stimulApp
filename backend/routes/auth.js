@@ -26,16 +26,20 @@ router.post('/register', async (req, res) => {
     // Extraemos los campos necesarios del body de la petición.
     const { nombre, apellidos, email, password, fecha_nacimiento, nombre_cuidador, email_cuidador } = req.body;
     
-            if (!nombre || !apellidos || !email || !password || !fecha_nacimiento) {
-            return res.status(400).json({ message: 'Por favor, complete todos los campos obligatorios.' });
+        if (!nombre || !apellidos || !email || !password || !fecha_nacimiento) {
+            return res.status(400).json({ error: 'Por favor, complete todos los campos obligatorios.' });
         }
 
         if (!/\S+@\S+\.\S+/.test(email)) {
-            return res.status(400).json({ message: 'El formato del correo electrónico no es válido.' });
+            return res.status(400).json({ error: 'El formato del correo electrónico no es válido.' });
         }
 
         if (password.length < 6) {
-            return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres.' });
+            return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres.' });
+        }
+
+        if (email_cuidador && !/\S+@\S+\.\S+/.test(email_cuidador)) {
+            return res.status(400).json({ error: 'El formato del correo del cuidador no es válido.' });
         }
     
     try {
@@ -43,7 +47,7 @@ router.post('/register', async (req, res) => {
         // findOne devuelve el primer registro que coincida con el where, o null si no hay
         const existingUser = await Usuario.findOne({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ message: 'El usuario ya existe' });
+            return res.status(400).json({ error: 'El usuario ya existe' });
         }
 
         // Hasheamos la contraseña antes de guardarla.
@@ -65,11 +69,11 @@ router.post('/register', async (req, res) => {
         });
 
         // Respondemos con 201 Created. No devolvemos el usuario creado para no exponer datos.
-        res.status(201).json({ message: 'Usuario registrado exitosamente' });
+        res.status(201).json({ error: 'Usuario registrado exitosamente' });
 
     } catch (error) {
         console.error('Error en el registro:', error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        res.status(500).json({ error: 'Error en el servidor' });
     }
 });
 
@@ -87,11 +91,11 @@ router.post('/login', async (req, res) => {
 
         // Si el usuario no existe, respondemos con "Credenciales inválidas".
         if (!user) {
-            return res.status(400).json({ message: 'Credenciales inválidas' });
+            return res.status(400).json({ error: 'Credenciales inválidas' });
         }
 
         if (!user.activo) {
-            return res.status(403).json({ message: 'Esta cuenta ha sido desactivada' });
+            return res.status(403).json({ error: 'Esta cuenta ha sido desactivada' });
         }
 
         // Comparamos la contraseña recibida con el hash guardado en la BD
@@ -99,7 +103,7 @@ router.post('/login', async (req, res) => {
         // Nunca desencripta: compara hash con hash
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Credenciales inválidas' });
+            return res.status(400).json({ error: 'Credenciales inválidas' });
         }
 
         // Las credenciales son correctas: generamos el token JWT
@@ -116,7 +120,7 @@ router.post('/login', async (req, res) => {
 
     } catch (error) {
         console.error('Error en el inicio de sesión:', error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        res.status(500).json({ error: 'Error en el servidor' });
     }
 });
 

@@ -15,9 +15,7 @@ router.get('/me', auth, async (req, res) => {
             attributes: { exclude: ['password_hash'] }
         });
 
-        // Si el id del token no corresponde a ningún usuario, findByPk devuelve null
-        // y el cliente recibe un 200 con body null. En una mejora futura se podría añadir:
-        // if (!user) return res.status(404).json({ error: 'Usuario no encontrado.' });
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado.' });
         res.json(user);
 
     } catch (error) {
@@ -44,7 +42,7 @@ router.put('/me', auth, async (req, res) => {
 
         await Usuario.update(datosActualizar, { where: { id_usuario: req.user.id } });
 
-        res.json({ message: 'Usuario actualizado exitosamente.' });
+        res.json({ mensaje: 'Usuario actualizado exitosamente.' });
 
     } catch (error) {
         console.error('Error al actualizar el usuario:', error);
@@ -62,7 +60,7 @@ router.delete('/me', auth, async (req, res) => {
             { where: { id_usuario: req.user.id } }
         );
 
-        res.json({ message: 'Cuenta desactivada correctamente.' });
+        res.json({ mensaje: 'Cuenta desactivada correctamente.' });
 
     } catch (error) {
         console.error('Error al desactivar la cuenta:', error);

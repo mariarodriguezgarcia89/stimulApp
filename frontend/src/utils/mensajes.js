@@ -143,3 +143,39 @@ export const mensajesComparar = {
     sin_datos: 'Juega unas cuantas partidas más y aquí podrás ver tu evolución.'
   }
 }
+
+// --- ELEMENTOS TABLERO ---
+const elementoSalir = { icono: '✕', nombre: 'Salir', descripcion: 'Abandona la partida y vuelve al menú principal.' }
+const elementoAyuda = { icono: '❓', nombre: 'Ayuda', descripcion: 'Vuelve a ver estas instrucciones en cualquier momento.' }
+const elementoTiempo = { icono: '⏱', nombre: 'Tiempo', descripcion: 'Los segundos que te quedan para responder.' }
+
+export const elementosTableroRefran = (dificultad) => [
+  { icono: '📖', nombre: 'Refrán', descripcion: 'Indica en qué refrán vas de los 10 en total.' },
+  { icono: '⭐', nombre: 'Puntos', descripcion: 'Los puntos que llevas acumulados. Ganas 10 por cada acierto.' },
+  { icono: '✅', nombre: 'Acertados', descripcion: 'Cuántos refranes has completado correctamente.' },
+  ...(dificultad === 'dificil' ? [elementoTiempo] : []),
+  elementoSalir,
+  elementoAyuda
+]
+
+export const elementosTableroMemory = (dificultad) => [
+  { icono: '✅', nombre: 'Aciertos', descripcion: 'Cuántas parejas has encontrado.' },
+  { icono: '⭐', nombre: 'Puntos', descripcion: 'Los puntos que llevas. Ganas 10 por cada pareja, pierdes 3 por fallo.' },
+  { icono: '❌', nombre: 'Fallos', descripcion: 'Veces que has volteado dos cartas que no formaban pareja.' },
+  ...(dificultad === 'dificil' ? [elementoTiempo] : []),
+  elementoSalir,
+  elementoAyuda
+]
+
+export const elementosTableroIntruso = (dificultad) => [
+  { icono: '🖼️', nombre: 'Ronda', descripcion: 'Indica en qué ronda vas del total.' },
+  { icono: '⭐', nombre: 'Puntos', descripcion: 'Los puntos que llevas acumulados. Ganas 10 por cada acierto.' },
+  { icono: '✅', nombre: 'Aciertos', descripcion: 'Cuántos intrusos has encontrado correctamente.' },
+  ...(dificultad === 'dificil' ? [elementoTiempo] : []),
+  elementoSalir,
+  elementoAyuda
+]
+
+export const PUNTOS_ACIERTO = 10
+export const UMBRAL_TIEMPO_URGENTE = 10  // Segundos a partir de los cuales el timer se muestra en rojo
+export const PUNTOS_PENALIZACION = 3     // Solo Memory

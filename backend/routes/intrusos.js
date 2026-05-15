@@ -10,6 +10,10 @@ router.get('/partida', auth, async (req, res) => {
     try {
 
         const { nivel } = req.query;
+
+        if (!nivel || !['facil', 'dificil'].includes(nivel)) {
+            return res.status(400).json({ error: 'El parámetro nivel debe ser "facil" o "dificil".' });
+        }
         // findAll con order: sequelize.random() genera una consulta SQL con ORDER BY RAND()
         // limit: 10 limita el resultado a 10 filas.
         const intrusos = await Intruso.findAll({

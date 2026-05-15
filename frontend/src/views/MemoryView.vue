@@ -2,23 +2,22 @@
 import ModalSalir from '@/components/modals/ModalSalir.vue'
 import ModalFinPartida from '@/components/modals/ModalFinPartida.vue'
 import { usePartida } from '@/composables/usePartida'
-import { ref, onMounted } from 'vue'
+import { useTemporizador } from '@/composables/useTemporizador'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import cartaReverso from '@/assets/carta-reverso.png'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
 import ModalAyuda from '@/components/modals/ModalAyuda.vue'
 import fondoMemory from '@/assets/fondo-memory.png'
-import { instruccionesMemoryFacil, instruccionesMemoryDificil } from '@/utils/mensajes.js'
+import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE, PUNTOS_PENALIZACION, instruccionesMemoryFacil, instruccionesMemoryDificil, elementosTableroMemory } from '@/utils/mensajes.js'
 
 const { finalizarPartida } = usePartida()
 const route = useRoute()
 const router = useRouter()
-
-let temporizador = null
+const { tiempoRestante, tiempoGuardado, iniciarTemporizador, pausarTemporizador, detenerTemporizador } = useTemporizador(60)
 const cartas = ref([])
 const cartasVolteadas = ref([])
 const puntos = ref(0)
-const tiempoRestante = ref(60)
 const mostrarModalSalir = ref(false)
 const mostrarModalFin = ref(false)
 const fechaInicio = ref(null)
@@ -29,29 +28,24 @@ const acertados = ref(0)
 
 const mostrarModalAyuda = ref(true)
 const instruccionesMemory = dificultad === 'facil' ? instruccionesMemoryFacil : instruccionesMemoryDificil
-
-const elementosTablero = [
-  { icono: '✅', nombre: 'Aciertos', descripcion: 'Cuántas parejas has encontrado.' },
-  { icono: '⭐', nombre: 'Puntos', descripcion: 'Los puntos que llevas. Ganas 10 por cada pareja, pierdes 3 por fallo.' },
-  { icono: '❌', nombre: 'Fallos', descripcion: 'Veces que has volteado dos cartas que no formaban pareja.' },
-  ...(dificultad === 'dificil' ? [{ icono: '⏱', nombre: 'Tiempo', descripcion: 'Los segundos que te quedan para encontrar todas las parejas.' }] : []),
-  { icono: '✕', nombre: 'Salir', descripcion: 'Abandona la partida y vuelve al menú principal.' },
-  { icono: '❓', nombre: 'Ayuda', descripcion: 'Vuelve a ver estas instrucciones en cualquier momento.' }
-]
+const elementosTablero = elementosTableroMemory(dificultad)
 
 const totalParejas = dificultad === 'facil' ? 4 : 8
-let tiempoGuardado = 60
 
 const EMOJIS_FACIL = ['🍎', '🚗', '🐶', '🎵']
 const EMOJIS_DIFICIL = ['🍎', '🚗', '🐶', '🎵', '⚽', '📚', '🌟', '🏆']
 
+function onTiempoAgotado() {
+    const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
+    finalizarPartida(3, puntos.value, duracion, dificultad, mostrarModalFin)
+}
+
 function generarCartas() {
     const emojis = dificultad === 'facil' ? EMOJIS_FACIL : EMOJIS_DIFICIL
     const pares = emojis.flatMap((emoji, index) => [
-    { id: index * 2,     valor: emoji, visible: false, emparejada: false, incorrecta: false },
-    { id: index * 2 + 1, valor: emoji, visible: false, emparejada: false, incorrecta: false }
+        { id: index * 2,     valor: emoji, visible: false, emparejada: false, incorrecta: false },
+        { id: index * 2 + 1, valor: emoji, visible: false, emparejada: false, incorrecta: false }
     ])
-
     cartas.value = pares.sort(() => Math.random() - 0.5)
 }
 
@@ -61,47 +55,30 @@ onMounted(() => {
     setTimeout(() => {
         cartas.value.forEach(carta => carta.visible = false)
     }, 3000)
-
     fechaInicio.value = Date.now()
-    if (dificultad === 'dificil') iniciarTemporizador()
+    if (dificultad === 'dificil') iniciarTemporizador(onTiempoAgotado)
 })
 
-function iniciarTemporizador(desde = 60) {
-    tiempoRestante.value = desde
-    clearInterval(temporizador)
-    temporizador = setInterval(() => {
-        tiempoRestante.value--
-        if (tiempoRestante.value <= 0) {
-            clearInterval(temporizador)
-            const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
-                finalizarPartida(3, puntos.value, duracion, dificultad, mostrarModalFin)
-        }
-    }, 1000)
-}
+onUnmounted(() => detenerTemporizador())
 
 function abrirModalSalir() {
-    tiempoGuardado = tiempoRestante.value
-    clearInterval(temporizador)
+    pausarTemporizador()
     mostrarModalSalir.value = true
 }
 
 function abrirModalAyuda() {
-    tiempoGuardado = tiempoRestante.value
-    clearInterval(temporizador)
+    pausarTemporizador()
     mostrarModalAyuda.value = true
 }
 
-function voltearCarta(carta){
+function reanudarTemporizador() {
+    iniciarTemporizador(onTiempoAgotado, tiempoGuardado.value)
+}
 
-    if (bloqueado.value === true){
-        return 
-    }
-    if (carta.emparejada === true){
-        return 
-    }
-    if (carta.visible === true){
-        return 
-    }
+function voltearCarta(carta) {
+    if (bloqueado.value) return
+    if (carta.emparejada) return
+    if (carta.visible) return
 
     carta.visible = true
     cartasVolteadas.value.push(carta)
@@ -109,51 +86,51 @@ function voltearCarta(carta){
     if (cartasVolteadas.value.length === 2) {
         const carta1 = cartasVolteadas.value[0]
         const carta2 = cartasVolteadas.value[1]
-        
+
         if (carta1.valor === carta2.valor) {
             carta1.emparejada = true
             carta2.emparejada = true
             acertados.value++
-            puntos.value += 10
+            puntos.value += PUNTOS_ACIERTO
             if (acertados.value === totalParejas) {
-                clearInterval(temporizador)
+                detenerTemporizador()
                 const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
                 finalizarPartida(3, puntos.value, duracion, dificultad, mostrarModalFin)
             }
             cartasVolteadas.value = []
         } else {
-    bloqueado.value = true
-    carta1.incorrecta = true
-    carta2.incorrecta = true
-    setTimeout(() => {
-        carta1.visible = false
-        carta2.visible = false
-        carta1.incorrecta = false
-        carta2.incorrecta = false
-        fallos.value++
-        puntos.value -= 3
-        cartasVolteadas.value = []
-        bloqueado.value = false
-    }, 1000)
-}
+            bloqueado.value = true
+            carta1.incorrecta = true
+            carta2.incorrecta = true
+            setTimeout(() => {
+                carta1.visible = false
+                carta2.visible = false
+                carta1.incorrecta = false
+                carta2.incorrecta = false
+                fallos.value++
+                puntos.value = Math.max(0, puntos.value - PUNTOS_PENALIZACION)
+                cartasVolteadas.value = []
+                bloqueado.value = false
+            }, 1000)
+        }
     }
 }
 
-    function jugarOtraVez() {
+function jugarOtraVez() {
     puntos.value = 0
     fallos.value = 0
     acertados.value = 0
     cartasVolteadas.value = []
     bloqueado.value = false
     mostrarModalFin.value = false
-    clearInterval(temporizador)
+    detenerTemporizador()
     generarCartas()
     cartas.value.forEach(carta => carta.visible = true)
     setTimeout(() => {
         cartas.value.forEach(carta => carta.visible = false)
     }, 3000)
     fechaInicio.value = Date.now()
-    if (dificultad === 'dificil') iniciarTemporizador()
+    if (dificultad === 'dificil') iniciarTemporizador(onTiempoAgotado)
 }
 </script>
 
@@ -187,7 +164,7 @@ function voltearCarta(carta){
         </div>
         <div class="tablero-dato" v-if="dificultad === 'dificil'">
           <span class="tablero-icono">⏱</span>
-          <span class="tablero-valor" :class="{ 'tiempo-urgente': tiempoRestante <= 10 }">{{ tiempoRestante }}s</span>
+          <span class="tablero-valor" :class="{ 'tiempo-urgente': tiempoRestante <= UMBRAL_TIEMPO_URGENTE }">{{ tiempoRestante }}s</span>
           <span class="tablero-etiqueta">Tiempo</span>
         </div>
         <button class="tablero-salir" @click="abrirModalSalir">✕ <span>Salir</span></button>
@@ -216,13 +193,12 @@ function voltearCarta(carta){
       </div>
 
     </div>
-
     <ModalSalir
-      v-if="mostrarModalSalir"
-      @confirmar="router.push('/menu')"
-      @cancelar="mostrarModalSalir = false; if (dificultad === 'dificil') iniciarTemporizador(tiempoGuardado)"
-    />
- <ModalFinPartida
+    v-if="mostrarModalSalir"
+    @confirmar="router.push('/menu')"
+    @cancelar="mostrarModalSalir = false; if (dificultad === 'dificil') reanudarTemporizador()"
+/>
+<ModalFinPartida
     v-if="mostrarModalFin"
     :puntos="puntos"
     :acertados="acertados"
@@ -235,13 +211,12 @@ function voltearCarta(carta){
     @cerrar="router.push('/menu')"
     @jugarOtraVez="jugarOtraVez"
 />
-    <ModalAyuda
-      v-if="mostrarModalAyuda"
-      :instrucciones="instruccionesMemory"
-      :elementos="elementosTablero"
-      @cerrar="mostrarModalAyuda = false; if (dificultad === 'dificil') iniciarTemporizador(tiempoGuardado)"
-    />
-
+<ModalAyuda
+    v-if="mostrarModalAyuda"
+    :instrucciones="instruccionesMemory"
+    :elementos="elementosTablero"
+    @cerrar="mostrarModalAyuda = false; if (dificultad === 'dificil') reanudarTemporizador()"
+/>
   </div>
 </template>
 

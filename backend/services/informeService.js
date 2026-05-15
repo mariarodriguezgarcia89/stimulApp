@@ -4,26 +4,25 @@ const puppeteer = require('puppeteer');
 const { Op } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const DIAS_INACTIVIDAD_ALERTA = 7  // Días sin jugar antes de enviar recordatorio
+
+const INFO_JUEGOS = {
+    1: { nombre: 'Acaba el Refrán',      area: 'Lenguaje · Memoria semántica' },
+    2: { nombre: 'Encuentra el Intruso',  area: 'Atención · Funciones ejecutivas' },
+    3: { nombre: 'Memory',               area: 'Memoria visual · Atención espacial' }
+}
+
+const PLANTILLA_INFORME = fs.readFileSync(path.join(__dirname, '../templates/informe.html'), 'utf8')
+const PLANTILLA_INFORME_USUARIO = fs.readFileSync(path.join(__dirname, '../templates/informe-usuario.html'), 'utf8')
 
 // ─────────────────────────────────────────────────────────────
 // FUNCIÓN generarHTML
 // Sustituye en la plantilla informe.html todos los placeholders
 // por los datos reales del usuario y sus partidas.
 // ─────────────────────────────────────────────────────────────
-function generarHTML(usuario, partidas, mediasPorJuego, diasUnicos) {
+function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
 
-    // ── 1. LEER LA PLANTILLA ──
-    let html = fs.readFileSync(
-        path.join(__dirname, '../templates/informe.html'),
-        'utf8'
-    );
-
-    // ── 2. AGRUPAR PARTIDAS POR JUEGO ──
-    const INFO_JUEGOS = {
-        1: { nombre: 'Acaba el Refrán',      area: 'Lenguaje · Memoria semántica' },
-        2: { nombre: 'Encuentra el Intruso',  area: 'Atención · Funciones ejecutivas' },
-        3: { nombre: 'Memory',               area: 'Memoria visual · Atención espacial' }
-    };
+    let html = PLANTILLA_INFORME
 
     const COLORES_JUEGO = {
         1: '#7B2D3E', // granate - Acaba el refrán
@@ -215,18 +214,9 @@ function generarHTML(usuario, partidas, mediasPorJuego, diasUnicos) {
     return html;
 }
 
-function generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos) {
+function generarHTMLUsuario(usuario, partidas, mediasPorJuego, diasUnicos) {
 
-    let html = fs.readFileSync(
-        path.join(__dirname, '../templates/informe-usuario.html'),
-        'utf8'
-    );
-
-    const INFO_JUEGOS = {
-        1: { nombre: 'Acaba el Refrán' },
-        2: { nombre: 'Encuentra el Intruso' },
-        3: { nombre: 'Memory' }
-    };
+    let html = PLANTILLA_INFORME_USUARIO
 
     const partidasPorJuego = {};
     partidas.forEach(partida => {
@@ -361,6 +351,7 @@ function obtenerRecomendaciones(juegoId, porcentajeRendimiento) {
 // Genera y envía el informe PDF a cada usuario con partidas.
 // ─────────────────────────────────────────────────────────────
 async function enviarInformes() {
+    
     const usuarios = await Usuario.findAll();
     for (const usuario of usuarios) {
         const nombreUsuario  = usuario.nombre;
@@ -390,8 +381,8 @@ async function enviarInformes() {
         const diasUso    = new Set(partidas.map(p => new Date(p.fecha).toDateString()));
         const diasUnicos = diasUso.size;
 
-        const htmlInforme = generarHTML(usuario, partidas, mediasPorJuego, diasUnicos);
-        const htmlInformeUsuario = generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos);
+        const htmlInforme = generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos);
+        const htmlInformeUsuario = generarHTMLUsuario(usuario, partidas, mediasPorJuego, diasUnicos);
 
         // Guardar HTML del usuario en disco
         const nombreFicheroUsuario = `informe-usuario_${usuario.nombre}_${Date.now()}.html`;
@@ -420,8 +411,6 @@ async function enviarInformes() {
 
         const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
         await browser.close();
-
-        const asunto = 'Informe mensual de StimulApp 📋';
 
         const htmlCorreoUsuario = generarHTMLEmail({
     saludo:  `Hola, ${nombreUsuario} 😊`,
@@ -480,7 +469,7 @@ async function enviarInformes() {
 async function enviarRecordatorioInactividad() {
     const hoy = new Date();
     const hace7dias = new Date();
-    hace7dias.setDate(hoy.getDate() - 7);
+    hace7dias.setDate(hoy.getDate() - DIAS_INACTIVIDAD_ALERTA)
 
     const usuarios = await Usuario.findAll();
     for (const usuario of usuarios) {
@@ -516,4 +505,4 @@ await transporter.sendMail({
     }
 }
 
-module.exports = { enviarInformes, generarHTML, enviarRecordatorioInactividad };
+module.exports = { enviarInformes, generarHTMLCuidador, generarHTMLUsuario, enviarRecordatorioInactividad };

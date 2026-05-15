@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { Partida, Estadistica, Juego, Usuario } = require('../models');
 const { enviarCorreoAlCuidador } = require('../services/emailService');
+const UMBRAL_ALERTA_CUIDADOR = 0.4  // Se alerta si la puntuación baja al 40% de la media
 
 // Obtener partidas del usuario
 router.get('/mis-partidas', auth, async (req, res) => {
@@ -40,26 +41,23 @@ router.post('/nueva-partida', auth, async (req, res) => {
     }
     });
 
-    if (!creada) {
-    // el registro ya existía, hay que actualizarlo
-        await estadisticaUsuario.update({
-            total_partidas: estadisticaUsuario.total_partidas + 1,
-            puntuacion_media: (estadisticaUsuario.puntuacion_media * estadisticaUsuario.total_partidas + puntuacion) / (estadisticaUsuario.total_partidas + 1),
-            mejor_puntuacion: Math.max(estadisticaUsuario.mejor_puntuacion, puntuacion),
-            ultima_partida: new Date()
-        });
+   if (!creada) {
+    const mediaAnterior = estadisticaUsuario.puntuacion_media  // ← ANTES del update
 
-        // Comprobar si la nueva puntuación es un descenso significativo
-        const mediaAnterior = estadisticaUsuario.puntuacion_media;
-        if (mediaAnterior > 0 && puntuacion < mediaAnterior * 0.4) { 
-            // Obtener el juego para incluir su nombre en el correo
-            const juego = await Juego.findByPk(juego_id);
-            const nombreJuego = juego ? juego.nombre : 'el juego';
-            // Enviar correo al cuidador
-            const usuario = await Usuario.findByPk(req.user.id);
-            await enviarCorreoAlCuidador(usuario.email_cuidador, usuario.nombre, nombreJuego, puntuacion, mediaAnterior);
-        }   
-    }
+    await estadisticaUsuario.update({
+        total_partidas: estadisticaUsuario.total_partidas + 1,
+        puntuacion_media: (estadisticaUsuario.puntuacion_media * estadisticaUsuario.total_partidas + puntuacion) / (estadisticaUsuario.total_partidas + 1),
+        mejor_puntuacion: Math.max(estadisticaUsuario.mejor_puntuacion, puntuacion),
+        ultima_partida: new Date()
+    });
+
+    if (mediaAnterior > 0 && puntuacion < mediaAnterior * UMBRAL_ALERTA_CUIDADOR) {
+        const juego = await Juego.findByPk(juego_id);
+        const nombreJuego = juego ? juego.nombre : 'el juego';
+        const usuario = await Usuario.findByPk(req.user.id);
+        await enviarCorreoAlCuidador(usuario.email_cuidador, usuario.nombre, nombreJuego, puntuacion, mediaAnterior);
+    }   
+}
 
     res.json(nuevaPartida);
     

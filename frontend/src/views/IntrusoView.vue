@@ -1,26 +1,26 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import intrusoService from '@/services/intrusoService'
 import { usePartida } from '@/composables/usePartida'
+import { useTemporizador } from '@/composables/useTemporizador'
 import ModalSalir from '@/components/modals/ModalSalir.vue'
 import ModalFinPartida from '@/components/modals/ModalFinPartida.vue'
 import ModalAyuda from '@/components/modals/ModalAyuda.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
 import fondoIntruso from '@/assets/fondo-intruso.png'
-import { instruccionesIntrusoFacil, instruccionesIntrusoDificil } from '@/utils/mensajes.js'
+import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE, instruccionesIntrusoFacil, instruccionesIntrusoDificil, elementosTableroIntruso } from '@/utils/mensajes.js'
 
 const { finalizarPartida } = usePartida()
 const route = useRoute()
 const router = useRouter()
+const { tiempoRestante, tiempoGuardado, iniciarTemporizador, pausarTemporizador, detenerTemporizador } = useTemporizador(30)
 const intrusos = ref([])
 const puntos = ref(0)
 const indiceActual = ref(0)
 const opcionElegida = ref(null)
 const respondido = ref(false)
 const esCorrecta = ref(false)
-const tiempoRestante = ref(30)
-let temporizador = null
 const mostrarModalSalir = ref(false)
 const mostrarModalFin = ref(false)
 const mostrarModalAyuda = ref(true)
@@ -29,17 +29,7 @@ const fechaInicio = ref(null)
 const dificultad = route.query.dificultad
 
 const instruccionesIntruso = dificultad === 'facil' ? instruccionesIntrusoFacil : instruccionesIntrusoDificil
-
-const elementosTablero = [
-  { icono: '🖼️', nombre: 'Ronda', descripcion: 'Indica en qué ronda vas del total.' },
-  { icono: '⭐', nombre: 'Puntos', descripcion: 'Los puntos que llevas acumulados. Ganas 10 por cada acierto.' },
-  { icono: '✅', nombre: 'Aciertos', descripcion: 'Cuántos intrusos has encontrado correctamente.' },
-  ...(dificultad === 'dificil' ? [{ icono: '⏱', nombre: 'Tiempo', descripcion: 'Los segundos que te quedan para responder.' }] : []),
-  { icono: '✕', nombre: 'Salir', descripcion: 'Abandona la partida y vuelve al menú principal.' },
-  { icono: '❓', nombre: 'Ayuda', descripcion: 'Vuelve a ver estas instrucciones en cualquier momento.' }
-]
-
-let tiempoGuardado = 30
+const elementosTablero = elementosTableroIntruso(dificultad)
 
 onMounted(() => {
     intrusoService.obtenerIntrusos(dificultad).then(data => {
@@ -48,29 +38,25 @@ onMounted(() => {
     })
 })
 
-function iniciarTemporizador(desde = 30) {
-    tiempoRestante.value = desde
-    clearInterval(temporizador)
-    temporizador = setInterval(() => {
-        tiempoRestante.value--
-        if (tiempoRestante.value <= 0) {
-            clearInterval(temporizador)
-            const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
-            finalizarPartida(2, puntos.value, duracion, dificultad, mostrarModalFin)
-        }
-    }, 1000)
+onUnmounted(() => detenerTemporizador())
+
+function onTiempoAgotado() {
+    respondido.value = true
+    esCorrecta.value = false
 }
 
 function abrirModalSalir() {
-    tiempoGuardado = tiempoRestante.value
-    clearInterval(temporizador)
+    pausarTemporizador()
     mostrarModalSalir.value = true
 }
 
 function abrirModalAyuda() {
-    tiempoGuardado = tiempoRestante.value
-    clearInterval(temporizador)
+    pausarTemporizador()
     mostrarModalAyuda.value = true
+}
+
+function reanudarTemporizador() {
+    iniciarTemporizador(onTiempoAgotado, tiempoGuardado.value)
 }
 
 function seleccionarOpcion(imagen) {
@@ -79,15 +65,15 @@ function seleccionarOpcion(imagen) {
     respondido.value = true
     esCorrecta.value = imagen === intrusos.value[indiceActual.value].imagen_intrusa
     if (esCorrecta.value) {
-        puntos.value += 10
+        puntos.value += PUNTOS_ACIERTO
         acertados.value++
     }
-    if (dificultad === 'dificil') clearInterval(temporizador)
+    if (dificultad === 'dificil') detenerTemporizador()
 }
 
 function siguiente() {
     if (indiceActual.value + 1 >= intrusos.value.length) {
-        clearInterval(temporizador)
+        detenerTemporizador()
         const duracion = Math.floor((Date.now() - fechaInicio.value) / 1000)
         finalizarPartida(2, puntos.value, duracion, dificultad, mostrarModalFin)
         return
@@ -96,7 +82,7 @@ function siguiente() {
     respondido.value = false
     opcionElegida.value = null
     esCorrecta.value = false
-    if (dificultad === 'dificil') iniciarTemporizador()
+    if (dificultad === 'dificil') iniciarTemporizador(onTiempoAgotado)
 }
 
 function jugarOtraVez() {
@@ -108,7 +94,7 @@ function jugarOtraVez() {
     esCorrecta.value = false
     mostrarModalFin.value = false
     fechaInicio.value = Date.now()
-    if (dificultad === 'dificil') iniciarTemporizador()
+    if (dificultad === 'dificil') iniciarTemporizador(onTiempoAgotado)
 }
 </script>
 
@@ -188,7 +174,7 @@ function jugarOtraVez() {
         </div>
         <div class="tablero-dato" v-if="dificultad === 'dificil'">
           <span class="tablero-icono">⏱</span>
-          <span class="tablero-valor" :class="{ 'tiempo-urgente': tiempoRestante <= 10 }">{{ tiempoRestante }}s</span>
+          <span class="tablero-valor" :class="{ 'tiempo-urgente': tiempoRestante <= UMBRAL_TIEMPO_URGENTE }">{{ tiempoRestante }}s</span>
           <span class="tablero-etiqueta">Tiempo</span>
         </div>
         <button class="tablero-salir" @click="abrirModalSalir">✕ <span>Salir</span></button>
@@ -204,7 +190,7 @@ function jugarOtraVez() {
     <ModalSalir
       v-if="mostrarModalSalir"
       @confirmar="router.push('/menu')"
-      @cancelar="mostrarModalSalir = false; if (dificultad === 'dificil' && !respondido) iniciarTemporizador(tiempoGuardado)"
+      @cancelar="mostrarModalSalir = false; if (dificultad === 'dificil' && !respondido) reanudarTemporizador()"
     />
     <ModalFinPartida
       v-if="mostrarModalFin"
@@ -221,7 +207,7 @@ function jugarOtraVez() {
       v-if="mostrarModalAyuda"
       :instrucciones="instruccionesIntruso"
       :elementos="elementosTablero"
-      @cerrar="mostrarModalAyuda = false; if (dificultad === 'dificil' && !respondido) { fechaInicio = Date.now(); iniciarTemporizador(tiempoGuardado === 30 ? 30 : tiempoGuardado); }"
+      @cerrar="mostrarModalAyuda = false; if (dificultad === 'dificil' && !respondido) reanudarTemporizador()"
     />
 
   </div>
