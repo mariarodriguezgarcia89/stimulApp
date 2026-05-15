@@ -9,7 +9,8 @@ import cartaReverso from '@/assets/carta-reverso.png'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
 import ModalAyuda from '@/components/modals/ModalAyuda.vue'
 import fondoMemory from '@/assets/fondo-memory.png'
-import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE, PUNTOS_PENALIZACION, instruccionesMemoryFacil, instruccionesMemoryDificil, elementosTableroMemory } from '@/utils/mensajes.js'
+import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE, PUNTOS_PENALIZACION } from '@/utils/constantes.js'
+import { instruccionesMemoryFacil, instruccionesMemoryDificil, elementosTableroMemory } from '@/utils/mensajes.js'
 
 const { finalizarPartida } = usePartida()
 const route = useRoute()

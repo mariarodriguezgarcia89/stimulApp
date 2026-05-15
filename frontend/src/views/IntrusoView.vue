@@ -9,7 +9,8 @@ import ModalFinPartida from '@/components/modals/ModalFinPartida.vue'
 import ModalAyuda from '@/components/modals/ModalAyuda.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
 import fondoIntruso from '@/assets/fondo-intruso.png'
-import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE, instruccionesIntrusoFacil, instruccionesIntrusoDificil, elementosTableroIntruso } from '@/utils/mensajes.js'
+import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE } from '@/utils/constantes.js'
+import { instruccionesIntrusoFacil, instruccionesIntrusoDificil, elementosTableroIntruso } from '@/utils/mensajes.js'
 
 const { finalizarPartida } = usePartida()
 const route = useRoute()

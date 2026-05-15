@@ -8,8 +8,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePartida } from '@/composables/usePartida'
 import { useTemporizador } from '@/composables/useTemporizador'
 import ModalAyuda from '@/components/modals/ModalAyuda.vue'
-import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE, instruccionesRefranFacil, instruccionesRefranDificil, elementosTableroRefran } from '@/utils/mensajes.js'
 import fondoRefran from '@/assets/fondo-refran.png'
+import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE } from '@/utils/constantes.js'
+import { instruccionesRefranFacil, instruccionesRefranDificil, elementosTableroRefran } from '@/utils/mensajes.js'
 
 const router = useRouter()
 const route = useRoute()

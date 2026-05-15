@@ -175,7 +175,3 @@ export const elementosTableroIntruso = (dificultad) => [
   elementoSalir,
   elementoAyuda
 ]
-
-export const PUNTOS_ACIERTO = 10
-export const UMBRAL_TIEMPO_URGENTE = 10  // Segundos a partir de los cuales el timer se muestra en rojo
-export const PUNTOS_PENALIZACION = 3     // Solo Memory
