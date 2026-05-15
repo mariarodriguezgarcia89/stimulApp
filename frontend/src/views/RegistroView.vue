@@ -43,7 +43,11 @@ function handleRegistro() {
     errores.value.push(mensajes.emailInvalido)
   }
 
-  if (!password.value) errores.value.push(mensajes.passwordObligatoria)
+  if (!password.value) {
+    errores.value.push(mensajes.passwordObligatoria)
+  } else if (password.value.length < 6) {
+    errores.value.push(mensajes.passwordMinima)
+  }
 
   if (!dia.value || !mes.value || !anio.value) {
     errores.value.push(mensajes.fechaNacimientoObligatoria)

@@ -175,3 +175,5 @@ export const elementosTableroIntruso = (dificultad) => [
   elementoSalir,
   elementoAyuda
 ]
+
+export const passwordMinima = 'La contraseña debe tener al menos 6 caracteres.';

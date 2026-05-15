@@ -41,6 +41,13 @@ router.post('/register', async (req, res) => {
         if (email_cuidador && !/\S+@\S+\.\S+/.test(email_cuidador)) {
             return res.status(400).json({ error: 'El formato del correo del cuidador no es válido.' });
         }
+
+        const fechaNac = new Date(fecha_nacimiento)
+        const hoy = new Date()
+        const anioNacimiento = fechaNac.getFullYear()
+        if (isNaN(fechaNac.getTime()) || anioNacimiento < 1900 || fechaNac >= hoy) {
+            return res.status(400).json({ error: 'La fecha de nacimiento no es válida.' })
+        }
     
     try {
         // Comprobamos si ya existe un usuario con ese email.

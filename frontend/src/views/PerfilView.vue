@@ -76,6 +76,10 @@ function handleGuardar() {
     if (nuevaPassword.value !== confirmarPassword.value) errores.value.push(mensajes.passwordsNoCoinciden)
   }
 
+  if (emailCuidador.value && !/\S+@\S+\.\S+/.test(emailCuidador.value)) {
+    errores.value.push('El formato del correo del cuidador no es válido.')
+  }
+
   if (errores.value.length > 0) return
 
   const fechaFormateada = dia.value && mes.value && anio.value

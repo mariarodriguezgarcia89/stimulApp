@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router(); 
 const auth = require('../middleware/auth');
 const { Usuario } = require('../models');  
+const bcrypt = require('bcryptjs')
 
 // GET /usuarios/me
 // Devuelve los datos del usuario actualmente autenticado
@@ -33,10 +34,17 @@ router.put('/me', auth, async (req, res) => {
         // El email y el password_hash no están incluidos
         const { nombre, apellidos, fecha_nacimiento, foto_perfil, email_cuidador, nombre_cuidador, password } = req.body;
 
+        if (email_cuidador && !/\S+@\S+\.\S+/.test(email_cuidador)) {
+            return res.status(400).json({ error: 'El formato del correo del cuidador no es válido.' })
+        }
+
+        if (password && password.length < 6) {
+            return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres.' })
+        }
+
         const datosActualizar = { nombre, apellidos, fecha_nacimiento, foto_perfil, email_cuidador, nombre_cuidador };
 
         if (password) {
-            const bcrypt = require('bcryptjs');
             datosActualizar.password_hash = await bcrypt.hash(password, 10);
         }
 

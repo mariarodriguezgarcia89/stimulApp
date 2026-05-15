@@ -21,6 +21,18 @@ router.get('/mis-partidas', auth, async (req, res) => {
 router.post('/nueva-partida', auth, async (req, res) => {
   try {
     const { juego_id, puntuacion, duracion_segundos, nivel, completada } = req.body;
+
+    const JUEGOS_VALIDOS = [1, 2, 3]
+    const NIVELES_VALIDOS = ['facil', 'dificil']
+    const MAX_PUNTUACION = { 1: 100, 2: 30, 3: 80 }
+
+    if (!JUEGOS_VALIDOS.includes(Number(juego_id)))
+      return res.status(400).json({ error: 'Juego no válido.' })
+    if (!NIVELES_VALIDOS.includes(nivel))
+      return res.status(400).json({ error: 'Nivel no válido.' })
+    if (!Number.isInteger(Number(puntuacion)) || Number(puntuacion) < 0 || Number(puntuacion) > MAX_PUNTUACION[Number(juego_id)])
+      return res.status(400).json({ error: 'Puntuación no válida.' })
+
     const nuevaPartida = await Partida.create({
       usuario_id: req.user.id,
       juego_id,
@@ -62,8 +74,9 @@ router.post('/nueva-partida', auth, async (req, res) => {
     res.json(nuevaPartida);
     
   } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+      console.error('Error al guardar partida:', error)
+      res.status(500).json({ error: 'Error al guardar la partida.' })
+}
 });
 
 module.exports = router;

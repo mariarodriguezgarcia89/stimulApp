@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { ref } from 'vue'
 
 const isDark = ref(false)
@@ -83,6 +83,86 @@ function toggleFontSize() {
   font-size: 10px; 
   font-weight: bold;
   /* El color se lo da el main.css dependiendo del tema */
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .accesibilidad-float {
+    position: absolute;
+  }
+}
+</style> -->
+
+<script setup>
+import { useUiStore } from '@/stores/ui'
+
+const uiStore = useUiStore()
+uiStore.init()
+</script>
+
+<template>
+  <div class="accesibilidad-float">
+    <div class="control-group">
+      <button 
+        @click="uiStore.toggleDark()"
+        :aria-label="uiStore.dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+        :aria-pressed="uiStore.dark"
+        :title="uiStore.dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+        {{ uiStore.dark ? '☀️' : '🌙' }}
+      </button>
+      <span class="etiqueta" aria-hidden="true">MODO</span>
+    </div>
+
+    <div class="control-group">
+      <button 
+        @click="uiStore.toggleLarge()"
+        :aria-label="uiStore.large ? 'Reducir tamaño de letra al normal' : 'Aumentar tamaño de letra'"
+        :aria-pressed="uiStore.large"
+        :title="uiStore.large ? 'Reducir tamaño de letra' : 'Aumentar tamaño de letra'">
+        Aa
+      </button>
+      <span class="etiqueta" aria-hidden="true">ZOOM</span>
+    </div>
+  </div>
+  <router-view></router-view>
+</template>
+
+<style scoped>
+.accesibilidad-float {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.control-group button {
+  width: 50px; 
+  height: 50px; 
+  border-radius: 50%;
+  border: 3px solid var(--color-principal);
+  background: var(--color-caja);
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.etiqueta {
+  font-size: 10px; 
+  font-weight: bold;
   text-align: center;
 }
 

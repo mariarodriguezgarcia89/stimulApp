@@ -3,8 +3,8 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { Intruso, sequelize } = require('../models');
 
-// GET /refranes/partida
-// Devuelve una lista de 10 refranes aleatorios para el juego de adivinar el refrán
+// GET /intrusos/partida
+// Devuelve una lista de 3 intrusos aleatorios para el juego de encontrar el intruso
 // Ruta protegida: requiere token JWT válido en la cabecera Authorization
 router.get('/partida', auth, async (req, res) => { 
     try {

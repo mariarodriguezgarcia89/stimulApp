@@ -62,21 +62,8 @@ async function calcularTendencia(usuarioId, juegoId) {
     };
 }
 
-/**
- * Detecta si el usuario ha igualado o superado su mejor puntuación
- * en las últimas 5 partidas, en alguno de sus juegos.
- * Devuelve el logro más impresionante (superada > igualada, más reciente),
- * o null si no hay marca reciente.
- *
- * @param {number} usuarioId
- * @param {number[]} idsJuegos
- * @returns {Object|null} { juego_id, fue_superada, mejor_reciente, mejor_anterior, fecha }
- */
 async function detectarMarcaPersonalReciente(usuarioId, idsJuegos) {
-    const candidatos = [];
-
-    for (const juegoId of idsJuegos) {
-        // Las últimas 5 partidas
+    const resultados = await Promise.all(idsJuegos.map(async juegoId => {
         const ultimas = await Partida.findAll({
             where: { usuario_id: usuarioId, juego_id: juegoId },
             order: [['fecha', 'DESC']],
@@ -84,17 +71,14 @@ async function detectarMarcaPersonalReciente(usuarioId, idsJuegos) {
             attributes: ['puntuacion', 'fecha']
         });
 
-        if (ultimas.length === 0) continue;
+        if (ultimas.length === 0) return null;
 
-        // Mejor puntuación de las últimas 5 + su fecha
         const mejorReciente = ultimas.reduce((max, p) =>
             p.puntuacion > max.puntuacion ? p : max
         );
 
-        // Frontera: la fecha más antigua de esas 5
         const fechaFrontera = ultimas[ultimas.length - 1].fecha;
 
-        // Mejor histórica anterior a esa frontera
         const historico = await Partida.findOne({
             where: {
                 usuario_id: usuarioId,
@@ -105,41 +89,33 @@ async function detectarMarcaPersonalReciente(usuarioId, idsJuegos) {
             raw: true
         });
 
-        // Si no hay histórico previo, no hay con qué comparar
-        if (!historico || historico.mejor_anterior === null) continue;
+        if (!historico || historico.mejor_anterior === null) return null;
 
         const mejorAnterior = historico.mejor_anterior;
 
-        if (mejorReciente.puntuacion > mejorAnterior) {
-            candidatos.push({
+        if (mejorReciente.puntuacion >= mejorAnterior) {
+            return {
                 juego_id: juegoId,
-                fue_superada: true,
+                fue_superada: mejorReciente.puntuacion > mejorAnterior,
                 mejor_reciente: mejorReciente.puntuacion,
                 mejor_anterior: mejorAnterior,
                 fecha: mejorReciente.fecha
-            });
-        } else if (mejorReciente.puntuacion === mejorAnterior) {
-            candidatos.push({
-                juego_id: juegoId,
-                fue_superada: false,
-                mejor_reciente: mejorReciente.puntuacion,
-                mejor_anterior: mejorAnterior,
-                fecha: mejorReciente.fecha
-            });
+            }
         }
-    }
+        return null
+    }))
 
-    if (candidatos.length === 0) return null;
+    const candidatos = resultados.filter(r => r !== null)
 
-    // Priorizar: 1º superada sobre igualada, 2º más reciente
+    if (candidatos.length === 0) return null
+
     candidatos.sort((a, b) => {
-        if (a.fue_superada !== b.fue_superada) return b.fue_superada - a.fue_superada;
-        return new Date(b.fecha) - new Date(a.fecha);
-    });
+        if (a.fue_superada !== b.fue_superada) return b.fue_superada - a.fue_superada
+        return new Date(b.fecha) - new Date(a.fecha)
+    })
 
-    return candidatos[0];
+    return candidatos[0]
 }
-
 
 /**
  * Calcula la racha actual y el récord de días consecutivos jugando
@@ -334,9 +310,6 @@ router.get('/dashboard', auth, async (req, res) => {
         res.status(500).json({ error: 'Error al obtener el dashboard de estadísticas.' });
     }
 });
-
-
-
 
 module.exports = router;
 

@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -9,20 +9,51 @@ const authStore = useAuthStore()
 const menuAbierto = ref(false)
 
 // Accesibilidad
-const isDark = ref(document.documentElement.getAttribute('data-theme') === 'dark')
-const isLarge = ref(document.documentElement.getAttribute('data-size') === 'large')
+const uiStore.dark = ref(document.documentElement.getAttribute('data-theme') === 'dark')
+const uiStore.large = ref(document.documentElement.getAttribute('data-size') === 'large')
 
-function toggleDarkMode() {
-  isDark.value = !isDark.value
-  document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light')
+function uiStore.toggleDark() {
+  uiStore.dark.value = !uiStore.dark.value
+  document.documentElement.setAttribute('data-theme', uiStore.dark.value ? 'dark' : 'light')
 }
 
-function toggleFontSize() {
-  isLarge.value = !isLarge.value
-  document.documentElement.setAttribute('data-size', isLarge.value ? 'large' : 'normal')
+function uiStore.toggleLarge() {
+  uiStore.large.value = !uiStore.large.value
+  document.documentElement.setAttribute('data-size', uiStore.large.value ? 'large' : 'normal')
 }
 
 // Ocultar botones flotantes de App.vue cuando la topbar está visible
+onMounted(() => {
+  const float = document.querySelector('.accesibilidad-float')
+  if (float) float.style.display = 'none'
+})
+
+onUnmounted(() => {
+  const float = document.querySelector('.accesibilidad-float')
+  if (float) float.style.display = ''
+})
+
+function cerrarSesion() {
+  authStore.logout()
+  router.push('/login')
+}
+
+const props = defineProps({
+  modoJuego: { type: Boolean, default: false }
+})
+</script> -->
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useUiStore } from '@/stores/ui'
+import avatarDefault from '@/assets/avatar-default.jpg'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const uiStore = useUiStore()
+const menuAbierto = ref(false)
+
 onMounted(() => {
   const float = document.querySelector('.accesibilidad-float')
   if (float) float.style.display = 'none'
@@ -59,19 +90,19 @@ const props = defineProps({
       <div class="accesibilidad-nav">
         <button 
           class="btn-nav-acc" 
-          @click="toggleDarkMode"
-          :aria-label="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
-          :aria-pressed="isDark"
-          :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-          <span class="circulo-acc" aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
+          @click="uiStore.toggleDark()"
+          :aria-label="uiStore.dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+          :aria-pressed="uiStore.dark"
+          :title="uiStore.dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+          <span class="circulo-acc" aria-hidden="true">{{ uiStore.dark ? '☀️' : '🌙' }}</span>
           <span class="label-acc" aria-hidden="true">Modo</span>
         </button>
         <button 
           class="btn-nav-acc" 
-          @click="toggleFontSize"
-          :aria-label="isLarge ? 'Reducir tamaño de letra al normal' : 'Aumentar tamaño de letra'"
-          :aria-pressed="isLarge"
-          :title="isLarge ? 'Reducir tamaño de letra' : 'Aumentar tamaño de letra'">
+          @click="uiStore.toggleLarge()"
+          :aria-label="uiStore.large ? 'Reducir tamaño de letra al normal' : 'Aumentar tamaño de letra'"
+          :aria-pressed="uiStore.large"
+          :title="uiStore.large ? 'Reducir tamaño de letra' : 'Aumentar tamaño de letra'">
           <span class="circulo-acc" aria-hidden="true">Aa</span>
           <span class="label-acc" aria-hidden="true">Zoom</span>
         </button>

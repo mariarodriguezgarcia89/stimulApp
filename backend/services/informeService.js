@@ -378,7 +378,7 @@ async function enviarInformes() {
             mediasPorJuego[est.juego_id] = Math.round(est.puntuacion_media);
         });
 
-        const diasUso    = new Set(partidas.map(p => new Date(p.fecha).toDateString()));
+        const diasUso = new Set(partidas.map(p => new Date(p.fecha).toISOString().slice(0, 10)));
         const diasUnicos = diasUso.size;
 
         const htmlInforme = generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos);
