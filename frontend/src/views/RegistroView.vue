@@ -84,20 +84,14 @@ function handleRegistro() {
 </script>
 
 <template>
-  <div class="registro-container">
+  <div class="registro-page">
     <img src="@/assets/logo.png" alt="Logo StimulApp" class="logo" />
 
-    <div class="registro-layout">
-      
-      <div class="ilustracion-wrapper">
-        <img 
-          :src="fondoRegistro" 
-          alt="" 
-          aria-hidden="true"
-          class="ilustracion" />
-      </div>
+    <div class="ilustracion-wrapper" aria-hidden="true">
+      <img :src="fondoRegistro" alt="" class="ilustracion" />
+    </div>
 
-      <div class="caja">
+    <div class="caja">
         <h1>Crear cuenta</h1>
         <p class="bienvenida">Rellene el formulario para comenzar 😊</p>
 
@@ -200,180 +194,97 @@ function handleRegistro() {
           ¿Ya tienes cuenta?
           <RouterLink to="/login">Inicia sesión aquí</RouterLink>
         </p>
-      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* ─── CONTENEDOR PRINCIPAL ─── */
-.registro-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px 30px 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
+/* ─── GRID PRINCIPAL ─── */
+.registro-page {
+  display: grid;
+  height: 100vh;
+  overflow: hidden;
+  grid-template-columns: 1fr minmax(480px, 640px) 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "logo form ."
+    "ilustracion form .";
 }
 
+/* ─── LOGO (fila 0, columna 0) ─── */
 .logo {
-  width: 220px;
+  grid-area: logo;
+  width: 180px;
   display: block;
-  margin: 0 auto -20px auto;
+  margin: 8px 0 0 8px;
 }
 
-/* ─── LAYOUT Y CAJA ─── */
-.registro-layout {
-  position: relative;
-  width: 100%;
-  max-width: 980px;
-  display: flex;
-  justify-content: center;
-  margin: 0 auto;
-}
-
-.registro-layout .caja {
-  width: 100%;
-  max-width: 100% !important;
-  padding: 40px 50px; 
-  position: relative;
-  z-index: 2; 
-}
-
-/* ─── ILUSTRACIÓN DE ESCRITORIO ─── */
+/* ─── ILUSTRACIÓN (fila 1, columna izquierda) ─── */
 .ilustracion-wrapper {
-  position: absolute;
-  right: -550px;
-  top: 75%;
-  transform: translateY(-50%);
-  z-index: 1;
+  grid-area: ilustracion;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-right: -60px;
   pointer-events: none;
+  padding-bottom: 32px;
 }
 
 .ilustracion {
-  width: 700px;
+  width: 90%;
+  max-width: 400px;
   height: auto;
   display: block;
 }
 
-/* ─── RESPONSIVE ESCRITORIO ─── */
-@media (max-width: 1500px) {
-  .ilustracion-wrapper {
-    right: -150px; 
-  }
-  .ilustracion {
-    width: 380px;
-  }
+/* ─── FORMULARIO (ambas filas, columna central) ─── */
+.caja {
+  grid-area: form;
+  align-self: center;
+  overflow-y: auto;
+  max-height: calc(100vh - 40px);
+  margin: 20px 0;
 }
 
-@media (max-width: 1300px) {
-  .ilustracion-wrapper {
-    display: none; 
-  }
-}
-
-/* ─── RESPONSIVE MÓVIL Y ZOOM ─── */
+/* ─── MÓVIL ─── */
 @media (max-width: 768px) {
+  .registro-page {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      "logo"
+      "ilustracion"
+      "form";
+    height: auto;
+    overflow: visible;
+  }
 
   .logo {
-    width: 200px;
-    margin-bottom: -50px;
+    width: 180px;
+    margin: 16px auto 8px;
   }
 
-  .registro-container {
-    padding: 10px 8px; 
-  }
-
-  .registro-layout {
-    flex-direction: column; 
-    width: 100%;
-  }
-
-  .registro-layout .caja {
-    padding: 24px 12px; 
-  }
-
-  /* 👇 ILUSTRACIÓN APILADA (TIPO LOGIN) 👇 */
   .ilustracion-wrapper {
-    display: block !important; 
-    position: static; 
-    transform: none; 
-    right: auto; 
-    top: auto; 
-    z-index: 1;
-    margin: 0 10px -20px auto; 
-    text-align: right; 
+    justify-content: flex-start;
+    align-items: flex-end;
+    margin-right: 0;
+    padding: 0 0 0 20px;
+    height: 130px;
   }
 
   .ilustracion {
-    width: 130px; 
-    height: auto;
-    display: block; 
-    margin: 0 0 0 auto; 
-    filter: none; 
+    width: 130px;
+    max-width: none;
   }
 
-  /* 👇 AJUSTES ESPECÍFICOS DE LA ILUSTRACIÓN CON ZOOM 👇 */
-  html[data-size="large"] .ilustracion-wrapper {
-    margin: 0 15px -25px auto; 
+  .caja {
+    overflow-y: visible;
+    max-height: none;
+    margin: 0 0 24px;
   }
-  
+
   html[data-size="large"] .ilustracion {
-    width: 150px; 
+    width: 150px;
   }
-
-  /* =============================================================
-  👇 LÓGICA DE COMPRESIÓN PARA ZOOM - COMENTADA PARA PRUEBA 👇 
-  (Asegúrate de haber pegado esto en tu main.css global)
-  =============================================================
-  
-  html[data-size="large"] .registro-layout .caja {
-    box-sizing: border-box !important;
-    max-width: 100% !important; 
-    padding: 16px 12px !important; 
-    overflow-x: hidden; 
-  }
-
-  html[data-size="large"] .formulario-grid { row-gap: 8px !important; }
-  html[data-size="large"] .campo { gap: 2px !important; }
-  html[data-size="large"] .password-wrapper { gap: 4px !important; }
-
-  html[data-size="large"] input,
-  html[data-size="large"] select {
-    box-sizing: border-box !important; 
-    width: 100% !important;
-    max-width: 100% !important; 
-    padding: 10px 8px !important; 
-    font-size: 1.1rem !important; 
-  }
-
-  html[data-size="large"] .btn-mostrar {
-    min-height: auto !important; 
-    padding: 6px 12px !important;
-  }
-
-  html[data-size="large"] .btn-principal {
-    padding: 10px !important;
-    margin-top: 0 !important;
-  }
-  
-  html[data-size="large"] h1 { margin-bottom: 0 !important; }
-
-  html[data-size="large"] .seccion-cuidador {
-    padding: 12px !important;
-    gap: 8px !important;
-  }
-
-  html[data-size="large"] .caja p, 
-  html[data-size="large"] .caja h1,
-  html[data-size="large"] .campo label {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    max-width: 100%;
-  }
-  =============================================================
-  */
 }
-
 </style>
