@@ -4,50 +4,113 @@ const puppeteer = require('puppeteer');
 const { Op } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
-const DIAS_INACTIVIDAD_ALERTA = 7  // Días sin jugar antes de enviar recordatorio
-
-const INFO_JUEGOS = {
-    1: { nombre: 'Acaba el Refrán',      area: 'Lenguaje · Memoria semántica' },
-    2: { nombre: 'Encuentra el Intruso',  area: 'Atención · Funciones ejecutivas' },
-    3: { nombre: 'Memory',               area: 'Memoria visual · Atención espacial' }
-}
-
-const PLANTILLA_INFORME = fs.readFileSync(path.join(__dirname, '../templates/informe.html'), 'utf8')
-const PLANTILLA_INFORME_USUARIO = fs.readFileSync(path.join(__dirname, '../templates/informe-usuario.html'), 'utf8')
 
 // ─────────────────────────────────────────────────────────────
-// FUNCIÓN generarHTML
-// Sustituye en la plantilla informe.html todos los placeholders
-// por los datos reales del usuario y sus partidas.
+// TEMPLATES HTML (se cargan una sola vez al iniciar el módulo)
+// ─────────────────────────────────────────────────────────────
+const TEMPLATE_CUIDADOR = fs.readFileSync(
+    path.join(__dirname, '../templates/informe-cuidador.html'),
+    'utf8'
+);
+const TEMPLATE_USUARIO = fs.readFileSync(
+    path.join(__dirname, '../templates/informe-usuario.html'),
+    'utf8'
+);
+
+// ─────────────────────────────────────────────────────────────
+// CONSTANTES COMPARTIDAS
+// ─────────────────────────────────────────────────────────────
+const INFO_JUEGOS = {
+    1: { nombre: 'Acaba el Refrán',      area: 'Lenguaje · Memoria semántica',       areaCognitiva: 'Memoria semántica' },
+    2: { nombre: 'Encuentra el Intruso',  area: 'Atención · Funciones ejecutivas',    areaCognitiva: 'Atención selectiva' },
+    3: { nombre: 'Memory',               area: 'Memoria visual · Atención espacial',  areaCognitiva: 'Memoria visual' }
+};
+
+const COLORES_JUEGO = {
+    1: '#7B2D3E',
+    2: '#3A6B4A',
+    3: '#1A4A6B'
+};
+
+// Umbrales de rendimiento (% respecto a la media histórica)
+const UMBRALES = {
+    BIEN: 70,   // ≥ 70% → buen rendimiento
+    BAJO: 40    // ≥ 40% y < 70% → puede mejorar / < 40% → requiere atención
+};
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS: cálculos compartidos entre ambos informes
+// ─────────────────────────────────────────────────────────────
+function calcularDatosBase(partidas, mediasPorJuego) {
+    const partidasPorJuego = {};
+    partidas.forEach(p => {
+        if (!partidasPorJuego[p.juego_id]) partidasPorJuego[p.juego_id] = [];
+        partidasPorJuego[p.juego_id].push(p);
+    });
+
+    const juegosConDatos = Object.keys(partidasPorJuego).map(Number);
+
+    const mediaActualPorJuego = {};
+    juegosConDatos.forEach(id => {
+        const puntuaciones = partidasPorJuego[id].map(p => p.puntuacion);
+        mediaActualPorJuego[id] = Math.round(puntuaciones.reduce((a, b) => a + b, 0) / puntuaciones.length);
+    });
+
+    const porcentajesPorJuego = {};
+    juegosConDatos.forEach(id => {
+        const mHist = Math.round(mediasPorJuego[id] || 0);
+        const mAct  = mediaActualPorJuego[id] || 0;
+        porcentajesPorJuego[id] = mHist > 0 ? Math.round((mAct / mHist) * 100) : 100;
+    });
+
+    return { partidasPorJuego, juegosConDatos, mediaActualPorJuego, porcentajesPorJuego };
+}
+
+function obtenerNivel(porcentaje) {
+    return porcentaje >= UMBRALES.BIEN ? 'bien' : porcentaje >= UMBRALES.BAJO ? 'bajo' : 'alerta';
+}
+
+function obtenerColorHexNivel(porcentaje) {
+    return porcentaje >= UMBRALES.BIEN ? '#3A6B4A' : porcentaje >= UMBRALES.BAJO ? '#B8621A' : '#8B2020';
+}
+
+function calcularFechas() {
+    const hoy    = new Date();
+    const hace30 = new Date(); hace30.setDate(hoy.getDate() - 30);
+    return {
+        fechaHoy: hoy.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }),
+        fechaIni: hace30.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }),
+        fechaFin: hoy.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+    };
+}
+
+// ─────────────────────────────────────────────────────────────
+// FUNCIÓN generarHTMLCuidador (INFORME CUIDADOR)
+// Genera el HTML del informe dirigido al cuidador con gráficos,
+// valoraciones clínicas y notas clínicas.
 // ─────────────────────────────────────────────────────────────
 function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
 
-    let html = PLANTILLA_INFORME
+    let html = TEMPLATE_CUIDADOR;
 
-    const COLORES_JUEGO = {
-        1: '#7B2D3E', // granate - Acaba el refrán
-        2: '#3A6B4A', // verde   - Encuentra el intruso
-        3: '#1A4A6B'  // azul    - Memory
-    };
+    // Construir nombre completo evitando duplicaciones
+        const nombre = (usuario.nombre || '').trim();
+        const apellidos = (usuario.apellidos || '').trim();
 
-    const partidasPorJuego = {};
-    partidas.forEach(partida => {
-        if (!partidasPorJuego[partida.juego_id]) {
-            partidasPorJuego[partida.juego_id] = [];
+        let nombreCompleto;
+        if (!apellidos) {
+            nombreCompleto = nombre;
+        } else if (apellidos.toLowerCase().startsWith(nombre.toLowerCase() + ' ')) {
+            // Si apellidos ya incluye el nombre al principio, usar solo apellidos
+            nombreCompleto = apellidos;
+        } else {
+            nombreCompleto = `${nombre} ${apellidos}`;
         }
-        partidasPorJuego[partida.juego_id].push(partida);
-    });
 
-    // ── 3. CALCULAR MEDIAS ACTUALES ──
-    const mediaActualPorJuego = {};
-    Object.keys(partidasPorJuego).forEach(juegoId => {
-        const puntuaciones = partidasPorJuego[juegoId].map(p => p.puntuacion);
-        const suma = puntuaciones.reduce((acc, val) => acc + val, 0);
-        mediaActualPorJuego[juegoId] = Math.round(suma / puntuaciones.length);
-    });
+    const { partidasPorJuego, juegosConDatos, mediaActualPorJuego, porcentajesPorJuego } =
+        calcularDatosBase(partidas, mediasPorJuego);
 
-    // ── 4. DATOS PARA LOS GRÁFICOS ──
-    const juegosConDatos = Object.keys(partidasPorJuego).map(Number);
+    // ── DATOS PARA GRÁFICOS ──
 
     // Gráfico de barras
     const datosBarras = {
@@ -56,40 +119,17 @@ function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
         actual:    juegosConDatos.map(id => mediaActualPorJuego[id] || 0)
     };
 
-    // Gráfico radial (porcentaje de rendimiento)
-    const porcentajesPorJuego = {};
-    juegosConDatos.forEach(id => {
-        const mHist = Math.round(mediasPorJuego[id] || 0);
-        const mAct  = mediaActualPorJuego[id] || 0;
-        porcentajesPorJuego[id] = mHist > 0 ? Math.round((mAct / mHist) * 100) : 100;
-    });
+    // Colores por nivel para barras
+    const coloresActual = juegosConDatos.map(id => obtenerColorHexNivel(porcentajesPorJuego[id]));
 
-    const datosRadial = {
-        labels:      juegosConDatos.map(id => INFO_JUEGOS[id]?.nombre || `Juego ${id}`),
-        porcentajes: juegosConDatos.map(id => porcentajesPorJuego[id])
-    };
-
-    // Colores por nivel para barras y radial
-    const coloresActual = juegosConDatos.map(id => {
-        const p = porcentajesPorJuego[id];
-        return p >= 70 ? '#3A6B4A' : p >= 40 ? '#B8621A' : '#8B2020';
-    });
-
-    // Colores fijos por juego para el gráfico de línea
+    // Gráfico de línea
     const coloresLinea = juegosConDatos.map(id => COLORES_JUEGO[id] || '#7B2D3E');
-
-    // Gráfico de línea: ordenar fechas correctamente
     const todasLasFechas = [...new Set(
-        partidas.map(p => {
-            const d = new Date(p.fecha);
-            return d.toISOString().split('T')[0]; // formato YYYY-MM-DD para ordenar bien
-        })
+        partidas.map(p => new Date(p.fecha).toISOString().split('T')[0])
     )].sort();
-
     const fechasFormateadas = todasLasFechas.map(f =>
         new Date(f).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
     );
-
     const seriesLinea = juegosConDatos.map((id, idx) => {
         const puntosPorFecha = {};
         partidasPorJuego[id].forEach(p => {
@@ -97,7 +137,6 @@ function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
             if (!puntosPorFecha[fecha]) puntosPorFecha[fecha] = [];
             puntosPorFecha[fecha].push(p.puntuacion);
         });
-
         return {
             label: INFO_JUEGOS[id]?.nombre || `Juego ${id}`,
             data: todasLasFechas.map(f => {
@@ -109,240 +148,358 @@ function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
             backgroundColor: coloresLinea[idx] + '15',
             tension: 0.4,
             pointRadius: 4,
+            pointBackgroundColor: coloresLinea[idx],
+            pointBorderColor: '#FDFAF5',
+            pointBorderWidth: 2,
             spanGaps: true,
             fill: true
         };
     });
-
     const datosLinea = { fechas: fechasFormateadas, series: seriesLinea };
 
-    // ── 5. GENERAR TARJETAS DE JUEGO ──
+    // ── PERFIL COGNITIVO (barras horizontales HTML) ──
+    const perfilCognitivo = generarPerfilCognitivoHTML(juegosConDatos, porcentajesPorJuego);
+
+    // ── TARJETAS DE JUEGO (cuidador) ──
     let tarjetasHTML = '';
     juegosConDatos.forEach(id => {
-        const mediaAnterior  = Math.round(mediasPorJuego[id] || 0);
-        const mediaActual    = mediaActualPorJuego[id];
-        const porcentaje     = porcentajesPorJuego[id];
-        const recomendaciones = obtenerRecomendaciones(id, porcentaje);
+        const mediaAnterior = Math.round(mediasPorJuego[id] || 0);
+        const mediaActual   = mediaActualPorJuego[id];
+        const porcentaje    = porcentajesPorJuego[id];
+        const nivel         = obtenerNivel(porcentaje);
+        const badgeTexto    = nivel === 'bien' ? '✓ Buen rendimiento' : nivel === 'bajo' ? '⚠ Puede mejorar' : '⚠ Requiere atención';
+        const variacion     = mediaAnterior > 0 ? Math.round(((mediaActual - mediaAnterior) / mediaAnterior) * 100) : 0;
+        const anchoBar      = Math.min(porcentaje, 100);
 
-        const nivel      = porcentaje >= 70 ? 'bien' : porcentaje >= 40 ? 'bajo' : 'alerta';
-        const badgeTexto = nivel === 'bien' ? '✓ Buen rendimiento' : nivel === 'bajo' ? '⚠ Puede mejorar' : '⚠ Requiere atención';
-        const variacion  = mediaAnterior > 0 ? Math.round(((mediaActual - mediaAnterior) / mediaAnterior) * 100) : 0;
-        const colorVar   = nivel === 'bien' ? 'var(--verde)' : nivel === 'bajo' ? 'var(--naranja)' : 'var(--rojo)';
-        const anchoBar   = Math.min(porcentaje, 100);
+        // Valoración clínica dirigida al cuidador
+        const valoracion = obtenerValoracionCuidador(id, nivel, porcentaje, mediaActual, mediaAnterior, nombreCompleto);
 
-        const reflexionHTML = nivel === 'alerta' ? `
-        <div class="reflexion-box">
-            <div class="reflexion-titulo">Preguntas de reflexión</div>
-            <ul>
-                <li>¿Ha notado últimamente más dificultad para recordar dónde dejó objetos cotidianos?</li>
-                <li>¿Ha tenido episodios de olvidos inusuales en conversaciones recientes?</li>
-                <li>Si es así, le animamos a comentárselo a su cuidador o médico de cabecera.</li>
-            </ul>
-        </div>` : '';
+        // Nota clínica solo para nivel alerta
+        const notaClinicaHTML = nivel === 'alerta' ? `
+            <div class="clinical-note">
+                <div class="clinical-note__title">Nota clínica</div>
+                <p class="clinical-note__text">Le recomendamos comentar estos resultados con el equipo médico de referencia de ${nombreCompleto} para una valoración más detallada, especialmente si usted ha observado dificultades en su vida diaria: desorientación, olvidos frecuentes de objetos o dificultad para seguir instrucciones visuales.</p>
+            </div>` : '';
 
         tarjetasHTML += `
-        <div class="juego-card ${nivel}">
-            <div class="juego-header">
+        <article class="juego-card juego-card--${nivel}">
+            <div class="juego-card__header">
                 <div>
-                    <div class="juego-nombre">${INFO_JUEGOS[id]?.nombre || `Juego ${id}`}</div>
-                    <div class="juego-area">${INFO_JUEGOS[id]?.area || ''}</div>
+                    <h3 class="juego-card__title">${INFO_JUEGOS[id]?.nombre || `Juego ${id}`}</h3>
+                    <div class="juego-card__area">${INFO_JUEGOS[id]?.area || ''}</div>
                 </div>
-                <div class="badge ${nivel}">${badgeTexto}</div>
+                <span class="juego-card__badge juego-card__badge--${nivel}">${badgeTexto}</span>
             </div>
-            <div class="medias-row">
-                <div class="media-item">
-                    <div class="val">${mediaAnterior}</div>
-                    <div class="lbl">Media histórica</div>
+            <div class="juego-card__metrics">
+                <div class="juego-card__metric">
+                    <span class="juego-card__metric-value">${mediaAnterior}</span>
+                    <span class="juego-card__metric-label">Media histórica</span>
                 </div>
-                <div class="divider-v"></div>
-                <div class="media-item">
-                    <div class="val">${mediaActual}</div>
-                    <div class="lbl">Media estos 15 días</div>
+                <div class="juego-card__metric-divider"></div>
+                <div class="juego-card__metric">
+                    <span class="juego-card__metric-value">${mediaActual}</span>
+                    <span class="juego-card__metric-label">Media actual</span>
                 </div>
-                <div class="divider-v"></div>
-                <div class="media-item">
-                    <div class="val" style="color:${colorVar}">${variacion >= 0 ? '+' : ''}${variacion}%</div>
-                    <div class="lbl">Variación</div>
+                <div class="juego-card__metric-divider"></div>
+                <div class="juego-card__metric">
+                    <span class="juego-card__metric-value juego-card__metric-value--${nivel}">${variacion >= 0 ? '+' : ''}${variacion}%</span>
+                    <span class="juego-card__metric-label">Variación</span>
                 </div>
             </div>
-            <div class="progreso-area">
-                <div class="progreso-labels">
+            <div class="juego-card__progress">
+                <div class="juego-card__progress-labels">
                     <span>Rendimiento actual</span>
                     <span>${porcentaje}% respecto a histórico</span>
                 </div>
-                <div class="progreso-track">
-                    <div class="progreso-fill ${nivel}" style="width:${anchoBar}%"></div>
+                <div class="juego-card__progress-track">
+                    <div class="juego-card__progress-fill juego-card__progress-fill--${nivel}" style="width:${anchoBar}%"></div>
                 </div>
             </div>
-            <div class="recomendaciones-titulo">Recomendaciones</div>
-            <ul class="recomendaciones-lista">
-                ${recomendaciones.map(r => `<li>${r}</li>`).join('')}
-            </ul>
-            ${reflexionHTML}
-        </div>`;
+            <div class="juego-card__interpretation-block">
+                <h4 class="juego-card__interpretation-title">Valoración clínica</h4>
+                <p class="juego-card__interpretation">${valoracion}</p>
+            </div>
+            ${notaClinicaHTML}
+        </article>`;
     });
 
-    // ── 6. FECHAS Y MENSAJE FINAL ──
-    const hoy      = new Date();
-    const hace30   = new Date(); hace30.setDate(hoy.getDate() - 30);
-    const opcFecha = { day: 'numeric', month: 'long', year: 'numeric' };
-    const fechaHoy = hoy.toLocaleDateString('es-ES', opcFecha);
-    const fechaIni = hace30.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-    const fechaFin = hoy.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    // ── FECHAS Y MENSAJE FINAL (dirigido al cuidador) ──
+    const { fechaHoy, fechaIni, fechaFin } = calcularFechas();
 
     const mensajeFinal = diasUnicos >= 7
-        ? `¡Excelente trabajo usando StimulApp de forma constante, ${usuario.nombre}! Cada día que practica está invirtiendo en su bienestar cognitivo. ¡Siga adelante con ese ánimo!`
-        : `Recordamos que cuantos más días use StimulApp, más completo y fiable será su informe. ¡Ánimo, ${usuario.nombre}! Su mente merece ese cuidado diario.`;
+        ? `${nombreCompleto} ha demostrado constancia utilizando StimulApp durante este período. Su participación activa es clave para el seguimiento cognitivo. Le animamos a seguir acompañándola en este proceso — su apoyo como cuidador/a marca la diferencia.`
+        : `${nombreCompleto} ha utilizado StimulApp ${diasUnicos} días este período. Recordamos que cuantos más días practique, más completo y fiable será el seguimiento. Le animamos a motivar a ${nombreCompleto} para que use la aplicación con mayor frecuencia.`;
 
-    // ── 7. SUSTITUIR PLACEHOLDERS ──
-    html = html.replaceAll('{{NOMBRE_USUARIO}}', usuario.nombre);
-    html = html.replace('{{INICIAL_USUARIO}}',     usuario.nombre.charAt(0).toUpperCase());
-    html = html.replace('{{TOTAL_PARTIDAS}}',      partidas.length);
-    html = html.replace('{{DIAS_USO}}',            diasUnicos);
-    html = html.replace('{{TOTAL_JUEGOS}}',        juegosConDatos.length);
-    html = html.replace('{{FECHA_INICIO}}',        fechaIni);
-    html = html.replace('{{FECHA_FIN}}',           fechaFin);
-    html = html.replace('{{FECHA_GENERACION}}',    fechaHoy);
-    html = html.replace('{{MENSAJE_FINAL}}',       mensajeFinal);
-    html = html.replace('{{EMAIL_REMITENTE}}',     process.env.EMAIL_USER || 'stimulapp.alertas@gmail.com');
-    html = html.replace('{{TARJETAS_JUEGOS}}',     tarjetasHTML);
-    html = html.replace('{{DATOS_BARRAS_JSON}}',   JSON.stringify(datosBarras));
-    html = html.replace('{{DATOS_RADIAL_JSON}}',   JSON.stringify(datosRadial));
-    html = html.replace('{{DATOS_LINEA_JSON}}',    JSON.stringify(datosLinea));
-    html = html.replace('{{COLORES_ACTUAL_JSON}}', JSON.stringify(coloresActual));
+    // ── SUSTITUIR PLACEHOLDERS ──
+    html = html.replaceAll('{{NOMBRE_USUARIO}}', nombreCompleto);
+    html = html.replaceAll('{{INICIAL_USUARIO}}',       usuario.nombre.charAt(0).toUpperCase());
+    html = html.replaceAll('{{TOTAL_PARTIDAS}}',        partidas.length);
+    html = html.replaceAll('{{DIAS_USO}}',              diasUnicos);
+    html = html.replaceAll('{{TOTAL_JUEGOS}}',          juegosConDatos.length);
+    html = html.replaceAll('{{FECHA_INICIO}}',          fechaIni);
+    html = html.replaceAll('{{FECHA_FIN}}',             fechaFin);
+    html = html.replaceAll('{{FECHA_GENERACION}}',      fechaHoy);
+    html = html.replaceAll('{{MENSAJE_FINAL}}',         mensajeFinal);
+    html = html.replaceAll('{{EMAIL_REMITENTE}}',       process.env.EMAIL_USER || 'stimulapp.alertas@gmail.com');
+    html = html.replaceAll('{{TARJETAS_JUEGOS}}',       tarjetasHTML);
+    html = html.replaceAll('{{PERFIL_COGNITIVO_HTML}}', perfilCognitivo);
+    html = html.replaceAll('{{DATOS_BARRAS_JSON}}',     JSON.stringify(datosBarras));
+    html = html.replaceAll('{{DATOS_LINEA_JSON}}',      JSON.stringify(datosLinea));
+    html = html.replaceAll('{{COLORES_ACTUAL_JSON}}',   JSON.stringify(coloresActual));
 
     return html;
 }
 
-function generarHTMLUsuario(usuario, partidas, mediasPorJuego, diasUnicos) {
+// ─────────────────────────────────────────────────────────────
+// FUNCIÓN generarHTMLInformeUsuario (INFORME USUARIO)
+// Genera el HTML del informe dirigido al usuario con tuteo,
+// comparativa de puntuaciones, recomendaciones y reflexiones.
+// ─────────────────────────────────────────────────────────────
+function generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos) {
 
-    let html = PLANTILLA_INFORME_USUARIO
+    let html = TEMPLATE_USUARIO;
 
-    const partidasPorJuego = {};
-    partidas.forEach(partida => {
-        if (!partidasPorJuego[partida.juego_id]) {
-            partidasPorJuego[partida.juego_id] = [];
+    // Construir nombre completo evitando duplicaciones
+        const nombre = (usuario.nombre || '').trim();
+        const apellidos = (usuario.apellidos || '').trim();
+
+        let nombreCompleto;
+        if (!apellidos) {
+            nombreCompleto = nombre;
+        } else if (apellidos.toLowerCase().startsWith(nombre.toLowerCase() + ' ')) {
+            // Si apellidos ya incluye el nombre al principio, usar solo apellidos
+            nombreCompleto = apellidos;
+        } else {
+            nombreCompleto = `${nombre} ${apellidos}`;
         }
-        partidasPorJuego[partida.juego_id].push(partida);
-    });
 
-    const mediaActualPorJuego = {};
-    Object.keys(partidasPorJuego).forEach(juegoId => {
-        const puntuaciones = partidasPorJuego[juegoId].map(p => p.puntuacion);
-        mediaActualPorJuego[juegoId] = Math.round(puntuaciones.reduce((a, b) => a + b, 0) / puntuaciones.length);
-    });
 
-    const juegosConDatos = Object.keys(partidasPorJuego).map(Number);
+    const { juegosConDatos, mediaActualPorJuego, porcentajesPorJuego } =
+        calcularDatosBase(partidas, mediasPorJuego);
 
+    // Mensajes motivacionales con tuteo
     const MENSAJES = {
-        bien:   '¡Lo está haciendo muy bien! 🎉',
-        bajo:   'Este mes puede mejorar un poco. ¡Ánimo!',
-        alerta: 'Este mes ha costado un poco más. No se preocupe, ¡lo irá mejorando!'
+        bien:   '¡Lo estás haciendo genial! 🎉',
+        bajo:   'Este mes puedes mejorar un poco. ¡Ánimo! 💪',
+        alerta: 'Este mes ha costado un poco más. ¡No te preocupes, lo irás mejorando! 🙌'
     };
 
     let tarjetasHTML = '';
     juegosConDatos.forEach(id => {
-        const mediaAnterior  = Math.round(mediasPorJuego[id] || 0);
-        const mediaActual    = mediaActualPorJuego[id];
-        const porcentaje     = mediaAnterior > 0 ? Math.round((mediaActual / mediaAnterior) * 100) : 100;
-        const recomendaciones = obtenerRecomendaciones(id, porcentaje);
-        const nivel          = porcentaje >= 70 ? 'bien' : porcentaje >= 40 ? 'bajo' : 'alerta';
+        const mediaAnterior = Math.round(mediasPorJuego[id] || 0);
+        const mediaActual   = mediaActualPorJuego[id];
+        const porcentaje    = porcentajesPorJuego[id];
+        const nivel         = obtenerNivel(porcentaje);
+        const variacion     = mediaAnterior > 0 ? Math.round(((mediaActual - mediaAnterior) / mediaAnterior) * 100) : 0;
+        const recomendaciones = obtenerRecomendacionesUsuario(id, porcentaje);
+
+        // Preguntas de reflexión solo para nivel alerta (con tuteo)
+        const reflexionHTML = nivel === 'alerta' ? `
+            <div class="reflexion-box">
+                <div class="reflexion-box__title">Preguntas de reflexión</div>
+                <ul>
+                    <li>¿Has notado últimamente más dificultad para recordar dónde dejaste objetos cotidianos?</li>
+                    <li>¿Has tenido episodios de olvidos inusuales en conversaciones recientes?</li>
+                    <li>Si es así, te animamos a comentárselo a tu cuidador o médico de cabecera.</li>
+                </ul>
+            </div>` : '';
 
         tarjetasHTML += `
-        <div class="juego-card ${nivel}">
-            <div class="juego-nombre">${INFO_JUEGOS[id]?.nombre || `Juego ${id}`}</div>
-            <div class="juego-mensaje ${nivel}">${MENSAJES[nivel]}</div>
-            <div class="recomendaciones-titulo">Le recomendamos</div>
-            <ul class="recomendaciones-lista">
+        <article class="juego-card juego-card--${nivel}">
+            <h3 class="juego-card__title">${INFO_JUEGOS[id]?.nombre || `Juego ${id}`}</h3>
+            <div class="juego-card__message juego-card__message--${nivel}">${MENSAJES[nivel]}</div>
+            <div class="score-compare">
+                <div class="score-compare__item">
+                    <div class="score-compare__label">Tu media histórica</div>
+                    <div class="score-compare__value">${mediaAnterior}</div>
+                    <div class="score-compare__unit">puntos</div>
+                </div>
+                <div class="score-compare__arrow" aria-hidden="true">→</div>
+                <div class="score-compare__item score-compare__item--highlight score-compare__item--${nivel}">
+                    <div class="score-compare__label">Este mes</div>
+                    <div class="score-compare__value">${mediaActual}</div>
+                    <div class="score-compare__unit">puntos · <strong>${variacion >= 0 ? '+' : ''}${variacion}%</strong></div>
+                </div>
+            </div>
+            <div class="reco-title">Te recomendamos</div>
+            <ul class="reco-list">
                 ${recomendaciones.map(r => `<li>${r}</li>`).join('')}
             </ul>
-        </div>`;
+            ${reflexionHTML}
+        </article>`;
     });
 
-    const hoy    = new Date();
-    const hace30 = new Date(); hace30.setDate(hoy.getDate() - 30);
-    const fechaHoy = hoy.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    const fechaIni = hace30.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-    const fechaFin = hoy.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    // ── FECHAS Y MENSAJE FINAL (tuteo) ──
+    const { fechaHoy, fechaIni, fechaFin } = calcularFechas();
 
     const mensajeFinal = diasUnicos >= 7
-        ? `¡Excelente trabajo, ${usuario.nombre}! Cada día que practica está cuidando su mente. ¡Siga adelante con ese ánimo!`
-        : `Recuerde que cuantos más días use StimulApp, mejor se irá sintiendo. ¡Ánimo, ${usuario.nombre}!`;
+        ? `¡Excelente trabajo, ${usuario.nombre}! Cada día que practicas estás cuidando tu mente. Tu constancia marca la diferencia — ¡sigue adelante con ese ánimo!`
+        : `Recuerda que cuantos más días uses StimulApp, mejor te irás sintiendo. ¡Ánimo, ${usuario.nombre}! Tu mente merece ese cuidado diario.`;
 
-    html = html.replaceAll('{{NOMBRE_USUARIO}}',   usuario.nombre);
-    html = html.replace('{{INICIAL_USUARIO}}',  usuario.nombre.charAt(0).toUpperCase());
-    html = html.replace('{{TOTAL_PARTIDAS}}',   partidas.length);
-    html = html.replace('{{DIAS_USO}}',         diasUnicos);
-    html = html.replace('{{TOTAL_JUEGOS}}',     juegosConDatos.length);
-    html = html.replace('{{FECHA_INICIO}}',     fechaIni);
-    html = html.replace('{{FECHA_FIN}}',        fechaFin);
-    html = html.replace('{{FECHA_GENERACION}}', fechaHoy);
-    html = html.replace('{{MENSAJE_FINAL}}',    mensajeFinal);
-    html = html.replace('{{EMAIL_REMITENTE}}',  process.env.EMAIL_USER || 'stimulapp.alertas@gmail.com');
-    html = html.replace('{{TARJETAS_JUEGOS}}',  tarjetasHTML);
+    // ── SUSTITUIR PLACEHOLDERS ──
+    html = html.replaceAll('{{NOMBRE_USUARIO}}', nombreCompleto);
+    html = html.replaceAll('{{INICIAL_USUARIO}}',  usuario.nombre.charAt(0).toUpperCase());
+    html = html.replaceAll('{{TOTAL_PARTIDAS}}',   partidas.length);
+    html = html.replaceAll('{{DIAS_USO}}',         diasUnicos);
+    html = html.replaceAll('{{TOTAL_JUEGOS}}',     juegosConDatos.length);
+    html = html.replaceAll('{{FECHA_INICIO}}',     fechaIni);
+    html = html.replaceAll('{{FECHA_FIN}}',        fechaFin);
+    html = html.replaceAll('{{FECHA_GENERACION}}', fechaHoy);
+    html = html.replaceAll('{{MENSAJE_FINAL}}',    mensajeFinal);
+    html = html.replaceAll('{{EMAIL_REMITENTE}}',  process.env.EMAIL_USER || 'stimulapp.alertas@gmail.com');
+    html = html.replaceAll('{{TARJETAS_JUEGOS}}',  tarjetasHTML);
 
     return html;
 }
 
 // ─────────────────────────────────────────────────────────────
-// FUNCIÓN obtenerRecomendaciones
-// Devuelve las recomendaciones según el juego y el porcentaje
-// de rendimiento respecto a la media histórica.
+// FUNCIÓN generarPerfilCognitivoHTML
+// Genera las barras horizontales del perfil cognitivo para el
+// informe del cuidador (sustituye al antiguo gráfico radar).
 // ─────────────────────────────────────────────────────────────
-function obtenerRecomendaciones(juegoId, porcentajeRendimiento) {
+function generarPerfilCognitivoHTML(juegosConDatos, porcentajesPorJuego) {
+    // Construir lista de áreas con su porcentaje, ordenadas de mayor a menor
+    const areas = juegosConDatos.map(id => ({
+        nombre:     INFO_JUEGOS[id]?.areaCognitiva || `Área ${id}`,
+        porcentaje: porcentajesPorJuego[id],
+        nivel:      obtenerNivel(porcentajesPorJuego[id])
+    }));
+    areas.sort((a, b) => b.porcentaje - a.porcentaje);
+
+    return areas.map(a => `
+          <div class="perfil-bar">
+            <div class="perfil-bar__label">${a.nombre}</div>
+            <div class="perfil-bar__track"><div class="perfil-bar__fill perfil-bar__fill--${a.nivel}" style="width:${Math.min(a.porcentaje, 100)}%"></div></div>
+            <div class="perfil-bar__value">${a.porcentaje}%</div>
+          </div>`
+    ).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// FUNCIÓN obtenerValoracionCuidador
+// Devuelve el texto de valoración clínica para cada juego,
+// dirigido al cuidador y referenciando al usuario.
+// ─────────────────────────────────────────────────────────────
+function obtenerValoracionCuidador(juegoId, nivel, porcentaje, mediaActual, mediaAnterior, nombreUsuario) {
+    const variacionTexto = mediaAnterior > 0
+        ? Math.abs(Math.round(((mediaActual - mediaAnterior) / mediaAnterior) * 100)) + '%'
+        : '—';
+
+    const valoraciones = {
+        1: { // Acaba el Refrán
+            bien:   `Su usuario/a, ${nombreUsuario}, muestra un <strong>rendimiento sólido</strong> en tareas de evocación léxica y memoria semántica. La puntuación actual (${mediaActual} puntos) supera la media histórica en un ${variacionTexto}, lo que indica una buena conservación de las capacidades lingüísticas y de acceso al vocabulario. La tendencia es <strong>positiva y estable</strong>. No se requiere intervención adicional en esta área.`,
+            bajo:   `Se observa un <strong>descenso moderado</strong> en las tareas de evocación léxica y memoria semántica de ${nombreUsuario}. La puntuación actual (${mediaActual} puntos) se sitúa un ${variacionTexto} por debajo de su media histórica. Le recomendamos observar si ${nombreUsuario} presenta dificultades para encontrar palabras en conversaciones cotidianas o para completar frases habituales.`,
+            alerta: `El rendimiento de ${nombreUsuario} en tareas de lenguaje y memoria semántica ha experimentado un <strong>descenso significativo</strong>, situándose en un ${porcentaje}% respecto a su referencia histórica. Esta disminución puede reflejar dificultades en el acceso al vocabulario y la evocación de palabras. Le pedimos que preste especial atención a posibles señales en el día a día de ${nombreUsuario}.`
+        },
+        2: { // Encuentra el Intruso
+            bien:   `Su usuario/a, ${nombreUsuario}, mantiene un <strong>buen nivel</strong> en tareas de atención selectiva y funciones ejecutivas. La puntuación actual (${mediaActual} puntos) supera la media histórica en un ${variacionTexto}, lo que refleja una adecuada capacidad de discriminación y concentración sostenida. No se requiere intervención adicional en esta área.`,
+            bajo:   `Se observa un <strong>descenso apreciable</strong> en las tareas de atención selectiva y funciones ejecutivas de ${nombreUsuario}. La puntuación actual (${mediaActual} puntos) se sitúa un ${variacionTexto} por debajo de su media histórica, lo que sugiere una posible dificultad en la capacidad de discriminación y concentración sostenida. Le recomendamos que observe si ${nombreUsuario} presenta distracciones frecuentes o dificultad para completar tareas cotidianas, y que valore si existen <strong>factores externos</strong> (cambios en medicación, calidad del descanso, estado emocional) que puedan estar influyendo.`,
+            alerta: `El rendimiento de ${nombreUsuario} en atención selectiva y funciones ejecutivas ha experimentado un <strong>descenso significativo</strong>, situándose en un ${porcentaje}% respecto a su referencia histórica. Esta disminución sostenida puede indicar dificultades crecientes en la capacidad de concentración y toma de decisiones. Le pedimos que preste especial atención a posibles señales en el día a día de ${nombreUsuario}.`
+        },
+        3: { // Memory
+            bien:   `Su usuario/a, ${nombreUsuario}, muestra un <strong>rendimiento sólido</strong> en memoria visual y atención espacial. La puntuación actual (${mediaActual} puntos) supera la media histórica en un ${variacionTexto}, lo que indica una buena conservación de la retención visual. No se requiere intervención adicional en esta área.`,
+            bajo:   `Se observa un <strong>descenso moderado</strong> en las tareas de memoria visual y atención espacial de ${nombreUsuario}. La puntuación actual (${mediaActual} puntos) se sitúa un ${variacionTexto} por debajo de su media histórica. Conviene vigilar la evolución en las próximas semanas y observar si ${nombreUsuario} muestra dificultades para orientarse o para recordar la ubicación de objetos.`,
+            alerta: `El rendimiento de ${nombreUsuario} en memoria visual y atención espacial ha experimentado un <strong>descenso significativo</strong>, situándose en un ${porcentaje}% respecto a su referencia histórica. Esta disminución sostenida a lo largo del período puede indicar un deterioro en la retención de información visual a corto plazo. Le pedimos que preste especial atención a posibles señales en el día a día de ${nombreUsuario}.`
+        }
+    };
+
+    return valoraciones[juegoId]?.[nivel] || `Rendimiento actual de ${nombreUsuario}: ${porcentaje}% respecto a la media histórica.`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// FUNCIÓN obtenerRecomendacionesUsuario
+// Devuelve recomendaciones con tuteo para el informe del usuario.
+// ─────────────────────────────────────────────────────────────
+function obtenerRecomendacionesUsuario(juegoId, porcentajeRendimiento) {
 
     const recomendacionesPorJuego = {
-        1: { // Acaba el refrán - Lenguaje / Memoria semántica
+        1: { // Acaba el refrán
             bien: ["¡Excelente memoria! Sigue manteniendo un léxico y una agilidad mental fantástica. ¡Continúa así!"],
             bajas: [
-                "Elegir una palabra nueva del diccionario y usarla 3 veces al día.",
-                "Hacer una lista de 10 nombres de flores, ciudades o países.",
-                "Leer una noticia breve y resumirla en voz alta al terminar."
+                "Elige una palabra nueva del diccionario y úsala 3 veces al día.",
+                "Haz una lista de 10 nombres de flores, ciudades o países.",
+                "Lee una noticia breve y resúmela en voz alta al terminar."
             ],
             muyBajas: [
-                "Cantar canciones populares para estimular la evocación de palabras.",
-                "Nombrar 5 objetos que vea en la habitación ahora mismo.",
-                "Completar frases cotidianas simples (ej: 'Bebo agua en un...') en voz alta."
+                "Canta canciones populares para estimular la evocación de palabras.",
+                "Nombra 5 objetos que veas en la habitación ahora mismo.",
+                "Completa frases cotidianas simples (ej: 'Bebo agua en un...') en voz alta."
             ]
         },
-        2: { // Encuentra el intruso - Atención / Funciones ejecutivas
-            bien: ["¡Muy bien! Su capacidad de concentración y atención selectiva está en plena forma. ¡Siga adelante!"],
+        2: { // Encuentra el intruso
+            bien: ["¡Muy bien! Tu capacidad de concentración y atención selectiva está en plena forma. ¡Sigue adelante!"],
             bajas: [
-                "Realizar la lista de la compra clasificando los productos por categorías.",
-                "Intentar cepillarse los dientes con la mano no dominante.",
-                "Llevar el cálculo mental aproximado de los precios en el supermercado."
+                "Realiza la lista de la compra clasificando los productos por categorías.",
+                "Intenta cepillarte los dientes con la mano no dominante.",
+                "Lleva el cálculo mental aproximado de los precios en el supermercado."
             ],
             muyBajas: [
-                "Separar un puñado de legumbres mezcladas (lentejas de garbanzos).",
-                "Seguir visualmente el segundero de un reloj durante un minuto.",
-                "Ordenar los cubiertos del cajón prestando atención total a su forma."
+                "Separa un puñado de legumbres mezcladas (lentejas de garbanzos).",
+                "Sigue visualmente el segundero de un reloj durante un minuto.",
+                "Ordena los cubiertos del cajón prestando atención total a su forma."
             ]
         },
-        3: { // Memory - Memoria visual / Atención espacial
-            bien: ["¡Enhorabuena! Tiene una retención visual y una orientación espacial envidiable. ¡Magnífico trabajo!"],
+        3: { // Memory
+            bien: ["¡Enhorabuena! Tienes una retención visual y una orientación espacial envidiable. ¡Magnífico trabajo!"],
             bajas: [
-                "Observar un escaparate 30 segundos y recordar 5 objetos al girarse.",
-                "Cambiar la ruta de su paseo habitual y fijarse en detalles nuevos.",
-                "Resolver un pasatiempo de 'encuentra las 7 diferencias'."
+                "Observa un escaparate 30 segundos y recuerda 5 objetos al girarte.",
+                "Cambia la ruta de tu paseo habitual y fíjate en detalles nuevos.",
+                "Resuelve un pasatiempo de 'encuentra las 7 diferencias'."
             ],
             muyBajas: [
-                "Mirar una foto familiar y describir el color de la ropa de todos.",
-                "Tratar de visualizar mentalmente el plato de comida de ayer.",
-                "Jugar a esconder un objeto en la sala y recordarlo tras 2 minutos."
+                "Mira una foto familiar y describe el color de la ropa de todos.",
+                "Trata de visualizar mentalmente el plato de comida de ayer.",
+                "Juega a esconder un objeto en la sala y recuérdalo tras 2 minutos."
             ]
         }
     };
 
     let categoria;
-    if (porcentajeRendimiento >= 70) {
-        categoria = "bien";
-    } else if (porcentajeRendimiento >= 40) {
-        categoria = "bajas";
-    } else {
-        categoria = "muyBajas";
-    }
+    if (porcentajeRendimiento >= UMBRALES.BIEN) categoria = "bien";
+    else if (porcentajeRendimiento >= UMBRALES.BAJO) categoria = "bajas";
+    else categoria = "muyBajas";
 
-    return recomendacionesPorJuego[juegoId] ? recomendacionesPorJuego[juegoId][categoria] : [];
+    return recomendacionesPorJuego[juegoId]?.[categoria] || [];
+}
+
+// ─────────────────────────────────────────────────────────────
+// FUNCIÓN limpiarInformesAntiguos
+// Borra los HTML guardados en /public/informes/ con más de X días.
+// Se ejecuta al inicio de cada cron de envío de informes.
+// ─────────────────────────────────────────────────────────────
+function limpiarInformesAntiguos(diasMaximos = 60) {
+    const directorio = path.join(__dirname, '../public/informes');
+    
+    // Si el directorio no existe, no hay nada que limpiar
+    if (!fs.existsSync(directorio)) return;
+    
+    const ahora = Date.now();
+    const limiteMs = diasMaximos * 24 * 60 * 60 * 1000;
+    let borrados = 0;
+    
+    const ficheros = fs.readdirSync(directorio);
+    for (const fichero of ficheros) {
+        // Solo procesar HTMLs de informes
+        if (!fichero.endsWith('.html')) continue;
+        if (!fichero.startsWith('informe_')) continue;
+        
+        const ruta = path.join(directorio, fichero);
+        try {
+            const stats = fs.statSync(ruta);
+            const edadMs = ahora - stats.mtimeMs;
+            
+            if (edadMs > limiteMs) {
+                fs.unlinkSync(ruta);
+                borrados++;
+            }
+        } catch (err) {
+            console.error(`⚠️  No se pudo procesar ${fichero}:`, err.message);
+        }
+    }
+    
+    if (borrados > 0) {
+        console.log(`🧹 Limpieza: ${borrados} informe(s) antiguo(s) borrado(s).`);
+    }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -350,126 +507,182 @@ function obtenerRecomendaciones(juegoId, porcentajeRendimiento) {
 // Se ejecuta cada 15 días via cron.
 // Genera y envía el informe PDF a cada usuario con partidas.
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// FUNCIÓN enviarInformes
+// Se ejecuta cada 15 días via cron.
+// Genera y envía el informe PDF a cada usuario con partidas.
+// ─────────────────────────────────────────────────────────────
 async function enviarInformes() {
-    
+    limpiarInformesAntiguos();
+
     const usuarios = await Usuario.findAll();
-    for (const usuario of usuarios) {
-        const nombreUsuario  = usuario.nombre;
-        const emailUsuario   = usuario.email;
-        const nombreCuidador = usuario.nombre_cuidador || 'Cuidador no asignado';
-        const emailCuidador  = usuario.email_cuidador;
+    const browser = await puppeteer.launch();
 
-        const hoy = new Date();
-        const hace30dias = new Date();
-        hace30dias.setDate(hoy.getDate() - 30);
+    try {
+        for (const usuario of usuarios) {
+            try {
+                const nombreUsuario  = usuario.nombre;
+                const emailUsuario   = usuario.email;
+                const nombreCuidador = usuario.nombre_cuidador || 'Cuidador no asignado';
+                const emailCuidador  = usuario.email_cuidador;
 
-        const partidas = await Partida.findAll({
-            where: { usuario_id: usuario.id_usuario, fecha: { [Op.gte]: hace30dias } }
-        });
+                const hoy = new Date();
+                const hace30dias = new Date();
+                hace30dias.setDate(hoy.getDate() - 30);
 
-        if (partidas.length === 0) continue;
+                const partidas = await Partida.findAll({
+                    where: { usuario_id: usuario.id_usuario, fecha: { [Op.gte]: hace30dias } }
+                });
 
-        const estadisticas = await Estadistica.findAll({
-            where: { usuario_id: usuario.id_usuario }
-        });
+                if (partidas.length === 0) continue;
 
-        const mediasPorJuego = {};
-        estadisticas.forEach(est => {
-            mediasPorJuego[est.juego_id] = Math.round(est.puntuacion_media);
-        });
+                const estadisticas = await Estadistica.findAll({
+                    where: { usuario_id: usuario.id_usuario }
+                });
 
-        const diasUso = new Set(partidas.map(p => new Date(p.fecha).toISOString().slice(0, 10)));
-        const diasUnicos = diasUso.size;
+                const mediasPorJuego = {};
+                estadisticas.forEach(est => {
+                    mediasPorJuego[est.juego_id] = Math.round(est.puntuacion_media);
+                });
 
-        const htmlInforme = generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos);
-        const htmlInformeUsuario = generarHTMLUsuario(usuario, partidas, mediasPorJuego, diasUnicos);
+                const diasUso    = new Set(partidas.map(p => new Date(p.fecha).toDateString()));
+                const diasUnicos = diasUso.size;
 
-        // Guardar HTML del usuario en disco
-        const nombreFicheroUsuario = `informe-usuario_${usuario.nombre}_${Date.now()}.html`;
-        const rutaFicheroUsuario = path.join(__dirname, '../public/informes', nombreFicheroUsuario);
-        fs.writeFileSync(rutaFicheroUsuario, htmlInformeUsuario);
-        const enlaceUsuario = `http://localhost:3000/informes/${nombreFicheroUsuario}`;
+                // Generar HTMLs de ambos informes
+                const htmlInforme        = generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos);
+                const htmlInformeUsuario = generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos);
 
-        // Generar PDF del usuario
-        const browserUsuario = await puppeteer.launch();
-        const pageUsuario = await browserUsuario.newPage();
-        await pageUsuario.setContent(htmlInformeUsuario, { waitUntil: 'networkidle0' });
-        const pdfBufferUsuario = await pageUsuario.pdf({ format: 'A4', printBackground: true });
-        await browserUsuario.close();
+                // ── INFORME USUARIO ──
 
-        const browser   = await puppeteer.launch();
-        const page      = await browser.newPage();
-        await page.setContent(htmlInforme, { waitUntil: 'networkidle0' });
+                // Guardar HTML del usuario en disco
+                const nombreFicheroUsuario = `informe_usuario_${Date.now()}.html`;
+                const rutaFicheroUsuario   = path.join(__dirname, '../public/informes', nombreFicheroUsuario);
+                fs.writeFileSync(rutaFicheroUsuario, htmlInformeUsuario);
+                const enlaceUsuario = `http://localhost:3000/informes/${nombreFicheroUsuario}`;
 
-        // Guardar el HTML en disco
-        const nombreFichero = `informe_${usuario.nombre}_${Date.now()}.html`;
-        const rutaFichero = path.join(__dirname, '../public/informes', nombreFichero);
-        fs.writeFileSync(rutaFichero, htmlInforme);
+                // Generar PDF del usuario (página continua, sin cortes)
+                const pageUsuario = await browser.newPage();
+                await pageUsuario.setViewport({ width: 794, height: 1123 });
+                await pageUsuario.setContent(htmlInformeUsuario, { waitUntil: 'networkidle0' });
+                await pageUsuario.emulateMediaType('screen');
+                await pageUsuario.evaluate(() => document.fonts.ready);
 
-        // Construir el enlace
-        const enlace = `http://localhost:3000/informes/${nombreFichero}`;
+                // Medir la altura real del contenido usando la posición del footer
+                const alturaUsuario = await pageUsuario.evaluate(() => {
+                    const footer = document.querySelector('.report-footer');
+                    const rect = footer.getBoundingClientRect();
+                    return Math.ceil(rect.bottom + window.scrollY);
+                });
+                
+                const pdfBufferUsuario = await pageUsuario.pdf({
+                    printBackground: true,
+                    width: '794px',
+                    height: `${alturaUsuario}px`,
+                    margin: { top: '0', bottom: '0', left: '0', right: '0' },
+                    pageRanges: '1'
+                });
+                await pageUsuario.close();
 
-        const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+                // ── INFORME CUIDADOR ──
+
+                // Guardar HTML del cuidador en disco
+                const nombreFichero = `informe_cuidador_${Date.now()}.html`;
+                const rutaFichero   = path.join(__dirname, '../public/informes', nombreFichero);
+                fs.writeFileSync(rutaFichero, htmlInforme);
+                const enlace = `http://localhost:3000/informes/${nombreFichero}`;
+
+                // Generar PDF del cuidador (página continua, sin cortes)
+                const pageCuidador = await browser.newPage();
+                await pageCuidador.setViewport({ width: 794, height: 1123 });
+                await pageCuidador.setContent(htmlInforme, { waitUntil: 'networkidle0' });
+                await pageCuidador.emulateMediaType('screen');
+                await pageCuidador.evaluate(() => document.fonts.ready);
+                await pageCuidador.waitForFunction('window.chartsReady === true', { timeout: 10000 });
+                await new Promise(r => setTimeout(r, 500));
+
+                // Medir la altura real del contenido usando la posición del footer
+                const alturaCuidador = await pageCuidador.evaluate(() => {
+                    const footer = document.querySelector('.report-footer');
+                    const rect = footer.getBoundingClientRect();
+                    return Math.ceil(rect.bottom + window.scrollY);
+                });
+                
+                const pdfBuffer = await pageCuidador.pdf({
+                    printBackground: true,
+                    width: '794px',
+                    height: `${alturaCuidador}px`,
+                    margin: { top: '0', bottom: '0', left: '0', right: '0' },
+                    pageRanges: '1'
+                });
+                await pageCuidador.close();
+
+                // ── CORREO AL USUARIO ──
+                const htmlCorreoUsuario = generarHTMLEmail({
+                    saludo:  `Hola, ${nombreUsuario} 😊`,
+                    icono:   '📋',
+                    titulo:  'Tu informe mensual está listo',
+                    cuerpo:  `<p style="font-size:18px; line-height:1.9;">Te enviamos tu informe de seguimiento del último mes en StimulApp.</p>
+                              <p style="font-size:18px; line-height:1.9;">En él encontrarás un resumen de todas las partidas que has jugado, cómo ha evolucionado tu rendimiento en cada juego y recomendaciones personalizadas para seguir mejorando.</p>
+                              <p style="font-size:18px; line-height:1.9;">Puedes verlo pulsando el botón o descargarlo en PDF desde el archivo adjunto.</p>
+                              <p style="font-size:18px; line-height:1.9;">¡Sigue adelante, ${nombreUsuario}! Cada día que practicas estás cuidando tu mente. 🧠</p>`,
+                    boton:   `<div style="text-align:center; margin-top:8px;">
+                                <a href="${enlaceUsuario}" style="display:inline-block; background-color:#7B2D3E; color:#ffffff; font-size:15px; font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none; letter-spacing:0.5px;">
+                                    Ver mi informe
+                                </a>
+                              </div>`
+                });
+
+                await transporter.sendMail({
+                    from:        process.env.EMAIL_USER,
+                    to:          emailUsuario,
+                    subject:     'Tu informe mensual de StimulApp 📋',
+                    html:        htmlCorreoUsuario,
+                    attachments: [{ filename: 'informe_usuario.pdf', content: pdfBufferUsuario }]
+                });
+
+                // ── CORREO AL CUIDADOR ──
+                if (emailCuidador) {
+                    const htmlCorreoCuidador = generarHTMLEmail({
+                        saludo:  `Estimado/a ${nombreCuidador},`,
+                        icono:   '📋',
+                        titulo:  `Informe mensual de ${nombreUsuario}`,
+                        cuerpo:  `<p>Le adjuntamos el informe de seguimiento cognitivo correspondiente al último mes de actividad de <strong>${nombreUsuario}</strong> en StimulApp. Puede consultarlo en PDF adjunto o verlo online pulsando el botón.</p>`,
+                        boton:   `<div style="text-align:center; margin-top:8px;">
+                                    <a href="${enlace}" style="display:inline-block; background-color:#7B2D3E; color:#ffffff; font-size:15px; font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none; letter-spacing:0.5px;">
+                                        Ver informe online
+                                    </a>
+                                  </div>`
+                    });
+
+                    await transporter.sendMail({
+                        from:        process.env.EMAIL_USER,
+                        to:          emailCuidador,
+                        subject:     `Informe mensual de ${nombreUsuario} — StimulApp 📋`,
+                        html:        htmlCorreoCuidador,
+                        attachments: [{ filename: 'informe_cuidador.pdf', content: pdfBuffer }]
+                    });
+                }
+
+                console.log(`✅ Informes enviados para ${emailUsuario}`);
+
+            } catch (err) {
+                console.error(`❌ Error procesando usuario ${usuario.email} (id: ${usuario.id_usuario}):`, err.message);
+            }
+        }
+    } finally {
         await browser.close();
-
-        const htmlCorreoUsuario = generarHTMLEmail({
-    saludo:  `Hola, ${nombreUsuario} 😊`,
-    icono:   '📋',
-    titulo:  'Su informe mensual está listo',
-    cuerpo:  `<p style="font-size:18px; line-height:1.9;">Le enviamos su informe de seguimiento del último mes en StimulApp.</p>
-              <p style="font-size:18px; line-height:1.9;">En él encontrará un resumen de todas las partidas que ha jugado, cómo ha evolucionado su rendimiento en cada juego y recomendaciones personalizadas para seguir mejorando.</p>
-              <p style="font-size:18px; line-height:1.9;">Puede verlo pulsando el botón o descargarlo en PDF desde el archivo adjunto.</p>
-              <p style="font-size:18px; line-height:1.9;">¡Siga adelante, ${nombreUsuario}! Cada día que practica está cuidando su mente. 🧠</p>`,
-    boton: `<div style="text-align:center; margin-top:8px;">
-          <a href="${enlaceUsuario}" style="display:inline-block; background-color:#7B2D3E; color:#ffffff; font-size:15px; font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none; letter-spacing:0.5px;">
-              Ver mi informe
-          </a>
-        </div>`
-});
-
-        await transporter.sendMail({
-            from:        process.env.EMAIL_USER,
-            to:          emailUsuario,
-            subject: 'Su informe mensual de StimulApp 📋',
-            html:        htmlCorreoUsuario,
-            attachments: [{ filename: `informe_${nombreUsuario}.pdf`, content: pdfBufferUsuario }]
-        });
-
-        if (emailCuidador) {
-    const htmlCorreoCuidador = generarHTMLEmail({
-        saludo:  `Estimado/a ${nombreCuidador},`,
-        icono:   '📋',
-        titulo:  `Informe mensual de ${nombreUsuario}`,
-        cuerpo:  `<p>Le adjuntamos el informe de seguimiento cognitivo correspondiente al último mes de actividad de <strong>${nombreUsuario}</strong> en StimulApp. Puede consultarlo en PDF adjunto o verlo online pulsando el botón.</p>`,
-        boton:   `<div style="text-align:center; margin-top:8px;">
-                    <a href="${enlace}" style="display:inline-block; background-color:#7B2D3E; color:#ffffff; font-size:15px; font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none; letter-spacing:0.5px;">
-                        Ver informe online
-                    </a>
-                  </div>`
-    });
-
-    await transporter.sendMail({
-        from:        process.env.EMAIL_USER,
-        to:          emailCuidador,
-        subject:     `Informe mensual de ${nombreUsuario} — StimulApp 📋`,
-        html:        htmlCorreoCuidador,
-        attachments: [{ filename: `informe_${nombreUsuario}.pdf`, content: pdfBuffer }]
-    });
-}
-
-        console.log(`✅ Informe enviado a ${emailUsuario}`);
     }
 }
 
 // ─────────────────────────────────────────────────────────────
 // FUNCIÓN enviarRecordatorioInactividad
 // Se ejecuta cada 10 días via cron.
-// Envía un recordatorio a usuarios sin partidas en 10 días.
+// Envía un recordatorio a usuarios sin partidas en 7 días.
 // ─────────────────────────────────────────────────────────────
 async function enviarRecordatorioInactividad() {
     const hoy = new Date();
     const hace7dias = new Date();
-    hace7dias.setDate(hoy.getDate() - DIAS_INACTIVIDAD_ALERTA)
+    hace7dias.setDate(hoy.getDate() - 7);
 
     const usuarios = await Usuario.findAll();
     for (const usuario of usuarios) {
@@ -483,26 +696,26 @@ async function enviarRecordatorioInactividad() {
 
         if (!partidaReciente) {
             const htmlInactividad = generarHTMLEmail({
-    saludo:  `Hola, ${usuario.nombre}`,
-    icono:   '🧠',
-    titulo:  '¡Te echamos de menos!',
-    cuerpo:  `<p>Llevamos unos días sin verte por aquí. Tu gimnasio mental sigue abierto y tus juegos favoritos te están esperando.</p>
-              <p>Recuerda que unos pocos minutos al día marcan la diferencia. ¿Te animas con una partida hoy?</p>`,
-    boton:   `<div style="text-align:center; margin-top:8px;">
-                <a href="http://localhost:5173" style="display:inline-block; background-color:#7B2D3E; color:#ffffff; font-size:15px; font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none; letter-spacing:0.5px;">
-                    Volver a jugar
-                </a>
-              </div>`
-});
+                saludo:  `Hola, ${usuario.nombre}`,
+                icono:   '🧠',
+                titulo:  '¡Te echamos de menos!',
+                cuerpo:  `<p>Llevamos unos días sin verte por aquí. Tu gimnasio mental sigue abierto y tus juegos favoritos te están esperando.</p>
+                          <p>Recuerda que unos pocos minutos al día marcan la diferencia. ¿Te animas con una partida hoy?</p>`,
+                boton:   `<div style="text-align:center; margin-top:8px;">
+                            <a href="http://localhost:5173" style="display:inline-block; background-color:#7B2D3E; color:#ffffff; font-size:15px; font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none; letter-spacing:0.5px;">
+                                Volver a jugar
+                            </a>
+                          </div>`
+            });
 
-await transporter.sendMail({
-    from:    process.env.EMAIL_USER,
-    to:      usuario.email,
-    subject: '¡Te echamos de menos! 🧠 — StimulApp',
-    html:    htmlInactividad
-});
+            await transporter.sendMail({
+                from:    process.env.EMAIL_USER,
+                to:      usuario.email,
+                subject: '¡Te echamos de menos! 🧠 — StimulApp',
+                html:    htmlInactividad
+            });
         }
     }
 }
 
-module.exports = { enviarInformes, generarHTMLCuidador, generarHTMLUsuario, enviarRecordatorioInactividad };
+module.exports = { enviarInformes, generarHTMLCuidador, generarHTMLInformeUsuario, enviarRecordatorioInactividad };

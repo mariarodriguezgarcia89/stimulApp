@@ -54,7 +54,7 @@ router.post('/register', async (req, res) => {
         // findOne devuelve el primer registro que coincida con el where, o null si no hay
         const existingUser = await Usuario.findOne({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ error: 'El usuario ya existe' });
+            return res.status(400).json({ error: 'Este correo electrónico ya está registrado. Si ya tiene una cuenta, puede iniciar sesión pulsando en "Inicia sesión aquí".' });
         }
 
         // Hasheamos la contraseña antes de guardarla.

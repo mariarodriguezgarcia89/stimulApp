@@ -74,10 +74,10 @@ function handleRegistro() {
     router.push('/login?registro=exitoso')
   })
   .catch((err) => {
-    if (err.response?.data?.message) {
-      errores.value.push(err.response.data.message)
+    if (err.response?.data?.error) {
+        errores.value.push(err.response.data.error)
     } else {
-      errores.value.push(mensajes.errorRegistro)
+        errores.value.push(mensajes.errorRegistro)
     }
   })
 }

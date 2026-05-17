@@ -483,16 +483,16 @@
   </div>
   <div class="header-meta">
     <strong>Informe de Seguimiento</strong>
-    Período: {{FECHA_INICIO}} — {{FECHA_FIN}}<br>
-    Generado el {{FECHA_GENERACION}}
+    Período: 16 abr — 16 may 2026<br>
+    Generado el 16 de mayo de 2026
   </div>
 </div>
 
 <!-- BANDA USUARIO -->
 <div class="user-band">
-  <div class="user-avatar">{{INICIAL_USUARIO}}</div>
+  <div class="user-avatar">R</div>
   <div class="user-info">
-    <h2>{{NOMBRE_USUARIO}}</h2>
+    <h2>Rodrigo</h2>
     <p>Informe mensual · Estimulación cognitiva</p>
   </div>
 </div>
@@ -504,15 +504,15 @@
     <p>Le presentamos el informe de seguimiento cognitivo correspondiente a los últimos 30 días de actividad en StimulApp. A continuación encontrará un análisis detallado de su rendimiento en cada área cognitiva trabajada, junto con recomendaciones personalizadas.</p>
     <div class="resumen-stats">
       <div class="stat-item">
-        <div class="num">{{TOTAL_PARTIDAS}}</div>
+        <div class="num">2</div>
         <div class="label">Partidas jugadas</div>
       </div>
       <div class="stat-item">
-        <div class="num">{{DIAS_USO}}</div>
+        <div class="num">1</div>
         <div class="label">Días de uso</div>
       </div>
       <div class="stat-item">
-        <div class="num">{{TOTAL_JUEGOS}}</div>
+        <div class="num">2</div>
         <div class="label">Juegos practicados</div>
       </div>
     </div>
@@ -539,20 +539,98 @@
 
   <!-- SECCIÓN: RESULTADOS POR JUEGO -->
   <div class="section-title">Análisis por área cognitiva</div>
-  {{TARJETAS_JUEGOS}}
+  
+        <div class="juego-card bien">
+            <div class="juego-header">
+                <div>
+                    <div class="juego-nombre">Acaba el Refrán</div>
+                    <div class="juego-area">Lenguaje · Memoria semántica</div>
+                </div>
+                <div class="badge bien">✓ Buen rendimiento</div>
+            </div>
+            <div class="medias-row">
+                <div class="media-item">
+                    <div class="val">100</div>
+                    <div class="lbl">Media histórica</div>
+                </div>
+                <div class="divider-v"></div>
+                <div class="media-item">
+                    <div class="val">100</div>
+                    <div class="lbl">Media estos 15 días</div>
+                </div>
+                <div class="divider-v"></div>
+                <div class="media-item">
+                    <div class="val" style="color:var(--verde)">+0%</div>
+                    <div class="lbl">Variación</div>
+                </div>
+            </div>
+            <div class="progreso-area">
+                <div class="progreso-labels">
+                    <span>Rendimiento actual</span>
+                    <span>100% respecto a histórico</span>
+                </div>
+                <div class="progreso-track">
+                    <div class="progreso-fill bien" style="width:100%"></div>
+                </div>
+            </div>
+            <div class="recomendaciones-titulo">Recomendaciones</div>
+            <ul class="recomendaciones-lista">
+                <li>¡Excelente memoria! Sigue manteniendo un léxico y una agilidad mental fantástica. ¡Continúa así!</li>
+            </ul>
+            
+        </div>
+        <div class="juego-card bien">
+            <div class="juego-header">
+                <div>
+                    <div class="juego-nombre">Memory</div>
+                    <div class="juego-area">Memoria visual · Atención espacial</div>
+                </div>
+                <div class="badge bien">✓ Buen rendimiento</div>
+            </div>
+            <div class="medias-row">
+                <div class="media-item">
+                    <div class="val">85</div>
+                    <div class="lbl">Media histórica</div>
+                </div>
+                <div class="divider-v"></div>
+                <div class="media-item">
+                    <div class="val">85</div>
+                    <div class="lbl">Media estos 15 días</div>
+                </div>
+                <div class="divider-v"></div>
+                <div class="media-item">
+                    <div class="val" style="color:var(--verde)">+0%</div>
+                    <div class="lbl">Variación</div>
+                </div>
+            </div>
+            <div class="progreso-area">
+                <div class="progreso-labels">
+                    <span>Rendimiento actual</span>
+                    <span>100% respecto a histórico</span>
+                </div>
+                <div class="progreso-track">
+                    <div class="progreso-fill bien" style="width:100%"></div>
+                </div>
+            </div>
+            <div class="recomendaciones-titulo">Recomendaciones</div>
+            <ul class="recomendaciones-lista">
+                <li>¡Enhorabuena! Tiene una retención visual y una orientación espacial envidiable. ¡Magnífico trabajo!</li>
+            </ul>
+            
+        </div>
 
   <!-- MENSAJE FINAL -->
   <div class="section-title">Conclusión del período</div>
   <div class="mensaje-final">
     <div class="icono">🌟</div>
-    <p>{{MENSAJE_FINAL}}</p>
+    <p>Recordamos que cuantos más días use StimulApp, más completo y fiable será su informe. ¡Ánimo, Rodrigo! Su mente merece ese cuidado diario.</p>
   </div>
 
 </div>
 
 <!-- PIE -->
 <div class="footer">
-  <span>StimulApp</span> · Informe generado automáticamente · {{EMAIL_REMITENTE}}
+  <span>StimulApp</span> · Informe generado automáticamente · stimulapp.alertas@gmail.com
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -572,10 +650,10 @@
   const COLORES_JUEGO_FIJOS = ['#7B2D3E', '#3A6B4A', '#1A4A6B'];
 
   // ── DATOS INYECTADOS DESDE NODE.JS ──
-  const datosBarras        = {{DATOS_BARRAS_JSON}};
-  const datosRadial        = {{DATOS_RADIAL_JSON}};
-  const datosLinea         = {{DATOS_LINEA_JSON}};
-  const coloresNivel       = {{COLORES_ACTUAL_JSON}};
+  const datosBarras        = {"labels":["Acaba el Refrán","Memory"],"historico":[100,85],"actual":[100,85]};
+  const datosRadial        = {"labels":["Acaba el Refrán","Memory"],"porcentajes":[100,100]};
+  const datosLinea         = {"fechas":["22 abr"],"series":[{"label":"Acaba el Refrán","data":[100],"borderColor":"#7B2D3E","backgroundColor":"#7B2D3E15","tension":0.4,"pointRadius":4,"spanGaps":true,"fill":true},{"label":"Memory","data":[85],"borderColor":"#1A4A6B","backgroundColor":"#1A4A6B15","tension":0.4,"pointRadius":4,"spanGaps":true,"fill":true}]};
+  const coloresNivel       = ["#3A6B4A","#3A6B4A"];
 
   // ── GRÁFICO DE BARRAS: histórico vs actual ──
   new Chart(document.getElementById('barrasChart'), {

@@ -26,6 +26,7 @@ transporter.verify((error, success) => {
 
 async function enviarCorreoAlCuidador(emailCuidador, nombreUsuario, nombreJuego, puntuacion, media) {
 
+    
     const bloqueDestacado = `
         <div style="background-color:#FAEAEA; border-left:4px solid #8B2020; border-radius:0 8px 8px 0; padding:20px 24px; margin-bottom:24px;">
             <p style="font-size:13px; text-transform:uppercase; letter-spacing:1.5px; color:#8B2020; margin:0 0 12px 0; font-weight:600;">Detalle del aviso</p>
