@@ -5,6 +5,7 @@ export const mensajes = {
   emailObligatorio: 'Necesitamos su correo electrónico para crear su cuenta.',
   emailInvalido: 'El correo no parece estar bien escrito. Asegúrese de que incluye una "@" (arroba) y termina en algo como .com o .es.',
   passwordObligatoria: 'Es necesario que elija una contraseña para proteger su cuenta.',
+  passwordMinima: 'La contraseña debe tener al menos 6 caracteres.',
   fechaNacimientoObligatoria: 'Por favor, indique su día, mes y año de nacimiento en los selectores.',
   passwordsNoCoinciden: 'Las contraseñas no son iguales. Asegúrese de escribir exactamente lo mismo en las dos casillas para evitar errores.',
   errorRegistro: 'No hemos podido crear su cuenta en este momento. Por favor, revise los datos e inténtelo de nuevo.',

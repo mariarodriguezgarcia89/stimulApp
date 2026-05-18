@@ -148,8 +148,8 @@ const props = defineProps({
   align-items: center;
   background-color: var(--color-principal);
   width: 100%;
-  height: 170px;
-  position: sticky; /* <- ESTO ES CLAVE PARA QUE NO SE ROMPA EL ESCRITORIO */
+  height: 90px;
+  position: sticky;
   top: 0;
   z-index: 50;
   padding: 0;
@@ -163,14 +163,14 @@ const props = defineProps({
   background: transparent;
   border: none;
   color: white;
-  padding: 0 40px;
+  padding: 0 28px;
   font-weight: 900;
-  font-size: 25px;
+  font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   height: 100%;
   box-shadow: none !important;
   outline: none;
@@ -179,7 +179,7 @@ const props = defineProps({
 }
 
 .logo-nav {
-  height: 200px;
+  height: 110px;
   width: auto;
   display: block;
   filter: brightness(0) invert(1) !important;
@@ -215,18 +215,18 @@ const props = defineProps({
 .circulo-acc {
   background: white;
   color: var(--color-principal);
-  width: 70px;
-  height: 70px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
+  font-size: 18px;
   font-weight: bold;
 }
 
 .label-acc {
-  font-size: 20px;
+  font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
   margin-top: 2px;

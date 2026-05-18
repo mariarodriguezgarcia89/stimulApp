@@ -85,9 +85,10 @@ function handleLogin() {
         </small>
       </div>
 
-      <ul v-if="error" class="error">
-        <li>⚠️ {{ error }}</li>
-      </ul>
+      <div v-if="error" class="error">
+        <span>⚠️ {{ error }}</span>
+        <button class="error-cerrar" @click="error = ''" aria-label="Cerrar mensaje de error">✕</button>
+      </div>
 
       <button class="btn-principal" @click="handleLogin">Iniciar sesión</button>
 
@@ -160,6 +161,24 @@ function handleLogin() {
 
 .input-error {
   border-color: #c0392b !important;
+}
+
+.error {
+  position: relative;
+  padding-right: 28px;
+}
+
+.error-cerrar {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: inherit;
+  padding: 0;
+  line-height: 1;
 }
 
 /* ─── MÓVIL ─── */

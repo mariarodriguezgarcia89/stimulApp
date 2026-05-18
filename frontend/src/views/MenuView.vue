@@ -105,30 +105,37 @@ function seleccionarDificultad(nivel) {
 </template>
 
 <style scoped>
+.menu-container {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .main-content-menu {
-  max-width: 1200px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 24px 20px;
 }
 
 .saludo-box {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
 }
 
 .saludo-box h1 {
   color: var(--color-principal);
-  font-size: 32px;
+  font-size: 28px;
 }
 
 .grid-juegos-principal {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(3, minmax(0, 260px));
+  justify-content: center;
+  gap: 20px;
 }
 
 .tarjeta-juego {
-  padding: 30px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -139,75 +146,56 @@ function seleccionarDificultad(nivel) {
 
 .tarjeta-juego:hover { transform: translateY(-5px); }
 
-.logo-juego { width: 130px; margin-bottom: 20px; }
-.juego-detalle h2 { color: var(--color-principal); margin-bottom: 12px; font-size: 24px; }
-.juego-detalle p { margin-bottom: 25px; min-height: 50px; font-size: 17px; }
+.logo-juego { width: 90px; margin-bottom: 12px; }
+.juego-detalle h2 { color: var(--color-principal); margin-bottom: 8px; font-size: 20px; }
+.juego-detalle p { margin-bottom: 16px; min-height: 44px; font-size: 15px; }
 
 .ilustracion-wrapper {
   position: absolute;
-  right: -150px;
-  top: 75%;
-  transform: translateY(-50%);
+  bottom: 0;
+  right: -60px;
   z-index: 1;
   pointer-events: none;
 }
 
 .ilustracion {
-  width: 700px;
+  width: 350px;
   height: auto;
   display: block;
 }
 
-html[data-size="large"] .ilustracion-wrapper {
-  margin: 0 15px -25px auto; 
-}
-  
-html[data-size="large"] .ilustracion {
-  width: 500px; 
-}
-
-/* =========================================
-   MEDIA QUERIES (MÓVIL) - Tarjetas más pequeñas
-   ========================================= */
 @media (max-width: 768px) {
-  /* Reducimos el margen superior por si la navbar lo pisa un poco al hacer scroll */
   .main-content-menu {
-    padding: 20px 10px; 
+    padding: 16px 10px;
   }
 
-  /* Reducimos el hueco entre tarjetas y forzamos 1 sola columna */
   .grid-juegos-principal {
-    gap: 10px; 
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
-  /* Hacemos la caja menos alta quitando relleno (padding) */
   .tarjeta-juego {
-    padding: 10px 10px; 
+    padding: 10px;
   }
 
-  /* Achicamos la ilustración central */
-  .logo-juego { 
-    width: 110px; /* Antes 130px */
-    margin-bottom: 0px; 
+  .logo-juego {
+    width: 80px;
+    margin-bottom: 0;
   }
 
-  /* Reducimos el tamaño de la fuente del título */
-  .juego-detalle h2 { 
-    font-size: 20px; /* Antes 24px */
-    margin-bottom: 6px; 
+  .juego-detalle h2 {
+    font-size: 18px;
+    margin-bottom: 4px;
   }
 
-  /* Reducimos la descripción y le quitamos el espacio vacío obligatorio */
-  .juego-detalle p { 
-    font-size: 14px; /* Antes 17px */
-    margin-bottom: 10px; 
-    min-height: auto; /* Esto es clave para que la tarjeta encoja */
+  .juego-detalle p {
+    font-size: 14px;
+    margin-bottom: 10px;
+    min-height: auto;
   }
 
-  /* 1. APAGAR LA ILUSTRACIÓN DEFINITIVAMENTE EN MÓVIL */
   .ilustracion-wrapper {
-    display: none !important;
+    display: none;
   }
 }
 </style>

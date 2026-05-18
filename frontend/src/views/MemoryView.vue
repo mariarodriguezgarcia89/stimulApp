@@ -140,10 +140,6 @@ function jugarOtraVez() {
 
     <AppTopbar :modoJuego="true" />
 
-    <div class="ilustracion-wrapper">
-      <img :src="fondoMemory" alt="" aria-hidden="true" class="ilustracion" />
-    </div>
-
     <div class="memory-container">
 
       <!-- TABLERO DE DATOS -->
@@ -193,6 +189,10 @@ function jugarOtraVez() {
         </div>
       </div>
 
+      <div class="ilustracion-wrapper">
+        <img :src="fondoMemory" alt="" aria-hidden="true" class="ilustracion" />
+      </div>
+
     </div>
     <ModalSalir
     v-if="mostrarModalSalir"
@@ -225,32 +225,60 @@ function jugarOtraVez() {
 .memory-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .memory-container {
+  flex: 1;
+  min-height: 0;
   max-width: 720px;
   margin: 0 auto;
-  padding: 32px 24px 60px;
+  padding: 12px 24px 12px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 10px;
   width: 100%;
+  position: relative;
+}
+
+/* ── ILUSTRACIÓN: pegada al tablero de cartas, izquierda ── */
+.ilustracion-wrapper {
+  position: absolute;
+  left: -340px;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ilustracion {
+  width: 400px;
+  height: auto;
+  display: block;
+}
+
+html[data-size="large"] .ilustracion {
+  width: 300px;
 }
 
 /* ── CONTENEDOR DEL TABLERO DE CARTAS ── */
 .cartas-card {
+  flex: 1;
+  min-height: 0;
   background-color: var(--color-caja);
   border-radius: 16px;
-  padding: 28px;
+  padding: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border-left: 6px solid var(--color-principal);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .tablero-cartas {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -282,7 +310,7 @@ function jugarOtraVez() {
   cursor: default;
 }
 
-.carta.incorrecta.incorrecta {
+.carta.incorrecta {
   background-color: #f8d7da;
   border: 2px solid #dc3545;
 }
@@ -293,47 +321,47 @@ function jugarOtraVez() {
   object-fit: contain;
 }
 
-/* ── ILUSTRACIÓN LATERAL ── */
-.ilustracion-wrapper {
-  position: absolute;
-  left: 0px;
-  top: 70%;
-  transform: translateY(-50%);
-  z-index: 1;
-  pointer-events: none;
+/* ── MODO DIFÍCIL: 4×4, cartas llenan la altura disponible ── */
+.cartas-card--dificil {
+  padding: 12px;
+  overflow: hidden;
 }
 
-.ilustracion {
-  width: 600px;
-  height: auto;
-  display: block;
+.cartas-card--dificil .tablero-cartas {
+  flex: 1 1 0;
+  min-height: 0;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 8px;
 }
 
-html[data-size="large"] .ilustracion-wrapper {
-  margin: 0 15px -25px auto;
-}
-
-html[data-size="large"] .ilustracion {
-  width: 400px;
+.cartas-card--dificil .carta {
+  aspect-ratio: unset;
+  min-height: 0;
+  font-size: 2rem;
 }
 
 @media (max-width: 768px) {
+  .memory-page {
+    height: auto;
+    overflow: visible;
+  }
+
   .ilustracion-wrapper {
     display: none !important;
   }
 
   .memory-container {
-    padding: 16px 12px 40px;
-    gap: 16px;
+    padding: 12px 12px 30px;
+    gap: 10px;
   }
 
   .cartas-card {
-    padding: 16px;
+    padding: 12px;
+    flex: none;
   }
 
   .tablero-cartas {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
 
   .carta {
@@ -341,15 +369,18 @@ html[data-size="large"] .ilustracion {
   }
 
   .cartas-card--dificil {
-    padding: 10px;
+    padding: 8px;
   }
 
   .cartas-card--dificil .tablero-cartas {
-    gap: 6px;
+    flex: none;
+    grid-template-rows: unset;
+    gap: 5px;
   }
 
   .cartas-card--dificil .carta {
     aspect-ratio: 1;
+    font-size: 1.8rem;
   }
 }
 </style>

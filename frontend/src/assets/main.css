@@ -499,8 +499,8 @@ select:focus {
   gap: 8px;
   background-color: var(--color-caja);
   border-radius: 16px;
-  padding: 16px 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 12px 20px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.7);
   border-top: 4px solid var(--color-principal);
 }
 
@@ -548,52 +548,58 @@ select:focus {
 }
 
 .tablero-salir {
-  background-color: transparent;
-  color: #d32f2f;
-  border: 2px solid #f5c6cb;
+  background: linear-gradient(180deg, #fff5f5 0%, #ffeaea 100%);
+  color: #c62828;
+  border: 1.5px solid #f5c6cb;
   border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 0.9rem;
+  padding: 9px 15px;
+  font-size: 0.85rem;
   font-weight: 800;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s;
   white-space: nowrap;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 6px;
+  box-shadow: 0 2px 6px rgba(211,47,47,0.15), 0 1px 2px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 .tablero-salir:hover {
-  background-color: #d32f2f;
-  border-color: #d32f2f;
+  background: linear-gradient(180deg, #e53935 0%, #c62828 100%);
+  border-color: #c62828;
   color: white;
+  box-shadow: 0 4px 12px rgba(198,40,40,0.35), 0 1px 3px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
 }
 
 .tablero-ayuda {
-  background-color: transparent;
+  background: linear-gradient(180deg, var(--color-caja) 0%, #f8f0f0 100%);
   color: var(--color-principal);
-  border: 2px solid var(--color-principal);
+  border: 1.5px solid var(--color-principal);
   border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 0.9rem;
+  padding: 9px 15px;
+  font-size: 0.85rem;
   font-weight: 800;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s;
   white-space: nowrap;
   flex-shrink: 0;
-  min-width: 90px;
+  min-width: 80px;
   display: flex;
   align-items: center;
   gap: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 .tablero-ayuda:hover {
-  background-color: var(--color-principal);
+  background: linear-gradient(180deg, var(--color-principal) 0%, var(--color-principal-hover, #8b1a2a) 100%);
   border-color: var(--color-principal);
   color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transform: translateY(-1px);
 }
 
 /* ── Barra de progreso ── */
@@ -627,61 +633,81 @@ select:focus {
 
 /* ── Botones de opción (modo oscuro) ── */
 [data-theme="dark"] .btn-opcion:not(.correcta):not(.incorrecta) {
-  background-color: #1a1a1a !important;
+  background: #222222 !important;
   color: #ffffff !important;
   border-color: #555 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05) !important;
 }
 
 [data-theme="dark"] .btn-opcion:not(.correcta):not(.incorrecta):hover:not(:disabled) {
-  background-color: #2d1a1c !important;
-  border-color: #ffffff !important;
+  background: #2d1a1c !important;
+  border-color: #aaaaaa !important;
 }
 
 [data-theme="dark"] .btn-opcion.correcta {
-  background-color: #1e5128 !important;
+  background: #1e5128 !important;
   border-color: #4ade80 !important;
   color: #ffffff !important;
 }
 
 [data-theme="dark"] .btn-opcion.incorrecta {
-  background-color: #5c1a1f !important;
+  background: #5c1a1f !important;
   border-color: #f87171 !important;
   color: #ffffff !important;
 }
 
 /* ── Feedback de respuesta (modo oscuro) ── */
 [data-theme="dark"] .feedback.correcto {
-  background-color: #1e5128 !important;
+  background: #1e5128 !important;
   border-color: #4ade80 !important;
   color: #ffffff !important;
 }
 
 [data-theme="dark"] .feedback.incorrecto {
-  background-color: #5c1a1f !important;
+  background: #5c1a1f !important;
   border-color: #f87171 !important;
   color: #ffffff !important;
 }
 
+/* ── Botón Saltar (modo oscuro) ── */
+[data-theme="dark"] .btn-saltar {
+  background: #2a2a2a !important;
+  color: #aaaaaa !important;
+  border-color: #555 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+
+[data-theme="dark"] .btn-saltar:hover {
+  background: #383838 !important;
+}
+
 /* ── Botones Salir y Ayuda del tablero (modo oscuro) ── */
 [data-theme="dark"] .tablero-salir {
-  color: #ffffff !important;
-  border-color: #ffffff !important;
+  background: #3a2020 !important;
+  color: #f87171 !important;
+  border-color: #8b3a3a !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
 }
 
 [data-theme="dark"] .tablero-salir:hover {
-  background-color: #d32f2f !important;
-  border-color: #d32f2f !important;
+  background: #c62828 !important;
+  border-color: #c62828 !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(198,40,40,0.4) !important;
 }
 
 [data-theme="dark"] .tablero-ayuda {
-  color: #ffffff !important;
-  border-color: #ffffff !important;
+  background: #2d2a3a !important;
+  color: #d4a0aa !important;
+  border-color: #7a4a5a !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
 }
 
 [data-theme="dark"] .tablero-ayuda:hover {
-  background-color: #ffffff !important;
-  color: #1a1a1a !important;
+  background: var(--color-principal) !important;
+  border-color: var(--color-principal) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
 }
 
 /* ── Barra de progreso (modo oscuro) ── */
