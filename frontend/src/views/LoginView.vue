@@ -129,7 +129,6 @@ function handleLogin() {
   justify-content: flex-end;
   margin-right: -60px;
   pointer-events: none;
-  padding-bottom: 32px;
 }
 
 .ilustracion {
@@ -184,8 +183,11 @@ function handleLogin() {
 /* ─── MÓVIL ─── */
 @media (max-width: 768px) {
   .login-page {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto auto auto;
     grid-template-areas:
       "logo"
       "ilustracion"
@@ -201,7 +203,7 @@ function handleLogin() {
     justify-content: flex-start;
     align-items: flex-end;
     padding: 0 0 0 20px;
-    height: 130px;
+    height: 90px;
   }
 
   .ilustracion {

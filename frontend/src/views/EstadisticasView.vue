@@ -256,16 +256,13 @@ function formatearPorcentaje(porcentaje) {
 </script>
 
 <template>
-  <AppTopbar />
-
   <div class="estadisticas-page">
+    <AppTopbar />
+
     <div class="ilustracion-wrapper">
-      <img 
-        :src="fondoEstadisticas" 
-        alt="" 
-        aria-hidden="true"
-        class="ilustracion" />
+      <img :src="fondoEstadisticas" alt="" aria-hidden="true" class="ilustracion" />
     </div>
+
     <main class="estadisticas-container">
     <h1 class="titulo-estadisticas">📊 Mis estadísticas</h1>
 
@@ -354,7 +351,7 @@ function formatearPorcentaje(porcentaje) {
         <apexchart
           v-else
           type="line"
-          height="350"
+          height="200"
           :options="opcionesGrafico"
           :series="seriesGrafico"
         />
@@ -423,73 +420,77 @@ function formatearPorcentaje(porcentaje) {
     </div>
   </div>
 </section>
-  </main>
+    </main>
   </div>
 </template>
 
 <style scoped>
-
+/* ── PÁGINA ── */
 .estadisticas-page {
   position: relative;
 }
 
+/* ── ILUSTRACIÓN (esquina inferior derecha) ── */
 .ilustracion-wrapper {
   position: fixed;
-  right: -1%;
+  right: -30px;
   bottom: 0;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
 }
 
 .ilustracion {
-  width: 600px;
+  width: 250px;
   height: auto;
   display: block;
 }
 
+/* ── CONTENEDOR DE CONTENIDO ── */
 .estadisticas-container {
-  max-width: 1100px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 30px 20px;
+  padding: 16px 24px 32px;
+  width: 100%;
 }
 
 .titulo-estadisticas {
   text-align: center;
   color: var(--color-principal);
-  font-size: 32px;
-  margin-bottom: 30px;
+  font-size: 24px;
+  margin-bottom: 16px;
 }
 
+/* ── SELECTOR DE JUEGO ── */
 .selector-juegos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 40px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .tarjeta-juego {
   background: var(--color-caja);
   border: 3px solid var(--color-borde);
   border-radius: 16px;
-  padding: 25px 15px;
+  padding: 16px 12px;
   box-sizing: border-box;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-family: inherit;
   transition: all 0.3s ease;
 }
 
 .tarjeta-juego:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .icono-juego {
-  width: 80px;
-  height: 80px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
 }
 
@@ -499,7 +500,7 @@ function formatearPorcentaje(porcentaje) {
 }
 
 .nombre-juego {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   text-align: center;
 }
@@ -507,26 +508,34 @@ function formatearPorcentaje(porcentaje) {
 .area-detalles {
   background: var(--color-caja);
   border-radius: 16px;
-  padding: 40px 20px;
+  padding: 30px 20px;
   text-align: center;
   border: 1px solid var(--color-borde);
 }
 
 .mensaje-vacio {
   color: var(--color-texto-suave);
-  font-size: 18px;
+  font-size: 16px;
 }
 
-/* === PANEL DE TENDENCIA === */
+.mensaje-intro {
+  color: var(--color-texto);
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: center;
+  margin: 4px 0;
+}
+
+/* ── PANEL DE TENDENCIA ── */
 .panel-tendencia {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   background: var(--color-caja);
   border-left: 8px solid var(--color-borde);
   border-radius: 16px;
-  padding: 24px 28px;
-  margin-bottom: 24px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
 }
@@ -553,7 +562,7 @@ function formatearPorcentaje(porcentaje) {
 }
 
 .tendencia-icono {
-  font-size: 56px;
+  font-size: 40px;
   line-height: 1;
   flex-shrink: 0;
 }
@@ -561,27 +570,27 @@ function formatearPorcentaje(porcentaje) {
 .tendencia-texto {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .tendencia-titulo {
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--color-texto);
   margin: 0;
 }
 
 .tendencia-subtitulo {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--color-texto-suave);
   margin: 0;
 }
 
 .tendencia-consejo {
-  font-size: 15px;
+  font-size: 13px;
   color: var(--color-texto);
-  margin: 8px 0 0 0;
-  padding: 10px 14px;
+  margin: 6px 0 0 0;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   line-height: 1.5;
@@ -592,11 +601,11 @@ function formatearPorcentaje(porcentaje) {
   font-weight: 800;
 }
 
-/* === STAT-CARDS === */
+/* ── STAT-CARDS ── */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 12px;
 }
 
 .stat-card {
@@ -604,11 +613,11 @@ function formatearPorcentaje(porcentaje) {
   border: 2px solid var(--color-borde);
   border-top-width: 6px;
   border-radius: 12px;
-  padding: 20px 15px;
+  padding: 14px 12px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   transition: transform 0.2s;
 }
 
@@ -622,12 +631,12 @@ function formatearPorcentaje(porcentaje) {
 .stat-color-verde      { border-top-color: #2e7d32; }
 
 .stat-icono {
-  font-size: 28px;
+  font-size: 22px;
   line-height: 1;
 }
 
 .stat-numero {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 900;
   color: var(--color-texto);
   line-height: 1.1;
@@ -639,11 +648,11 @@ function formatearPorcentaje(porcentaje) {
 .stat-color-verde .stat-numero   { color: #2e7d32; }
 
 .stat-fecha {
-  font-size: 18px;
+  font-size: 14px;
 }
 
 .stat-label {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--color-texto-suave);
   text-transform: uppercase;
@@ -651,46 +660,46 @@ function formatearPorcentaje(porcentaje) {
 }
 
 .stat-descripcion {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--color-texto-suave);
-  margin: 6px 0 0 0;
+  margin: 4px 0 0 0;
   line-height: 1.4;
 }
 
-/* === GRÁFICO DE EVOLUCIÓN === */
+/* ── GRÁFICO DE EVOLUCIÓN ── */
 .grafico-container {
   background: var(--color-caja);
   border: 2px solid var(--color-borde);
   border-radius: 16px;
-  padding: 24px;
-  margin-top: 24px;
+  padding: 16px;
+  margin-top: 14px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .grafico-titulo {
-  font-size: 22px;
+  font-size: 18px;
   color: var(--color-principal);
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
 }
 
 .grafico-descripcion {
-  font-size: 15px;
+  font-size: 13px;
   color: var(--color-texto-suave);
-  margin: 0 0 20px 0;
+  margin: 0 0 12px 0;
   line-height: 1.5;
 }
 
 .grafico-vacio {
   text-align: center;
-  padding: 60px 20px;
+  padding: 40px 20px;
   color: var(--color-texto-suave);
-  font-size: 16px;
+  font-size: 15px;
   font-style: italic;
 }
 
-/* === ACORDEÓN COMPARATIVA === */
+/* ── ACORDEÓN COMPARATIVA ── */
 .comparar-section {
-  margin-top: 32px;
+  margin-top: 16px;
 }
 
 .btn-comparar {
@@ -701,9 +710,9 @@ function formatearPorcentaje(porcentaje) {
   background: var(--color-principal);
   color: white;
   border: none;
-  border-radius: 14px;
-  padding: 18px 24px;
-  font-size: 18px;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 16px;
   font-weight: 800;
   font-family: inherit;
   cursor: pointer;
@@ -729,9 +738,9 @@ function formatearPorcentaje(porcentaje) {
   background: var(--color-caja);
   border: 2px solid var(--color-principal);
   border-top: none;
-  border-bottom-left-radius: 14px;
-  border-bottom-right-radius: 14px;
-  padding: 24px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  padding: 16px;
   animation: desplegar 0.3s ease;
 }
 
@@ -741,28 +750,27 @@ function formatearPorcentaje(porcentaje) {
 }
 
 .comparar-subtitulo {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--color-texto-suave);
-  margin: 0 0 20px 0;
+  margin: 0 0 14px 0;
   text-align: center;
   line-height: 1.5;
 }
 
 .comparar-tarjetas {
   display: grid;
-  /* Cambio: Forzamos 3 columnas fijas en desktop */
-  grid-template-columns: repeat(3, 1fr); 
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
 .tarjeta-comparar {
   background: var(--color-fondo);
   border-radius: 12px;
-  padding: 18px;
+  padding: 14px;
   border-top: 5px solid;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .tarjeta-comparar.tipo-mejor      { border-top-color: #2e7d32; }
@@ -771,7 +779,7 @@ function formatearPorcentaje(porcentaje) {
 .tarjeta-comparar.tipo-sin-datos  { border-top-color: var(--color-borde); opacity: 0.85; }
 
 .tarjeta-comparar-etiqueta {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--color-texto-suave);
   text-transform: uppercase;
@@ -780,14 +788,14 @@ function formatearPorcentaje(porcentaje) {
 }
 
 .tarjeta-comparar-juego {
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 800;
   color: var(--color-texto);
   margin: 0;
 }
 
 .tarjeta-comparar-porcentaje {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 900;
   margin: 0;
 }
@@ -797,7 +805,7 @@ function formatearPorcentaje(porcentaje) {
 .tipo-peor .tarjeta-comparar-porcentaje       { color: #c62828; }
 
 .tarjeta-comparar-consejo {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-texto);
   margin: 0;
   line-height: 1.5;
@@ -805,51 +813,41 @@ function formatearPorcentaje(porcentaje) {
 
 .comparar-vacio {
   text-align: center;
-  padding: 30px 20px;
+  padding: 20px;
   color: var(--color-texto-suave);
-  font-size: 16px;
+  font-size: 15px;
   font-style: italic;
 }
 
-.mensaje-intro {
-  color: var(--color-texto);
-  font-size: 18px;
-  line-height: 1.6;
-  text-align: center;
-  margin: 4px 0;
+/* ── RESPONSIVE ── */
+@media (max-width: 1200px) {
+  .ilustracion-wrapper {
+    display: none !important;
+  }
 }
 
 @media (max-width: 900px) {
-
-
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-
-   .ilustracion-wrapper {
-    display: none !important;
-  }
   .estadisticas-container {
-    padding: 20px 12px;
+    padding: 16px 12px 30px;
   }
 
   .titulo-estadisticas {
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 22px;
+    margin-bottom: 14px;
   }
 
-  /* === Selector de juego compacto === */
-.selector-juegos {
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;  /* antes 24px */
-}
+  .selector-juegos {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
 
   .tarjeta-juego {
-    flex-direction: column;
     padding: 12px 6px;
     gap: 6px;
   }
@@ -868,96 +866,56 @@ function formatearPorcentaje(porcentaje) {
     border-width: 4px;
   }
 
-  /* === Panel de tendencia compacto === */
   .panel-tendencia {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;          /* antes 12px */
-    padding: 14px 16px; /* antes 18px 20px */
-    margin-bottom: 16px; /* añadido para reducir espacio entre bloques */
-}
+    gap: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+
   .tendencia-icono {
-    font-size: 40px;
+    font-size: 36px;
   }
 
   .tendencia-titulo {
-    font-size: 20px;
-  }
-
-  .tendencia-subtitulo {
-    font-size: 14px;
-  }
-
-  .tendencia-consejo {
-    font-size: 14px;
-    padding: 8px 12px;
-  }
-
-  /* === Stat-cards más compactas === */
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-    .stat-card {
-    padding: 12px 8px;  /* antes 14px 10px */
-    gap: 4px;           /* añadido para reducir espacio interno */
-    }
-
-  .stat-icono {
-    font-size: 22px;
-  }
-
-  .stat-numero {
-    font-size: 26px;
-  }
-
-  .stat-fecha {
-    font-size: 14px;
-  }
-
-  .stat-label {
-    font-size: 11px;
-  }
-
-  .stat-descripcion {
-    font-size: 12px;
-  }
-
-  /* === Gráfico === */
-.grafico-container {
-  padding: 14px 10px;  /* antes 16px 12px */
-  margin-top: 16px;    /* añadido para reducir separación */
-}
-
-  .grafico-titulo {
     font-size: 18px;
   }
 
-  .grafico-descripcion {
-    font-size: 13px;
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
-  /* === Acordeón comparar === */
-.btn-comparar {
-  padding: 12px 16px;  /* antes 14px 18px */
-  font-size: 16px;
-}
+  .stat-card {
+    padding: 12px 8px;
+    gap: 3px;
+  }
 
-.comparar-contenido {
-  padding: 14px 12px;  /* antes 16px 14px */
-}  
+  .stat-numero {
+    font-size: 22px;
+  }
 
-.comparar-tarjetas {
+  .grafico-container {
+    padding: 12px;
+    margin-top: 12px;
+  }
+
+  .comparar-section {
+    margin-top: 12px;
+  }
+
+  .btn-comparar {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+
+  .comparar-contenido {
+    padding: 14px 12px;
+  }
+
+  .comparar-tarjetas {
     grid-template-columns: 1fr;
-  }
-
-  .tarjeta-comparar-juego {
-    font-size: 17px;
-  }
-
-  .tarjeta-comparar-porcentaje {
-    font-size: 24px;
   }
 }
 

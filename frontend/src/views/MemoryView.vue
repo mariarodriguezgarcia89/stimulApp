@@ -12,7 +12,7 @@ import fondoMemory from '@/assets/fondo-memory.png'
 import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE, PUNTOS_PENALIZACION } from '@/utils/constantes.js'
 import { instruccionesMemoryFacil, instruccionesMemoryDificil, elementosTableroMemory } from '@/utils/mensajes.js'
 
-const { finalizarPartida } = usePartida()
+const { finalizarPartida, puntuacionHistorica } = usePartida()
 const route = useRoute()
 const router = useRouter()
 const { tiempoRestante, tiempoGuardado, iniciarTemporizador, pausarTemporizador, detenerTemporizador } = useTemporizador(60)
@@ -208,7 +208,7 @@ function jugarOtraVez() {
     :fallos="fallos"
     :tiempo="dificultad === 'dificil' ? (60 - tiempoRestante) : null"
     labelAcertados="parejas"
-    :puntuacionHistorica="0"
+      :puntuacionHistorica="puntuacionHistorica"
     @cerrar="router.push('/menu')"
     @jugarOtraVez="jugarOtraVez"
 />

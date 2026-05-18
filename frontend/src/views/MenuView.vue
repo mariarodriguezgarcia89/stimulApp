@@ -165,8 +165,14 @@ function seleccionarDificultad(nivel) {
 }
 
 @media (max-width: 768px) {
+  .menu-container {
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
   .main-content-menu {
-    padding: 16px 10px;
+    padding: 16px 10px 32px;
   }
 
   .grid-juegos-principal {
@@ -186,12 +192,16 @@ function seleccionarDificultad(nivel) {
   .juego-detalle h2 {
     font-size: 18px;
     margin-bottom: 4px;
+    min-height: 2.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .juego-detalle p {
     font-size: 14px;
     margin-bottom: 10px;
-    min-height: auto;
+    min-height: 44px;
   }
 
   .ilustracion-wrapper {

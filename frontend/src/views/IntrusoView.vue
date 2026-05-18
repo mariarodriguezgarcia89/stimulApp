@@ -12,7 +12,7 @@ import fondoIntruso from '@/assets/fondo-intruso.png'
 import { PUNTOS_ACIERTO, UMBRAL_TIEMPO_URGENTE } from '@/utils/constantes.js'
 import { instruccionesIntrusoFacil, instruccionesIntrusoDificil, elementosTableroIntruso } from '@/utils/mensajes.js'
 
-const { finalizarPartida } = usePartida()
+const { finalizarPartida, puntuacionHistorica } = usePartida()
 const route = useRoute()
 const router = useRouter()
 const { tiempoRestante, tiempoGuardado, iniciarTemporizador, pausarTemporizador, detenerTemporizador } = useTemporizador(30)
@@ -104,10 +104,6 @@ function jugarOtraVez() {
 
     <AppTopbar :modoJuego="true" />
 
-    <div class="ilustracion-wrapper">
-      <img :src="fondoIntruso" alt="" aria-hidden="true" class="ilustracion" />
-    </div>
-
     <div class="intruso-container" v-if="intrusos.length > 0 && indiceActual < intrusos.length">
 
       <div class="zona-juego">
@@ -182,6 +178,10 @@ function jugarOtraVez() {
         <button class="tablero-ayuda" @click="abrirModalAyuda">❓ <span>Ayuda</span></button>
       </aside>
 
+      <div class="ilustracion-wrapper">
+        <img :src="fondoIntruso" alt="" aria-hidden="true" class="ilustracion" />
+      </div>
+
     </div>
 
     <div class="cargando" v-else-if="intrusos.length === 0">
@@ -199,7 +199,7 @@ function jugarOtraVez() {
       :acertados="acertados"
       :total="intrusos.length"
       :tiempo="dificultad === 'dificil' ? (30 - tiempoRestante) : null"
-      :puntuacionHistorica="0"
+        :puntuacionHistorica="puntuacionHistorica"
       labelAcertados="intrusos"
       @cerrar="router.push('/menu')"
       @jugarOtraVez="jugarOtraVez"
@@ -219,58 +219,41 @@ function jugarOtraVez() {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Fija la altura exacta de la ventana */
-  overflow: hidden; /* Elimina cualquier posibilidad de scroll general */
+  height: 100vh;
+  overflow: hidden;
 }
 
 .intruso-container {
-  max-width: 1200px;
+  max-width: 900px;
   width: 100%;
   margin: 0 auto;
-  padding: 24px; /* Reducimos el padding inferior que antes era de 60px */
+  padding: 12px 20px;
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 32px;
+  grid-template-columns: 1fr 240px;
+  gap: 20px;
   align-items: stretch;
-  flex: 1; /* El contenedor ahora rellena el espacio que deja el Topbar */
-  min-height: 0; /* Crucial para que el contenido interno no desborde */
-}
-
-.area-resolucion {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 12px;
-  height: 135px; /* Reducido para no desperdiciar tanto espacio en blanco */
-  flex-shrink: 0; /* Evita que el contenedor aplaste esta zona */
-  margin-top: 0; /* Ya no hace falta el auto, la cuadrícula lo empuja hacia abajo */
-}
-
-.zona-juego {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 100%;
+  flex: 1;
   min-height: 0;
+  position: relative;
 }
 
-/* ── ILUSTRACIÓN LATERAL ── */
+/* ── ILUSTRACIÓN ── */
 .ilustracion-wrapper {
   position: absolute;
-  left: 0;
-  bottom: 80px;
+  left: -220px;
+  bottom: 0;
   z-index: 1;
   pointer-events: none;
 }
 
 .ilustracion {
-  width: 500px;
+  width: 290px;
   height: auto;
   display: block;
 }
 
 html[data-size="large"] .ilustracion {
-  width: 280px;
+  width: 180px;
 }
 
 /* ── BARRA DE PROGRESO ── */
@@ -288,35 +271,45 @@ html[data-size="large"] .ilustracion {
   transition: width 0.4s ease;
 }
 
+/* ── ZONA DE JUEGO ── */
+.zona-juego {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
 .intruso-card {
   background-color: var(--color-caja);
   border-radius: 16px;
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border-left: 6px solid var(--color-principal);
   display: flex;
   flex-direction: column;
-  flex: 1; /* Obliga a la tarjeta a estirarse hasta abajo */
+  flex: 1;
   min-height: 0;
 }
+
 .etiqueta {
-  text-align: center; /* Centra el texto en la tarjeta */
-  font-size: 18px; /* Aumentamos el tamaño (antes 13px) */
-  color: var(--color-principal); /* Usamos el color granate del tema */
+  text-align: center;
+  font-size: 16px;
+  color: var(--color-principal);
   text-transform: uppercase;
-  letter-spacing: 0.1em; /* Un poco más de aire entre letras para darle elegancia */
-  font-weight: 800; /* Lo hacemos un poco más grueso */
-  margin-bottom: 8px; /* Un pequeño respiro extra hacia abajo */
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  margin-bottom: 6px;
 }
 
+/* ── GRID DE IMÁGENES ── */
 .imagenes-grid {
   display: grid;
-  /* Ampliamos el límite de tamaño a 260px para que las imágenes sean más grandes */
-  grid-template-columns: repeat(2, minmax(150px, 260px)); 
+  grid-template-columns: repeat(2, minmax(100px, 220px));
+  grid-template-rows: repeat(2, 1fr);
   justify-content: center;
-  align-content: center; /* Centra la cuadrícula verticalmente en la tarjeta */
-  gap: 24px; /* Un poco más de aire entre imágenes */
-  flex: 1; /* Permite que este bloque absorba todo el espacio central libre */
+  gap: 16px;
+  flex: 1;
   min-height: 0;
 }
 
@@ -324,13 +317,13 @@ html[data-size="large"] .ilustracion {
   background: var(--color-caja);
   border: 3px solid var(--color-borde);
   border-radius: 12px;
-  padding: 16px;
+  padding: 10px;
   cursor: pointer;
   transition: border-color 0.2s, background-color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1;
+  min-height: 0;
 }
 
 .imagen-card:hover:not(.deshabilitada) {
@@ -357,11 +350,21 @@ html[data-size="large"] .ilustracion {
   cursor: default;
 }
 
+/* ── ÁREA DE RESOLUCIÓN ── */
+.area-resolucion {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 140px;
+  flex-shrink: 0;
+}
+
 /* ── FEEDBACK ── */
 .feedback {
-  border-radius: 14px;
-  padding: 18px 22px;
-  font-size: 1rem;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.9rem;
   font-weight: 600;
   text-align: center;
   line-height: 1.4;
@@ -383,7 +386,7 @@ html[data-size="large"] .ilustracion {
 .acciones {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .btn-siguiente {
@@ -391,9 +394,9 @@ html[data-size="large"] .ilustracion {
   background-color: var(--color-principal);
   color: white;
   border: none;
-  border-radius: 14px;
-  padding: 18px;
-  font-size: 1.1rem;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 1rem;
   font-weight: bold;
   font-family: inherit;
   cursor: pointer;
@@ -410,14 +413,14 @@ html[data-size="large"] .ilustracion {
   flex-direction: column;
   gap: 0;
   align-items: stretch;
-  padding: 20px;
+  padding: 14px;
 }
 
 .tablero-dato {
   flex: none;
   border-right: none;
   border-bottom: 1px solid var(--color-borde);
-  padding: 14px 8px;
+  padding: 10px 8px;
 }
 
 .tablero-dato:last-of-type {
@@ -432,34 +435,30 @@ html[data-size="large"] .ilustracion {
 }
 
 .tablero-salir {
-  /* Esto empuja los botones hacia el fondo del tablero */
-  margin-top: auto; 
+  margin-top: auto;
 }
 
 .tablero-ayuda {
-  /* Espacio pequeño entre el botón de Salir y el de Ayuda */
-  margin-top: 8px; 
+  margin-top: 8px;
 }
 
-/* ── TAMAÑO DE TEXTOS Y EMOJIS DEL TABLERO ── */
 .tablero-icono {
-  font-size: 2rem; /* Aumenta el tamaño del emoji */
+  font-size: 1.6rem;
 }
 
 .tablero-valor {
-  font-size: 1.5rem; /* Aumenta el tamaño de los números (ej. 3/3, 10, etc.) */
-  font-weight: 800;  /* Lo hace un poco más gordito para que destaque */
+  font-size: 1.3rem;
+  font-weight: 800;
 }
 
 .tablero-etiqueta {
-  font-size: 1rem; /* Aumenta la palabra "RONDA", "PUNTOS", etc. */
+  font-size: 0.9rem;
   font-weight: bold;
 }
 
-/* ── TAMAÑO DE TEXTO DE LOS BOTONES ── */
 .tablero-salir,
 .tablero-ayuda {
-  font-size: 1.1rem; /* Hace que el texto y el icono del botón sean más grandes */
+  font-size: 1rem;
 }
 
 /* ── CARGANDO ── */
@@ -470,93 +469,79 @@ html[data-size="large"] .ilustracion {
   color: var(--color-texto-suave);
 }
 
-/* ── ARREGLO PARA IMÁGENES EN MODO OSCURO ── */
-
-/* Reemplaza '[data-theme="dark"]' por la clase exacta que usa tu sitio para el modo oscuro */
-/* Ejemplo: html.dark o .is-dark */
+/* ── MODO OSCURO ── */
 [data-theme="dark"] .imagen-card img {
-  /* Invierte completamente los colores de la imagen */
   filter: invert(1);
-  /* Asegura que los bordes semi-transparentes que se vuelven negros no hagan cosas raras */
-  mix-blend-mode: color-dodge; /* Ayuda a que el 'negro invertido' no se vea en absoluto */
+  mix-blend-mode: color-dodge;
 }
 
-/* Además, vamos a limpiar el borde de la tarjeta que también se ve raro en tu captura */
 [data-theme="dark"] .imagen-card {
-  border-color: rgba(255, 255, 255, 0.15); /* Un borde sutil y limpio */
-  background-color: #1a1a1a; /* Un gris muy oscuro para la tarjeta */
+  border-color: rgba(255, 255, 255, 0.15);
+  background-color: #1a1a1a;
 }
 
-/* ── RESPONSIVE (MÓVILES Y TABLETS PEQUEÑAS) ── */
+/* ── RESPONSIVE ── */
 @media (max-width: 768px) {
-
-    .ilustracion-wrapper {
+  .ilustracion-wrapper {
     display: none !important;
   }
 
-  /* Arreglo para el desbordamiento del feedback en móvil */
   .area-resolucion {
-    height: auto; /* Quitamos la altura fija estricta para que pueda crecer */
-    min-height: 180px; /* Reservamos un poco más de espacio inicial */
-    justify-content: flex-start; /* Hacemos que el contenido empuje hacia abajo, no hacia arriba */
-    margin-top: 16px; /* Separación extra respecto a las imágenes */
+    height: auto;
+    min-height: 0;
+    justify-content: flex-start;
+    margin-top: 16px;
   }
-  
-  /* Hacemos el texto un pelín más compacto en móvil para que encaje mejor */
+
   .feedback {
     padding: 14px 16px;
     font-size: 0.95rem;
   }
-  
+
   .intruso-page {
-    height: auto; /* Permite scroll natural en móvil */
+    height: auto;
     overflow: visible;
   }
 
   .intruso-container {
-    display: flex; /* Cambiamos de Grid a Flex para apilar fácilmente */
+    display: flex;
     flex-direction: column;
     padding: 16px 12px 30px;
     gap: 16px;
   }
 
-  /* 1. Subir el tablero arriba del todo */
   .tablero {
-    order: -1; 
+    order: -1;
     display: flex;
-    flex-direction: row; /* Elementos en horizontal */
-    flex-wrap: wrap; /* Permite que los botones salten a la línea de abajo */
+    flex-direction: row;
+    flex-wrap: wrap;
     padding: 16px;
-    gap: 12px 0; /* Espacio vertical entre filas, 0 horizontal porque usamos bordes */
+    gap: 12px 0;
   }
 
-  /* 2. Acomodar los datos (Ronda, Puntos, Aciertos) en la primera fila */
   .tablero-dato {
-    flex: 1 1 20%; /* Se reparten el espacio equitativamente */
+    flex: 1 1 20%;
     padding: 0 8px;
-    border-bottom: none; /* Quitamos la línea de abajo del escritorio */
-    border-right: 1px solid var(--color-borde); /* Ponemos línea separadora vertical */
+    border-bottom: none;
+    border-right: 1px solid var(--color-borde);
   }
 
-  /* Le quitamos la línea derecha al último dato (Aciertos o Tiempo) */
   div.tablero-dato:last-of-type {
     border-right: none;
   }
 
-  /* 3. Acomodar los botones (Salir, Ayuda) en la segunda fila */
   .tablero-salir,
   .tablero-ayuda {
-    flex: 1 1 45%; /* Toman casi la mitad del ancho cada uno para emparejarse */
-    margin-top: 8px; /* Separación de la fila de datos */
+    flex: 1 1 45%;
+    margin-top: 8px;
     padding: 12px;
     font-size: 1rem;
   }
 
-  /* 4. Reducir un poco el tamaño de los textos para que quepa bien en horizontal */
   .tablero-icono {
     font-size: 1.5rem;
   }
-  
+
   .tablero-valor {
     font-size: 1.2rem;
   }
@@ -565,7 +550,6 @@ html[data-size="large"] .ilustracion {
     font-size: 0.8rem;
   }
 
-  /* 5. Ajustes de la tarjeta de juego para ganar espacio */
   .intruso-card {
     padding: 16px;
   }
@@ -574,5 +558,4 @@ html[data-size="large"] .ilustracion {
     gap: 12px;
   }
 }
-
 </style>

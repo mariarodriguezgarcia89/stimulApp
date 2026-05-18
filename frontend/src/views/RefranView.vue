@@ -19,7 +19,7 @@ const instruccionesRefran = dificultad === 'facil' ? instruccionesRefranFacil : 
 const mostrarModalAyuda = ref(true)
 const avisoRespuestaVacia = ref(false)
 const elementosTablero = elementosTableroRefran(dificultad)
-const { finalizarPartida } = usePartida()
+const { finalizarPartida, puntuacionHistorica } = usePartida()
 const { tiempoRestante, tiempoGuardado, iniciarTemporizador, pausarTemporizador, detenerTemporizador } = useTemporizador(30)
 const refranes = ref([])
 const indiceActual = ref(0)
@@ -260,7 +260,7 @@ function reanudarTemporizador() {
     <ModalFinPartida
       v-if="mostrarModalFin"
       :puntos="puntos"
-      puntuacionHistorica="0"
+      :puntuacionHistorica="puntuacionHistorica"
       labelAcertados="refranes"
       :acertados="acertados"
       :total="refranes.length"

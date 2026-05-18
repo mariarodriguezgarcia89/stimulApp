@@ -1,77 +1,103 @@
 <script setup>
-
 const emit = defineEmits(['confirmar', 'cancelar'])
-
 </script>
 
 <template>
     <div class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="icono-principal">⚠️</span>
-                <h2>¿Estás seguro de que quieres salir?</h2>
-            </div>
+        <div class="modal-content modal-salir">
 
-            <p>Si sales ahora, perderás tu progreso actual.</p>
+            <div class="salir-header">
+                <div class="icono-aviso">⚠️</div>
+                <h2>¿Salir de la partida?</h2>
+                <p class="aviso-texto">Si sales ahora, perderás el progreso de esta partida.</p>
+            </div>
 
             <div class="acciones">
-                <button class="btn-confirmar" @click="$emit('confirmar')">Sí, salir</button>
-                <button class="btn-cancelar" @click="$emit('cancelar')">No, continuar jugando</button>
+                <button class="btn-continuar" @click="$emit('cancelar')">Seguir jugando</button>
+                <button class="btn-salir" @click="$emit('confirmar')">Sí, salir</button>
             </div>
+
         </div>
     </div>
 </template>
+
 <style scoped>
-.modal-content {
-  max-width: 480px;
+.modal-salir {
+    max-width: 420px;
+    text-align: center;
 }
 
-p {
-  font-size: 1.15rem;
-  color: var(--color-texto-suave);
-  text-align: center;
-  margin: 0;
+.salir-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.icono-aviso {
+    width: 64px;
+    height: 64px;
+    background: #fff8e1;
+    border: 2px solid #ffe082;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.9rem;
+}
+
+.aviso-texto {
+    font-size: 1rem;
+    color: var(--color-texto-suave);
+    margin: 0;
+    line-height: 1.5;
 }
 
 .acciones {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
+    display: flex;
+    gap: 0.75rem;
 }
 
-.btn-confirmar {
-  background-color: var(--color-principal);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 22px;
-  font-size: 1rem;
-  font-family: inherit;
-  cursor: pointer;
+.btn-continuar {
+    flex: 1;
+    background: var(--color-principal);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-.btn-confirmar:hover {
-  background-color: var(--color-principal-hover);
+.btn-continuar:hover {
+    background: var(--color-principal-hover);
 }
 
-.btn-cancelar {
-  background-color: transparent;
-  color: var(--color-texto-suave);
-  border: 1px solid var(--color-borde);
-  border-radius: 8px;
-  padding: 12px 22px;
-  font-size: 1rem;
-  font-family: inherit;
-  cursor: pointer;
+.btn-salir {
+    flex: 1;
+    background: transparent;
+    color: #c0392b;
+    border: 1.5px solid #e57373;
+    border-radius: 12px;
+    padding: 13px 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.btn-cancelar:hover {
-  background-color: var(--color-borde);
+.btn-salir:hover {
+    background: #ffebee;
+    border-color: #c0392b;
 }
 
 @media (max-width: 768px) {
-  .acciones {
-    flex-direction: column;
-  }
+    .acciones {
+        flex-direction: column-reverse;
+    }
 }
 </style>

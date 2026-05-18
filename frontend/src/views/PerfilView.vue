@@ -260,8 +260,8 @@ function handleEliminarCuenta() {
 .perfil-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
   position: relative;
 }
 
@@ -276,7 +276,7 @@ function handleEliminarCuenta() {
 
 /* ── ILUSTRACIÓN ── */
 .ilustracion-wrapper {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   right: -60px;
   z-index: 1;
@@ -506,14 +506,14 @@ function handleEliminarCuenta() {
 
 /* ── MÓVIL ── */
 @media (max-width: 768px) {
-  .perfil-page {
-    height: auto;
-    overflow: visible;
-  }
-
   .perfil-container {
     align-items: flex-start;
     padding: 16px 12px 30px;
+  }
+
+  /* Anula el padding grande que hereda de .caja (40px 36px por defecto) */
+  .perfil-layout {
+    padding: 20px 16px;
   }
 
   .ilustracion-wrapper {
@@ -525,8 +525,21 @@ function handleEliminarCuenta() {
     padding: 10px 4px;
   }
 
+  .tab-contenido {
+    min-height: auto;
+  }
+
   .campo-fila {
     grid-template-columns: 1fr;
+  }
+
+  .fecha-selector-grid {
+    grid-template-columns: 1fr 2fr 1fr;
+  }
+
+  .fecha-selector-grid .select-grande {
+    padding: 8px 4px;
+    font-size: 15px;
   }
 
   .botones-footer {

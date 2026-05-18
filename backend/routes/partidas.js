@@ -63,11 +63,22 @@ router.post('/nueva-partida', auth, async (req, res) => {
         ultima_partida: new Date()
     });
 
-    if (mediaAnterior > 0 && puntuacion < mediaAnterior * UMBRAL_ALERTA_CUIDADOR) {
-        const juego = await Juego.findByPk(juego_id);
-        const nombreJuego = juego ? juego.nombre : 'el juego';
-        const usuario = await Usuario.findByPk(req.user.id);
-        await enviarCorreoAlCuidador(usuario.email_cuidador, usuario.nombre, nombreJuego, puntuacion, mediaAnterior);
+    const ultimasPartidas = await Partida.findAll({
+        where: { usuario_id: req.user.id, juego_id },
+        order: [['fecha', 'DESC']],
+        limit: 3
+    });
+
+    if (mediaAnterior > 0 && ultimasPartidas.length === 3) {
+        const mediaUltimas = Math.round(
+            ultimasPartidas.reduce((sum, p) => sum + p.puntuacion, 0) / 3
+        );
+        if (mediaUltimas < mediaAnterior * UMBRAL_ALERTA_CUIDADOR) {
+            const juego = await Juego.findByPk(juego_id);
+            const nombreJuego = juego ? juego.nombre : 'el juego';
+            const usuario = await Usuario.findByPk(req.user.id);
+            await enviarCorreoAlCuidador(usuario.email_cuidador, usuario.nombre, nombreJuego, mediaUltimas, mediaAnterior);
+        }
     }   
 }
 

@@ -40,7 +40,7 @@ async function enviarCorreoAlCuidador(emailCuidador, nombreUsuario, nombreJuego,
                     <td style="padding:6px 0; font-size:15px; color:#6B5460;">${nombreJuego}</td>
                 </tr>
                 <tr>
-                    <td style="padding:6px 0; font-size:15px; color:#5C1E2C;"><strong>Puntuación obtenida:</strong></td>
+                    <td style="padding:6px 0; font-size:15px; color:#5C1E2C;"><strong>Media últimas 3 partidas:</strong></td>
                     <td style="padding:6px 0; font-size:15px; color:#8B2020; font-weight:600;">${puntuacion} puntos</td>
                 </tr>
                 <tr>
@@ -54,7 +54,7 @@ async function enviarCorreoAlCuidador(emailCuidador, nombreUsuario, nombreJuego,
         saludo:  `Estimado/a cuidador/a,`,
         icono:   '⚠️',
         titulo:  'Aviso de rendimiento',
-        cuerpo:  `<p>${nombreUsuario} ha obtenido una puntuación significativamente inferior a su media habitual en el juego <strong>${nombreJuego}</strong>. Le recomendamos que esté atento/a a su evolución en los próximos días.</p>`,
+        cuerpo:  `<p>La media de las <strong>últimas 3 partidas</strong> de ${nombreUsuario} en <strong>${nombreJuego}</strong> ha caído significativamente por debajo de su rendimiento habitual. Le recomendamos que esté atento/a a su evolución en los próximos días.</p>`,
         bloqueDestacado
     });
 

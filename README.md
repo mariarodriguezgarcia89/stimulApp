@@ -227,9 +227,9 @@ Cada juego tiene dos niveles de dificultad: **Normal** y **Avanzado**.
 - **Comparativa entre juegos**: identifica automáticamente el mejor, el más estable y el que más atención requiere.
 
 ### 📧 Comunicación con el cuidador
-- **Alertas automáticas**: si el rendimiento cae más de un 30% respecto a la media histórica, se envía un correo de aviso al cuidador registrado.
-- **Informes mensuales en PDF**: cada 15 días se genera y envía automáticamente un informe detallado al usuario y al cuidador, con gráficas, análisis por juego y recomendaciones personalizadas.
-- **Recordatorio de inactividad**: si el usuario lleva más de 10 días sin jugar, recibe un correo de recordatorio.
+- **Alertas automáticas**: si la media de las últimas 3 partidas de un juego cae por debajo del 40% de la media histórica del usuario, se envía un correo de aviso al cuidador registrado.
+- **Informes mensuales en PDF**: el día 1 de cada mes se genera y envía automáticamente un informe detallado al usuario y al cuidador, con gráficas, análisis por juego y recomendaciones personalizadas.
+- **Recordatorio de inactividad**: si el usuario lleva más de 7 días sin jugar, recibe un correo de recordatorio.
 
 ### ♿ Accesibilidad
 - **Modo oscuro** para reducir la fatiga visual.

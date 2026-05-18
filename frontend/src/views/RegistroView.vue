@@ -272,8 +272,8 @@ function handleRegistro() {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* ─── LOGO (esquina superior izquierda) ─── */
@@ -442,15 +442,21 @@ select {
 @media (max-width: 768px) {
   .registro-page {
     flex-direction: column;
+    align-items: center;
     justify-content: flex-start;
     height: auto;
     min-height: 100vh;
     overflow: visible;
-    padding-top: 100px;
+    padding: 20px 16px 32px;
   }
 
   .logo {
-    width: 150px;
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 140px;
+    margin: 0 auto 16px;
+    display: block;
   }
 
   .ilustracion-wrapper {
@@ -461,7 +467,7 @@ select {
     width: 100%;
     max-width: none;
     padding: 24px 20px;
-    margin-bottom: 24px;
+    margin-bottom: 0;
   }
 }
 </style>
