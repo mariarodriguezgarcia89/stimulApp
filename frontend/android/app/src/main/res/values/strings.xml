@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StimulApp</string>
+    <string name="title_activity_main">StimulApp</string>
+    <string name="package_name">com.stimulapp.app</string>
+    <string name="custom_url_scheme">com.stimulapp.app</string>
+</resources>
