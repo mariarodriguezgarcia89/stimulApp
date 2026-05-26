@@ -924,4 +924,5 @@ function formatearPorcentaje(porcentaje) {
     grid-template-columns: 1fr;
   }
 }
+
 </style>

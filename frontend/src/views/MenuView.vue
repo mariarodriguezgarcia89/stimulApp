@@ -208,4 +208,5 @@ function seleccionarDificultad(nivel) {
     display: none;
   }
 }
+
 </style>

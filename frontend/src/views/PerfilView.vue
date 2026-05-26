@@ -552,4 +552,5 @@ function handleEliminarCuenta() {
     align-items: center;
   }
 }
+
 </style>

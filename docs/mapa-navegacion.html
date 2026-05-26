@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>StimulApp — Mapa de Navegación</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Calibri', Arial, sans-serif;
+      background: #ffffff;
+      padding: 36px 48px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #7b1f2e;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Cajas ── */
+    .vista {
+      background: white;
+      border: 2px solid #7b1f2e;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #7b1f2e;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .modal {
+      background: #f7f7f7;
+      border: 2px dashed #999;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #555;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .vista.destacada {
+      background: #7b1f2e;
+      color: white;
+      padding: 10px 24px;
+      font-size: 13.5px;
+    }
+
+    /* ── Layout general ── */
+    .diagrama {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+    }
+
+    /* ── Flecha vertical ── */
+    .flecha-v {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .flecha-v .linea {
+      width: 2px;
+      height: 22px;
+      background: #7b1f2e;
+    }
+
+    .flecha-v .punta {
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #7b1f2e;
+    }
+
+    .flecha-v .etiqueta {
+      font-size: 10px;
+      color: #888;
+      font-style: italic;
+      margin-top: 2px;
+    }
+
+    /* ── Flecha bidireccional horizontal ── */
+    .flecha-bidir {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #7b1f2e;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .flecha-bidir .linea-h {
+      width: 36px;
+      height: 2px;
+      background: #7b1f2e;
+    }
+
+    /* ── Sección: zona de autenticación ── */
+    .zona-auth {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .registro-detalle {
+      font-size: 10px;
+      color: #888;
+      font-style: italic;
+      text-align: center;
+      margin-top: 3px;
+    }
+
+    /* ── Panel lateral (nota flotante) ── */
+    .panel-lateral-nota {
+      border: 1.5px solid #ccbbaa;
+      border-radius: 8px;
+      background: #fafafa;
+      padding: 10px 18px;
+      font-size: 11.5px;
+      color: #444;
+      max-width: 620px;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+
+    .panel-lateral-nota strong {
+      color: #7b1f2e;
+      font-size: 12px;
+    }
+
+    .panel-lateral-nota ul {
+      margin: 4px 0 0 16px;
+      line-height: 1.7;
+    }
+
+    /* ── Zona juegos ── */
+    .zona-juegos {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      margin-top: 0;
+    }
+
+    .grupo-juego {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .separador-v {
+      width: 1px;
+      background: #ddd;
+      height: 220px;
+      margin-top: 30px;
+    }
+
+    /* ── Zona pantallas principales ── */
+    .zona-principales {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+      width: 100%;
+      max-width: 700px;
+      justify-content: center;
+    }
+
+    .rama-lateral {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      flex: 1;
+    }
+
+    /* ── Línea horizontal ── */
+    .linea-h {
+      height: 2px;
+      background: #7b1f2e;
+    }
+
+    /* ── Leyenda ── */
+    .leyenda {
+      margin-top: 32px;
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+    }
+
+    .leyenda-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      color: #555;
+    }
+
+    .leyenda-rect {
+      width: 32px;
+      height: 16px;
+      border-radius: 4px;
+    }
+
+    /* ── Notas de retorno ── */
+    .nota-retorno {
+      font-size: 10.5px;
+      color: #888;
+      font-style: italic;
+      text-align: center;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .flecha-gris .linea { background: #bbb; }
+    .flecha-gris .punta { border-top-color: #bbb; }
+
+    .row { display: flex; align-items: center; justify-content: center; gap: 16px; }
+    .col { display: flex; flex-direction: column; align-items: center; }
+  </style>
+</head>
+<body>
+
+<h1>StimulApp — Mapa de navegación</h1>
+
+<div class="diagrama">
+
+  <!-- ══ BLOQUE 1: AUTENTICACIÓN ══ -->
+  <div class="zona-auth">
+
+    <div class="col">
+      <div class="vista">LoginView</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;margin:0 4px;">
+      <div style="font-size:10px;color:#888;font-style:italic;margin-bottom:2px;">¿No tienes cuenta? / Volver</div>
+      <div style="display:flex;align-items:center;gap:0;">
+        <div style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-right:7px solid #7b1f2e;"></div>
+        <div style="width:60px;height:2px;background:#7b1f2e;"></div>
+        <div style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #7b1f2e;"></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="vista">RegistroView</div>
+      <div class="registro-detalle">(3 pasos: datos personales,<br>credenciales, datos del cuidador)</div>
+      <div class="registro-detalle" style="margin-top:2px;">→ LoginView al completar el registro</div>
+    </div>
+
+  </div>
+
+  <!-- Flecha Login → MenuView -->
+  <div class="flecha-v" style="margin-top:2px;">
+    <div style="font-size:10px;color:#888;font-style:italic;">Login exitoso</div>
+    <div class="linea"></div>
+    <div class="punta"></div>
+  </div>
+
+  <!-- ══ BLOQUE 2: MENÚ ══ -->
+  <div class="vista destacada">MenuView</div>
+
+  <!-- Nota panel lateral -->
+  <div style="margin-top:10px;width:100%;max-width:640px;">
+    <div class="panel-lateral-nota">
+      <strong>Panel lateral (AppTopbar)</strong> — disponible en MenuView, EstadisticasView y PerfilView:
+      <ul>
+        <li>Acceso a <strong>MenuView</strong> · <strong>EstadisticasView</strong> · <strong>PerfilView</strong></li>
+        <li>Cerrar sesión → <strong>LoginView</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Conexión MenuView → ramas laterales + juegos -->
+  <div style="display:flex;align-items:flex-start;width:100%;max-width:760px;justify-content:center;margin-top:0;">
+
+    <!-- Rama EstadisticasView -->
+    <div class="col" style="flex:1;align-items:flex-end;padding-right:8px;padding-top:0;">
+      <div style="display:flex;align-items:center;justify-content:flex-end;width:100%;">
+        <div style="height:2px;background:#7b1f2e;flex:1;max-width:50px;"></div>
+        <div style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:0;"></div>
+      </div>
+      <div style="width:2px;height:22px;background:#7b1f2e;margin-right:0;align-self:flex-end;margin-right:0px;"></div>
+      <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #7b1f2e;margin-right:0px;"></div>
+      <div class="vista" style="margin-top:0;">EstadisticasView</div>
+      <div class="nota-retorno">(panel lateral para navegar)</div>
+    </div>
+
+    <!-- Centro: juegos -->
+    <div class="col" style="flex:2;">
+      <div class="flecha-v">
+        <div class="linea"></div>
+        <div class="punta"></div>
+      </div>
+
+      <div class="modal">ModalDificultad</div>
+      <div style="font-size:10px;color:#888;font-style:italic;margin:2px 0;">Elige nivel: Normal o Avanzado</div>
+
+      <div class="flecha-v">
+        <div class="linea"></div>
+        <div class="punta"></div>
+      </div>
+
+      <!-- 3 juegos -->
+      <div class="zona-juegos">
+
+        <!-- Refrán -->
+        <div class="grupo-juego">
+          <div class="vista" style="font-size:11.5px;">🧩 RefranView</div>
+          <div class="flecha-v" style="margin-top:2px;">
+            <div class="linea"></div>
+            <div class="punta"></div>
+          </div>
+          <div class="modal">ModalAyuda</div>
+          <div class="nota-retorno">(permanece en el juego)</div>
+          <div class="flecha-v" style="margin-top:4px;">
+            <div class="linea"></div>
+            <div class="punta"></div>
+          </div>
+          <div class="modal">ModalSalir</div>
+          <div class="nota-retorno">→ MenuView</div>
+          <div class="flecha-v" style="margin-top:4px;">
+            <div class="linea"></div>
+            <div class="punta"></div>
+          </div>
+          <div class="modal">ModalFinPartida</div>
+          <div class="nota-retorno">→ MenuView<br>→ Jugar otra vez</div>
+        </div>
+
+        <div class="separador-v"></div>
+
+        <!-- Memory -->
+        <div class="grupo-juego">
+          <div class="vista" style="font-size:11.5px;">🃏 MemoryView</div>
+          <div class="flecha-v" style="margin-top:2px;">
+            <div class="linea"></div>
+            <div class="punta"></div>
+          </div>
+          <div class="modal">ModalAyuda</div>
+          <div class="nota-retorno">(permanece en el juego)</div>
+          <div class="flecha-v" style="margin-top:4px;">
+            <div class="linea"></div>
+            <div class="punta"></div>
+          </div>
+          <div class="modal">ModalSalir</div>
+          <div class="nota-retorno">→ MenuView</div>
+          <div class="flecha-v" style="margin-top:4px;">
+            <div class="linea"></div>
+            <div class="punta"></div>
+          </div>
+          <div class="modal">ModalFinPartida</div>
+          <div class="nota-retorno">→ MenuView<br>→ Jugar otra vez</div>
+        </div>
+
+        <div class="separador-v"></div>
+
+        <!-- Intruso -->
+        <div class="grupo-juego">
+          <div class="vista" style="font-size:11.5px;">🔍 IntrusoView</div>
+          <div class="flecha-v" style="margin-top:2px;">
+            <div class="linea"></div>
+            <div class="punta"></div>
+          </div>
+          <div class="modal">ModalAyuda</div>
+          <div class="nota-retorno">(permanece en el juego)</div>
+          <div class="flecha-v" style="margin-top:4px;">
+            <div class="linea"></div>
+            <div class="punta"></div>
+          </div>
+          <div class="modal">ModalSalir</div>
+          <div class="nota-retorno">→ MenuView</div>
+          <div class="flecha-v" style="margin-top:4px;">
+            <div class="linea"></div>
+            <div class="punta"></div>
+          </div>
+          <div class="modal">ModalFinPartida</div>
+          <div class="nota-retorno">→ MenuView<br>→ Jugar otra vez</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Rama PerfilView -->
+    <div class="col" style="flex:1;align-items:flex-start;padding-left:8px;padding-top:0;">
+      <div style="display:flex;align-items:center;justify-content:flex-start;width:100%;">
+        <div style="height:2px;background:#7b1f2e;flex:1;max-width:50px;"></div>
+      </div>
+      <div style="width:2px;height:22px;background:#7b1f2e;margin-left:0px;align-self:flex-start;margin-left:0px;"></div>
+      <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #7b1f2e;margin-left:0px;"></div>
+      <div class="vista" style="margin-top:0;">PerfilView</div>
+      <div class="flecha-v" style="margin-top:4px;">
+        <div class="linea"></div>
+        <div class="punta"></div>
+      </div>
+      <div class="modal">ModalEliminarCuenta</div>
+      <div class="nota-retorno">→ LoginView</div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Leyenda -->
+<div class="leyenda">
+  <div class="leyenda-item">
+    <div class="leyenda-rect" style="border:2px solid #7b1f2e;background:#7b1f2e;"></div>
+    <span>Vista principal (ruta propia)</span>
+  </div>
+  <div class="leyenda-item">
+    <div class="leyenda-rect" style="border:2px solid #7b1f2e;background:white;"></div>
+    <span>Vista navegable</span>
+  </div>
+  <div class="leyenda-item">
+    <div class="leyenda-rect" style="border:2px dashed #999;background:#f7f7f7;"></div>
+    <span>Modal (superposición, sin ruta propia)</span>
+  </div>
+  <div class="leyenda-item">
+    <span style="font-size:13px;color:#7b1f2e;">◄──►</span>
+    <span>Navegación bidireccional</span>
+  </div>
+  <div class="leyenda-item">
+    <span style="font-size:13px;color:#7b1f2e;">▼</span>
+    <span>Navegación unidireccional</span>
+  </div>
+</div>
+
+</body>
+</html>

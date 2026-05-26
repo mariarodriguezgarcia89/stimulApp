@@ -383,4 +383,5 @@ html[data-size="large"] .ilustracion {
     font-size: 1.8rem;
   }
 }
+
 </style>

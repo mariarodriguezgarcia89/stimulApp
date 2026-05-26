@@ -549,4 +549,5 @@ html[data-size="large"] .ilustracion {
     font-size: 0.9rem;
   }
 }
+
 </style>

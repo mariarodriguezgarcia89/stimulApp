@@ -558,4 +558,5 @@ html[data-size="large"] .ilustracion {
     gap: 12px;
   }
 }
+
 </style>
