@@ -131,4 +131,19 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// GET /auth/check-email
+// Comprueba si un email ya está registrado antes de completar el formulario
+// Ruta pública: no requiere token JWT
+router.get('/check-email', async (req, res) => {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: 'Email requerido' });
+    try {
+        const existingUser = await Usuario.findOne({ where: { email } });
+        res.json({ exists: !!existingUser });
+    } catch (error) {
+        console.error('Error al comprobar email:', error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+
 module.exports = router;

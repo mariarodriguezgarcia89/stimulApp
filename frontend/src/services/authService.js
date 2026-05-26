@@ -21,4 +21,13 @@ function registro(datos) {
     });
 }
 
-export default { login, registro };
+function checkEmail(email) {
+    return api.get('auth/check-email', { params: { email } })
+        .then(response => response.data.exists)
+        .catch(error => {
+            console.error('Error al comprobar email:', error);
+            throw error;
+        });
+}
+
+export default { login, registro, checkEmail };

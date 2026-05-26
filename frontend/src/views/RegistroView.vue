@@ -54,9 +54,21 @@ function validarPaso3() {
   return errores.value.length === 0
 }
 
-function siguientePaso() {
+async function siguientePaso() {
   if (pasoActual.value === 1 && !validarPaso1()) return
-  if (pasoActual.value === 2 && !validarPaso2()) return
+  if (pasoActual.value === 2) {
+    if (!validarPaso2()) return
+    try {
+      const existe = await authService.checkEmail(email.value)
+      if (existe) {
+        errores.value = ['Este correo electrónico ya está registrado. Si ya tiene una cuenta, puede iniciar sesión aquí.']
+        return
+      }
+    } catch {
+      errores.value = [mensajes.errorRegistro]
+      return
+    }
+  }
   if (pasoActual.value === 3 && !validarPaso3()) return
   errores.value = []
   pasoActual.value++
@@ -84,10 +96,10 @@ function handleRegistro() {
     router.push('/login?registro=exitoso')
   })
   .catch((err) => {
-    if (err.response?.data?.error) {
-      errores.value.push(err.response.data.error)
-    } else {
-      errores.value.push(mensajes.errorRegistro)
+    const errorMsg = err.response?.data?.error || mensajes.errorRegistro
+    errores.value.push(errorMsg)
+    if (errorMsg.includes('registrado')) {
+      pasoActual.value = 2
     }
   })
 }
@@ -140,10 +152,6 @@ function handleRegistro() {
           <button class="btn-principal" @click="siguientePaso">Siguiente →</button>
         </div>
 
-        <p class="registro-link">
-          ¿Ya tienes cuenta?
-          <RouterLink to="/login">Inicia sesión aquí</RouterLink>
-        </p>
       </template>
 
       <!-- ── PASO 2: Correo y fecha ── -->
@@ -260,6 +268,11 @@ function handleRegistro() {
           <button class="btn-principal" @click="handleRegistro">Crear cuenta</button>
         </div>
       </template>
+
+      <p class="registro-link">
+        ¿Ya tienes cuenta?
+        <RouterLink to="/login">Inicia sesión aquí</RouterLink>
+      </p>
 
     </div>
   </div>
