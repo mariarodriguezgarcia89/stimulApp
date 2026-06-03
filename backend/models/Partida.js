@@ -1,3 +1,4 @@
+// Modelo de partida: registra cada sesión de juego con su puntuación, duración y nivel
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
@@ -20,7 +21,7 @@ const Partida = sequelize.define('partidas', {
     },
 
     nivel: {
-        type: DataTypes.ENUM('facil', 'medio', 'dificil'),
+        type: DataTypes.ENUM('facil', 'dificil'),
         allowNull: false
     },
 
