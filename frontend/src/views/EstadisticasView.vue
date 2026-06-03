@@ -1,4 +1,5 @@
 <script setup>
+// Vista de estadísticas: resumen por juego, gráfico de evolución y análisis de tendencia
 import { ref, computed, onMounted, watch } from 'vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
 import estadisticasService from '@/services/estadisticasService'
@@ -210,8 +211,8 @@ onMounted(async () => {
   cargandoDashboard.value = true
   try {
     const [resumenData, dashboardData] = await Promise.all([
-      estadisticasService.getResumen(),
-      estadisticasService.getDashboard()
+      estadisticasService.obtenerResumen(),
+      estadisticasService.obtenerDashboard()
     ])
     resumen.value = resumenData
     dashboard.value = dashboardData
@@ -233,8 +234,8 @@ watch(juegoSeleccionado, async (nuevoJuegoId) => {
   cargandoEvolucion.value = true
   try {
     const [tendenciaData, evolucionData] = await Promise.all([
-      estadisticasService.getTendencia(nuevoJuegoId),
-      estadisticasService.getEvolucion(nuevoJuegoId)
+      estadisticasService.obtenerTendencia(nuevoJuegoId),
+      estadisticasService.obtenerEvolucion(nuevoJuegoId)
     ])
     tendencia.value = tendenciaData
     evolucion.value = evolucionData
