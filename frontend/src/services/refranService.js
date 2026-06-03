@@ -1,3 +1,4 @@
+// Servicio de refranes: obtiene una selección aleatoria de refranes para la partida
 import api from './api';
 
 function obtenerRefranes(){

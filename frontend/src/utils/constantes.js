@@ -1,3 +1,4 @@
+// Valores numéricos compartidos entre los tres juegos
 // --- JUEGOS ---
 export const PUNTOS_ACIERTO = 10          // Puntos ganados por cada acierto
 export const PUNTOS_PENALIZACION = 3      // Puntos perdidos por fallo en Memory

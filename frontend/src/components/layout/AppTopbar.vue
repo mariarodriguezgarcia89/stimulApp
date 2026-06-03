@@ -1,48 +1,5 @@
-<!-- <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import avatarDefault from '@/assets/avatar-default.jpg'
-
-const router = useRouter()
-const authStore = useAuthStore()
-const menuAbierto = ref(false)
-
-// Accesibilidad
-const uiStore.dark = ref(document.documentElement.getAttribute('data-theme') === 'dark')
-const uiStore.large = ref(document.documentElement.getAttribute('data-size') === 'large')
-
-function uiStore.toggleDark() {
-  uiStore.dark.value = !uiStore.dark.value
-  document.documentElement.setAttribute('data-theme', uiStore.dark.value ? 'dark' : 'light')
-}
-
-function uiStore.toggleLarge() {
-  uiStore.large.value = !uiStore.large.value
-  document.documentElement.setAttribute('data-size', uiStore.large.value ? 'large' : 'normal')
-}
-
-// Ocultar botones flotantes de App.vue cuando la topbar está visible
-onMounted(() => {
-  const float = document.querySelector('.accesibilidad-float')
-  if (float) float.style.display = 'none'
-})
-
-onUnmounted(() => {
-  const float = document.querySelector('.accesibilidad-float')
-  if (float) float.style.display = ''
-})
-
-function cerrarSesion() {
-  authStore.logout()
-  router.push('/login')
-}
-
-const props = defineProps({
-  modoJuego: { type: Boolean, default: false }
-})
-</script> -->
 <script setup>
+// Barra de navegación superior: logo, botones de accesibilidad (modo oscuro y zoom) y panel lateral con menú
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'

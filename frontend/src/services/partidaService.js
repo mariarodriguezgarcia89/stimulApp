@@ -1,3 +1,4 @@
+// Servicio de partidas: guarda el resultado de cada partida completada en el backend
 import api from './api';
 
 function guardarPartida(datos){

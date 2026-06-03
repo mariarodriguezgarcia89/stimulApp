@@ -1,3 +1,4 @@
+// Modelo de intruso: cuatro imágenes por ronda, una de ellas es el intruso, con explicación y nivel
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

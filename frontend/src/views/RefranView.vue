@@ -1,4 +1,5 @@
 <script setup>
+// Vista del juego Acaba el Refrán (modo fácil: elegir opción, modo difícil: escritura libre con temporizador)
 import refranService from '@/services/refranService'
 import ModalSalir from '@/components/modals/ModalSalir.vue'
 import ModalFinPartida from '@/components/modals/ModalFinPartida.vue'

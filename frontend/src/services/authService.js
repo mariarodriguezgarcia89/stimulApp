@@ -1,3 +1,4 @@
+// Servicio de autenticación: login, registro y comprobación de email duplicado
 import api from './api';
 
 function login(email, password) {

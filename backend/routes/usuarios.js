@@ -1,5 +1,6 @@
+// Rutas de usuario: consultar, actualizar y eliminar el perfil del usuario autenticado
 const express = require('express');
-const router = express.Router(); 
+const router = express.Router();
 const auth = require('../middleware/auth');
 const { Usuario } = require('../models');  
 const bcrypt = require('bcryptjs')

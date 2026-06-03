@@ -1,4 +1,5 @@
 <script setup>
+// Vista principal con los tres juegos disponibles y selector de dificultad
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'

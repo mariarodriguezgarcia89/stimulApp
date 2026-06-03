@@ -1,3 +1,4 @@
+// Textos de la interfaz: errores, instrucciones y mensajes de feedback para el usuario
 export const mensajes = {
   // --- REGISTRO ---
   nombreObligatorio: 'Por favor, escriba su nombre para que sepamos cómo llamarle.',
@@ -80,7 +81,6 @@ export const instruccionesIntrusoDificil = [
 ]
 
 export const mensajesTendencia = {
-  // Títulos según el caso
   titulos: {
     cargando: 'Calculando tu tendencia...',
     sin_datos: '¡Aún no has empezado!',
@@ -102,7 +102,6 @@ export const mensajesTendencia = {
     ok: 'Estamos comparando tus 5 últimas partidas con todas las anteriores.'
   },
 
-  // Consejos: recomendación práctica
   consejos: {
     sin_datos: 'Empieza por una partida en nivel Normal. ¡Lo importante es disfrutar mientras juegas!',
     pocas_partidas: 'Sigue jugando con tranquilidad. Cuantas más partidas tengamos, mejor podremos acompañarte.',
@@ -119,15 +118,12 @@ export const mensajesStats = {
   ultima_partida: 'El día que jugaste por última vez a este juego.'
 }
 
-// Mensajes específicos del gráfico de evolución
 export const mensajesGrafico = {
   titulo: 'Evolución de tus puntuaciones',
   descripcion: 'Cada punto representa una partida. La línea muestra cómo van cambiando tus resultados con el tiempo.',
-  // Caso: solo hay 1 partida, no hay línea que dibujar
   unaSolaPartida: 'Solo tienes una partida registrada. Juega al menos una más para ver cómo evoluciona tu rendimiento.'
 }
 
-// Mensajes específicos del comparativo entre juegos
 export const mensajesComparar = {
   titulo: 'Comparar mis juegos',
   subtitulo: 'Aquí puedes ver cómo te va en cada uno de los tres juegos.',
@@ -176,5 +172,3 @@ export const elementosTableroIntruso = (dificultad) => [
   elementoSalir,
   elementoAyuda
 ]
-
-export const passwordMinima = 'La contraseña debe tener al menos 6 caracteres.';

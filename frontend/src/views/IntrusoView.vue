@@ -1,4 +1,5 @@
 <script setup>
+// Vista del juego Encuentra el Intruso: identificar la imagen que no pertenece al grupo
 import { useRoute, useRouter } from 'vue-router'
 import { ref, onMounted, onUnmounted } from 'vue'
 import intrusoService from '@/services/intrusoService'

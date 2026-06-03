@@ -1,4 +1,5 @@
 <script setup>
+// Modal de ayuda: muestra las instrucciones del juego y la leyenda de iconos del tablero
 const props = defineProps({
     instrucciones: { type: Array, default: () => [] },
     elementos: { type: Array, default: () => [] }

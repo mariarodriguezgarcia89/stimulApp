@@ -1,3 +1,4 @@
+// Modelo de usuario: datos personales, credenciales, foto de perfil y datos del cuidador
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

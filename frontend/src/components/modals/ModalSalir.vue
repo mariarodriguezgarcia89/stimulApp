@@ -1,4 +1,5 @@
 <script setup>
+// Modal de confirmación para abandonar la partida en curso
 const emit = defineEmits(['confirmar', 'cancelar'])
 </script>
 

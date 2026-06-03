@@ -1,3 +1,4 @@
+// Rutas de partidas: guardar resultados y actualizar estadísticas tras cada sesión de juego
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');

@@ -1,4 +1,5 @@
 <script setup>
+// Vista del juego Memory: encontrar parejas de cartas (4 parejas en fácil, 8 con temporizador en difícil)
 import ModalSalir from '@/components/modals/ModalSalir.vue'
 import ModalFinPartida from '@/components/modals/ModalFinPartida.vue'
 import { usePartida } from '@/composables/usePartida'

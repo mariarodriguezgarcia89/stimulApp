@@ -1,4 +1,5 @@
 <script setup>
+// Vista de inicio de sesión
 import { ref } from 'vue'
 import authService from '@/services/authService'
 import { useAuthStore } from '@/stores/auth'

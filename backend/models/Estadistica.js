@@ -1,3 +1,4 @@
+// Modelo de estadísticas: resumen agregado por usuario y juego (mejor puntuación, media, total de partidas)
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

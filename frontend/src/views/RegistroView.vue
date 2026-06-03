@@ -1,4 +1,5 @@
 <script setup>
+// Vista de registro en 4 pasos: nombre, correo/fecha, contraseña y datos del cuidador
 import { ref } from 'vue'
 import authService from '@/services/authService'
 import { useRouter } from 'vue-router'

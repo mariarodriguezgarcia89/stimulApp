@@ -1,4 +1,5 @@
 <script setup>
+// Modal de selección de dificultad: Normal o Avanzado, con descripción de cada modo
 const props = defineProps({
     icono: { type: String, default: '🎮' },
     titulo: { type: String, default: '¿Cómo quieres jugar?' },

@@ -1,3 +1,4 @@
+// Servicio de intrusos: obtiene las rondas de imágenes para el juego Encuentra el Intruso
 import api from './api';
 
 function obtenerIntrusos(nivel){

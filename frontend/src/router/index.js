@@ -1,3 +1,4 @@
+// Definición de rutas. Las rutas con meta.requiresAuth redirigen al login si no hay sesión activa.
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import LoginView from '../views/LoginView.vue'

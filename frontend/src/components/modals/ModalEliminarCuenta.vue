@@ -1,4 +1,5 @@
 <script setup>
+// Modal de confirmación para eliminar (desactivar) la cuenta del usuario
 const emit = defineEmits(['confirmar', 'cancelar'])
 </script>
 

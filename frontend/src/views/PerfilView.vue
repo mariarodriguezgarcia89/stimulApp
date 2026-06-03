@@ -1,4 +1,5 @@
 <script setup>
+// Vista de perfil: editar datos personales, contraseña y datos del cuidador
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'

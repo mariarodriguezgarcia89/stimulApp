@@ -1,4 +1,5 @@
 <script setup>
+// Modal de fin de partida: muestra puntuación, progreso, estadísticas y comparativa con la media histórica
 import { computed } from 'vue'
 
 const props = defineProps({

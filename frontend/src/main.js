@@ -1,3 +1,4 @@
+// Punto de entrada de la app: registra plugins (Pinia, Router, ApexCharts) y monta el componente raíz
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import VueApexCharts from 'vue3-apexcharts'

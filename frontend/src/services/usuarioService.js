@@ -1,3 +1,4 @@
+// Servicio de usuario: obtener, actualizar y eliminar el perfil del usuario autenticado
 import api from './api'
 
 function obtenerPerfil() {

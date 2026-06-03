@@ -1,3 +1,4 @@
+// Rutas de estadísticas: resumen por juego, evolución histórica, tendencia y dashboard general
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');

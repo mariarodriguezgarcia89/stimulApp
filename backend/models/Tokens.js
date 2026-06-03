@@ -1,3 +1,4 @@
+// Modelo de tokens: tokens de recuperación de contraseña con fecha de expiración
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

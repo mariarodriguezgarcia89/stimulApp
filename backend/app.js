@@ -51,6 +51,7 @@ const PORT = process.env.PORT || 3000;
 
 const { enviarInformes, enviarRecordatorioInactividad } = require('./services/informeService');
 
+// Rutas de prueba para disparar manualmente los jobs de correo (solo para desarrollo)
 app.get('/test-informe', async (req, res) => {
     try {
         await enviarInformes();

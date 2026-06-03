@@ -1,3 +1,4 @@
+// Modelo de refrán: primera parte y tres opciones de respuesta (dos incorrectas y una correcta)
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
