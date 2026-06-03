@@ -2,11 +2,12 @@ import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
 
+// Instancia axios con la URL base del backend (configurable por variable de entorno)
 const api = axios.create({
-  baseURL: 'http://localhost:3000'
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000'
 })
 
-// Interceptor de petición: añade el JWT a cada llamada
+// Añade el JWT a cada petición si el usuario está autenticado
 api.interceptors.request.use(config => {
   const authStore = useAuthStore()
   if (authStore.token) {
@@ -15,16 +16,17 @@ api.interceptors.request.use(config => {
   return config
 })
 
-// Interceptor de respuesta: si el backend devuelve 401, cierra sesión y redirige al login
+// Cierra sesión automáticamente si el backend devuelve 401 (token expirado o inválido)
+// No redirige si ya estamos en Login para evitar bucles
 api.interceptors.response.use(
-  response => response,                    // todo OK, deja pasar la respuesta
+  response => response,
   error => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && router.currentRoute.value.name !== 'Login') {
       const authStore = useAuthStore()
       authStore.logout()
       router.push({ name: 'Login' })
     }
-    return Promise.reject(error)           // propaga el error para que el componente sepa que falló
+    return Promise.reject(error)
   }
 )
 
