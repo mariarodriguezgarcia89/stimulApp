@@ -54,8 +54,8 @@ StimulApp/
 
 Antes de instalar el proyecto, asegúrate de tener instalado lo siguiente en tu máquina:
 
-- **[Node.js](https://nodejs.org/) v18 o superior** — entorno de ejecución de JavaScript necesario tanto para el backend como para el frontend. Al instalarlo, se instala también `npm` automáticamente.
-- **[npm](https://www.npmjs.com/) v9 o superior** — gestor de paquetes de Node.js, necesario para instalar las dependencias del proyecto.
+- **[Node.js](https://nodejs.org/) v22.x** — entorno de ejecución de JavaScript necesario tanto para el backend como para el frontend. Al instalarlo, se instala también `npm` automáticamente.
+- **[npm](https://www.npmjs.com/) v10.x** — gestor de paquetes de Node.js, necesario para instalar las dependencias del proyecto.
 - **[MariaDB](https://mariadb.org/) v10.6 o superior** — sistema de base de datos donde se almacenará toda la información de la aplicación.
 
 > 💡 Puedes comprobar las versiones instaladas ejecutando `node -v`, `npm -v` y `mariadb --version` en la terminal.
@@ -149,6 +149,14 @@ EMAIL_PASS=tu_contraseña_de_aplicacion
 > 5. Google te generará un código de 16 caracteres — cópialo y pégalo como valor de `EMAIL_PASS`
 
 > ⚠️ El archivo `.env` **nunca debe subirse al repositorio**. Ya está incluido en `.gitignore` para evitarlo.
+
+**Frontend** — crea el archivo `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+> 💡 Esta variable indica al frontend la URL base del backend. Vite la inyecta en el bundle en tiempo de compilación, por lo que si la cambias debes volver a ejecutar `npm run dev` o `npm run build`.
 
 ---
 
