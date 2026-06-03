@@ -1,15 +1,12 @@
+// Rutas protegidas del juego Refranes: devuelve preguntas aleatorias para cada partida
 const express = require('express');
-const router = express.Router(); 
+const router = express.Router();
 const auth = require('../middleware/auth');
 const { Refran, sequelize } = require('../models');
 
-// GET /refranes/partida
-// Devuelve una lista de 10 refranes aleatorios para el juego de adivinar el refrán
-// Ruta protegida: requiere token JWT válido en la cabecera Authorization
-router.get('/partida', auth, async (req, res) => { 
+// GET /refranes/partida — devuelve 10 refranes aleatorios (ORDER BY RAND())
+router.get('/partida', auth, async (req, res) => {
     try {
-        // findAll con order: sequelize.random() genera una consulta SQL con ORDER BY RAND()
-        // limit: 10 limita el resultado a 10 filas.
         const refranes = await Refran.findAll({
             order: sequelize.random(),
             limit: 10

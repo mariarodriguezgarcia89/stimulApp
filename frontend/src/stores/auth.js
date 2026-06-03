@@ -1,7 +1,7 @@
+// Store de autenticación: persiste token, nombre y foto del usuario en localStorage entre sesiones
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
-// Estado global de autenticación: persiste token, nombre y foto en localStorage entre sesiones
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token'))
   const nombre = ref(localStorage.getItem('nombre'))

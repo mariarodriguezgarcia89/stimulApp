@@ -1,19 +1,10 @@
-// Script de seed: inserta datos iniciales de prueba en la base de datos
-// Ejecución: node seeds/seed.js (desde la carpeta backend)
-
-// usar findOrCreate() en lugar de create() garantiza idempotencia,
-// es decir, se puede ejecutar el script múltiples veces sin duplicar datos.
-
-// nunca llamar a sequelize.sync() aquí. La BD debe estar ya creada
-// y sincronizada previamente. Llamar a sync() dentro del seed causa errores
-// de restricciones de claves foráneas en MariaDB.
-
-const { sequelize, Usuario, Juego, Refran, Intruso } = require('../models/index.js'); 
-const bcryptjs = require('bcryptjs'); 
+// Script de seed: inserta los datos iniciales en la BD (ejecutar con: node seeds/seed.js)
+const { sequelize, Usuario, Juego, Refran, Intruso } = require('../models/index.js');
+const bcryptjs = require('bcryptjs');
 
 async function seed() {
     try {
-        // Insertamos los 3 juegos de StimulApp
+        // Datos de los tres juegos de la aplicación
         const juegosData = [
             {
                 nombre: 'Acaba el refrán',
@@ -42,7 +33,7 @@ async function seed() {
             });
         }
 
-        // Hasheamos la contraseña una sola vez y la reutilizamos para los 3 usuarios
+        // Contraseña compartida para los usuarios de prueba
         const passwordHash = await bcryptjs.hash('password123', 10);
 
         const usuariosData = [

@@ -1,7 +1,7 @@
-// Importamos la instancia de conexión a MariaDB configurada en config/database.js.
+// Centraliza los modelos Sequelize, define las asociaciones entre entidades y exporta todo junto
 const sequelize = require('../config/database');
 
-// Importamos cada modelo desde su archivo individual
+// Modelos de cada entidad de la base de datos
 const Usuario = require('./Usuario');
 const Juego = require('./Juego');
 const Tokens = require('./Tokens');
@@ -10,10 +10,7 @@ const Estadistica = require('./Estadistica');
 const Refran = require('./Refran');
 const Intruso = require('./Intruso');
 
-// Las asociaciones definen las relaciones entre tablas, equivalente a las
-// claves foráneas del SQL. Sequelize las usa para construir JOINs automáticos
-// cuando se usa 'include' en las consultas.
-
+// Asociaciones entre modelos (equivalente a claves foráneas en SQL)
 // Un usuario puede tener muchas partidas. Una partida pertenece a un usuario.
 Usuario.hasMany(Partida, { foreignKey: 'usuario_id' });
 Partida.belongsTo(Usuario, { foreignKey: 'usuario_id' });

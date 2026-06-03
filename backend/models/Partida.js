@@ -1,4 +1,4 @@
-// Modelo de partida: registra cada sesión de juego con su puntuación, duración y nivel
+// Modelo Sequelize para la tabla partidas: registra cada sesión de juego con puntuación, duración y nivel
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

@@ -20,7 +20,6 @@ export function usePartida() {
             console.error('Error al guardar la partida:', error)
         }
 
-        // Obtiene la media histórica tras guardar para mostrarla en el modal de fin de partida
         try {
             const resumen = await estadisticasService.obtenerResumen()
             const juego = resumen.find(r => r.juego_id === juego_id)

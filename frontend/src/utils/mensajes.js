@@ -1,6 +1,6 @@
-// Textos de la interfaz: errores, instrucciones y mensajes de feedback para el usuario
+// Textos centralizados de la interfaz: errores de formulario, instrucciones de juego y mensajes de feedback
 export const mensajes = {
-  // --- REGISTRO ---
+  // Mensajes de validación y error del registro
   nombreObligatorio: 'Por favor, escriba su nombre para que sepamos cómo llamarle.',
   apellidosObligatorios: 'Por favor, escriba sus apellidos para completar su perfil.',
   emailObligatorio: 'Necesitamos su correo electrónico para crear su cuenta.',
@@ -11,19 +11,19 @@ export const mensajes = {
   passwordsNoCoinciden: 'Las contraseñas no son iguales. Asegúrese de escribir exactamente lo mismo en las dos casillas para evitar errores.',
   errorRegistro: 'No hemos podido crear su cuenta en este momento. Por favor, revise los datos e inténtelo de nuevo.',
 
-  // --- LOGIN ---
+  // Mensajes de error del login
   emailOPasswordIncorrectos: 'El correo o la contraseña no son correctos. Por favor, revíselos y vuelva a intentarlo.',
   errorLogin: 'Ha ocurrido un problema al entrar en su cuenta. Por favor, inténtelo de nuevo en unos instantes.',
 
-  // --- PERFIL ---
+  // Mensajes de éxito y error del perfil
   errorActualizarPerfil: 'No hemos podido guardar los cambios en su perfil. Por favor, inténtelo de nuevo.',
   exitoActualizarPerfil: '✅ ¡Muy bien! Sus datos se han guardado correctamente.',
 
-  // --- GENERAL ---
+  // Mensaje genérico de error de servidor
   errorServidor: 'Parece que hay un problema de conexión con nuestro servidor. No se preocupe, inténtelo más tarde.'
 }
 
-// --- INSTRUCCIONES REFRÁN ---
+// Instrucciones de cada juego por nivel mostradas en el modal de inicio
 export const instruccionesRefranFacil = [
   '📖 Verás la primera parte de un refrán popular español. ¡Seguro que lo conoces!',
   '👆 Pulsa la opción que creas que completa el refrán correctamente. Hay tres opciones para elegir.',
@@ -141,7 +141,7 @@ export const mensajesComparar = {
   }
 }
 
-// --- ELEMENTOS TABLERO ---
+// Elementos del tablero de ayuda de cada juego (iconos y descripciones del HUD)
 const elementoSalir = { icono: '✕', nombre: 'Salir', descripcion: 'Abandona la partida y vuelve al menú principal.' }
 const elementoAyuda = { icono: '❓', nombre: 'Ayuda', descripcion: 'Vuelve a ver estas instrucciones en cualquier momento.' }
 const elementoTiempo = { icono: '⏱', nombre: 'Tiempo', descripcion: 'Los segundos que te quedan para responder.' }

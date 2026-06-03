@@ -1,3 +1,4 @@
+// Servicio de informes: genera PDFs de seguimiento cognitivo y los envía por correo a usuarios y cuidadores
 const { Usuario, Partida, Estadistica } = require('../models/index.js');
 const { transporter, generarHTMLEmail } = require('./emailService.js');
 const puppeteer = require('puppeteer');
@@ -5,9 +6,7 @@ const { Op } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 
-// ─────────────────────────────────────────────────────────────
-// TEMPLATES HTML (se cargan una sola vez al iniciar el módulo)
-// ─────────────────────────────────────────────────────────────
+// Plantillas HTML cargadas una sola vez al iniciar el módulo
 const TEMPLATE_CUIDADOR = fs.readFileSync(
     path.join(__dirname, '../templates/informe-cuidador.html'),
     'utf8'
@@ -17,9 +16,7 @@ const TEMPLATE_USUARIO = fs.readFileSync(
     'utf8'
 );
 
-// ─────────────────────────────────────────────────────────────
-// CONSTANTES COMPARTIDAS
-// ─────────────────────────────────────────────────────────────
+// Constantes compartidas entre ambos informes
 const INFO_JUEGOS = {
     1: { nombre: 'Acaba el Refrán',      area: 'Lenguaje · Memoria semántica',       areaCognitiva: 'Memoria semántica' },
     2: { nombre: 'Encuentra el Intruso',  area: 'Atención · Funciones ejecutivas',    areaCognitiva: 'Atención selectiva' },
@@ -38,9 +35,7 @@ const UMBRALES = {
     BAJO: 40    // ≥ 40% y < 70% → puede mejorar / < 40% → requiere atención
 };
 
-// ─────────────────────────────────────────────────────────────
-// HELPERS: cálculos compartidos entre ambos informes
-// ─────────────────────────────────────────────────────────────
+// Helpers de cálculo compartidos entre ambos informes
 function calcularDatosBase(partidas, mediasPorJuego) {
     const partidasPorJuego = {};
     partidas.forEach(p => {
@@ -84,16 +79,12 @@ function calcularFechas() {
     };
 }
 
-// ─────────────────────────────────────────────────────────────
-// FUNCIÓN generarHTMLCuidador (INFORME CUIDADOR)
-// Genera el HTML del informe dirigido al cuidador con gráficos,
-// valoraciones clínicas y notas clínicas.
-// ─────────────────────────────────────────────────────────────
+// Genera el HTML del informe para el cuidador: gráficos, valoraciones clínicas y notas
 function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
 
     let html = TEMPLATE_CUIDADOR;
 
-    // Construir nombre completo evitando duplicaciones
+    // Construye el nombre completo evitando duplicar nombre dentro de apellidos
         const nombre = (usuario.nombre || '').trim();
         const apellidos = (usuario.apellidos || '').trim();
 
@@ -101,7 +92,6 @@ function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
         if (!apellidos) {
             nombreCompleto = nombre;
         } else if (apellidos.toLowerCase().startsWith(nombre.toLowerCase() + ' ')) {
-            // Si apellidos ya incluye el nombre al principio, usar solo apellidos
             nombreCompleto = apellidos;
         } else {
             nombreCompleto = `${nombre} ${apellidos}`;
@@ -110,19 +100,16 @@ function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
     const { partidasPorJuego, juegosConDatos, mediaActualPorJuego, porcentajesPorJuego } =
         calcularDatosBase(partidas, mediasPorJuego);
 
-    // ── DATOS PARA GRÁFICOS ──
-
-    // Gráfico de barras
+    // Datos para el gráfico de barras
     const datosBarras = {
         labels:    juegosConDatos.map(id => INFO_JUEGOS[id]?.nombre || `Juego ${id}`),
         historico: juegosConDatos.map(id => Math.round(mediasPorJuego[id] || 0)),
         actual:    juegosConDatos.map(id => mediaActualPorJuego[id] || 0)
     };
 
-    // Colores por nivel para barras
     const coloresActual = juegosConDatos.map(id => obtenerColorHexNivel(porcentajesPorJuego[id]));
 
-    // Gráfico de línea
+    // Datos para el gráfico de línea temporal
     const coloresLinea = juegosConDatos.map(id => COLORES_JUEGO[id] || '#7B2D3E');
     const todasLasFechas = [...new Set(
         partidas.map(p => new Date(p.fecha).toISOString().split('T')[0])
@@ -157,10 +144,9 @@ function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
     });
     const datosLinea = { fechas: fechasFormateadas, series: seriesLinea };
 
-    // ── PERFIL COGNITIVO (barras horizontales HTML) ──
     const perfilCognitivo = generarPerfilCognitivoHTML(juegosConDatos, porcentajesPorJuego);
 
-    // ── TARJETAS DE JUEGO (cuidador) ──
+    // Tarjetas de juego con valoración clínica para el cuidador
     let tarjetasHTML = '';
     juegosConDatos.forEach(id => {
         const mediaAnterior = Math.round(mediasPorJuego[id] || 0);
@@ -171,10 +157,9 @@ function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
         const variacion     = mediaAnterior > 0 ? Math.round(((mediaActual - mediaAnterior) / mediaAnterior) * 100) : 0;
         const anchoBar      = Math.min(porcentaje, 100);
 
-        // Valoración clínica dirigida al cuidador
         const valoracion = obtenerValoracionCuidador(id, nivel, porcentaje, mediaActual, mediaAnterior, nombreCompleto);
 
-        // Nota clínica solo para nivel alerta
+        // Nota clínica adicional solo cuando el nivel es alerta
         const notaClinicaHTML = nivel === 'alerta' ? `
             <div class="clinical-note">
                 <div class="clinical-note__title">Nota clínica</div>
@@ -223,14 +208,14 @@ function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
         </article>`;
     });
 
-    // ── FECHAS Y MENSAJE FINAL (dirigido al cuidador) ──
+    // Mensaje final adaptado según la frecuencia de uso del período
     const { fechaHoy, fechaIni, fechaFin } = calcularFechas();
 
     const mensajeFinal = diasUnicos >= 7
         ? `${nombreCompleto} ha demostrado constancia utilizando StimulApp durante este período. Su participación activa es clave para el seguimiento cognitivo. Le animamos a seguir acompañándola en este proceso — su apoyo como cuidador/a marca la diferencia.`
         : `${nombreCompleto} ha utilizado StimulApp ${diasUnicos} días este período. Recordamos que cuantos más días practique, más completo y fiable será el seguimiento. Le animamos a motivar a ${nombreCompleto} para que use la aplicación con mayor frecuencia.`;
 
-    // ── SUSTITUIR PLACEHOLDERS ──
+    // Sustitución de placeholders en la plantilla HTML del cuidador
     html = html.replaceAll('{{NOMBRE_USUARIO}}', nombreCompleto);
     html = html.replaceAll('{{INICIAL_USUARIO}}',       usuario.nombre.charAt(0).toUpperCase());
     html = html.replaceAll('{{TOTAL_PARTIDAS}}',        partidas.length);
@@ -250,16 +235,12 @@ function generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos) {
     return html;
 }
 
-// ─────────────────────────────────────────────────────────────
-// FUNCIÓN generarHTMLInformeUsuario (INFORME USUARIO)
-// Genera el HTML del informe dirigido al usuario con tuteo,
-// comparativa de puntuaciones, recomendaciones y reflexiones.
-// ─────────────────────────────────────────────────────────────
+// Genera el HTML del informe para el usuario: comparativa de puntuaciones, recomendaciones y reflexiones
 function generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos) {
 
     let html = TEMPLATE_USUARIO;
 
-    // Construir nombre completo evitando duplicaciones
+    // Construye el nombre completo evitando duplicar nombre dentro de apellidos
         const nombre = (usuario.nombre || '').trim();
         const apellidos = (usuario.apellidos || '').trim();
 
@@ -267,17 +248,15 @@ function generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos
         if (!apellidos) {
             nombreCompleto = nombre;
         } else if (apellidos.toLowerCase().startsWith(nombre.toLowerCase() + ' ')) {
-            // Si apellidos ya incluye el nombre al principio, usar solo apellidos
             nombreCompleto = apellidos;
         } else {
             nombreCompleto = `${nombre} ${apellidos}`;
         }
 
-
     const { juegosConDatos, mediaActualPorJuego, porcentajesPorJuego } =
         calcularDatosBase(partidas, mediasPorJuego);
 
-    // Mensajes motivacionales con tuteo
+    // Mensajes motivacionales según el nivel de rendimiento
     const MENSAJES = {
         bien:   '¡Lo estás haciendo genial! 🎉',
         bajo:   'Este mes puedes mejorar un poco. ¡Ánimo! 💪',
@@ -293,7 +272,7 @@ function generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos
         const variacion     = mediaAnterior > 0 ? Math.round(((mediaActual - mediaAnterior) / mediaAnterior) * 100) : 0;
         const recomendaciones = obtenerRecomendacionesUsuario(id, porcentaje);
 
-        // Preguntas de reflexión solo para nivel alerta (con tuteo)
+        // Preguntas de reflexión solo para nivel alerta
         const reflexionHTML = nivel === 'alerta' ? `
             <div class="reflexion-box">
                 <div class="reflexion-box__title">Preguntas de reflexión</div>
@@ -329,14 +308,14 @@ function generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos
         </article>`;
     });
 
-    // ── FECHAS Y MENSAJE FINAL (tuteo) ──
+    // Mensaje final adaptado según la frecuencia de uso del período
     const { fechaHoy, fechaIni, fechaFin } = calcularFechas();
 
     const mensajeFinal = diasUnicos >= 7
         ? `¡Excelente trabajo, ${usuario.nombre}! Cada día que practicas estás cuidando tu mente. Tu constancia marca la diferencia — ¡sigue adelante con ese ánimo!`
         : `Recuerda que cuantos más días uses StimulApp, mejor te irás sintiendo. ¡Ánimo, ${usuario.nombre}! Tu mente merece ese cuidado diario.`;
 
-    // ── SUSTITUIR PLACEHOLDERS ──
+    // Sustitución de placeholders en la plantilla HTML del usuario
     html = html.replaceAll('{{NOMBRE_USUARIO}}', nombreCompleto);
     html = html.replaceAll('{{INICIAL_USUARIO}}',  usuario.nombre.charAt(0).toUpperCase());
     html = html.replaceAll('{{TOTAL_PARTIDAS}}',   partidas.length);
@@ -352,13 +331,9 @@ function generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos
     return html;
 }
 
-// ─────────────────────────────────────────────────────────────
-// FUNCIÓN generarPerfilCognitivoHTML
-// Genera las barras horizontales del perfil cognitivo para el
-// informe del cuidador (sustituye al antiguo gráfico radar).
-// ─────────────────────────────────────────────────────────────
+// Genera las barras horizontales del perfil cognitivo para el informe del cuidador
 function generarPerfilCognitivoHTML(juegosConDatos, porcentajesPorJuego) {
-    // Construir lista de áreas con su porcentaje, ordenadas de mayor a menor
+    // Ordena las áreas de mayor a menor porcentaje y genera las barras HTML
     const areas = juegosConDatos.map(id => ({
         nombre:     INFO_JUEGOS[id]?.areaCognitiva || `Área ${id}`,
         porcentaje: porcentajesPorJuego[id],
@@ -375,11 +350,7 @@ function generarPerfilCognitivoHTML(juegosConDatos, porcentajesPorJuego) {
     ).join('');
 }
 
-// ─────────────────────────────────────────────────────────────
-// FUNCIÓN obtenerValoracionCuidador
-// Devuelve el texto de valoración clínica para cada juego,
-// dirigido al cuidador y referenciando al usuario.
-// ─────────────────────────────────────────────────────────────
+// Devuelve el texto de valoración clínica por juego y nivel, dirigido al cuidador
 function obtenerValoracionCuidador(juegoId, nivel, porcentaje, mediaActual, mediaAnterior, nombreUsuario) {
     const variacionTexto = mediaAnterior > 0
         ? Math.abs(Math.round(((mediaActual - mediaAnterior) / mediaAnterior) * 100)) + '%'
@@ -406,10 +377,7 @@ function obtenerValoracionCuidador(juegoId, nivel, porcentaje, mediaActual, medi
     return valoraciones[juegoId]?.[nivel] || `Rendimiento actual de ${nombreUsuario}: ${porcentaje}% respecto a la media histórica.`;
 }
 
-// ─────────────────────────────────────────────────────────────
-// FUNCIÓN obtenerRecomendacionesUsuario
-// Devuelve recomendaciones con tuteo para el informe del usuario.
-// ─────────────────────────────────────────────────────────────
+// Devuelve recomendaciones personalizadas por juego y nivel de rendimiento para el informe del usuario
 function obtenerRecomendacionesUsuario(juegoId, porcentajeRendimiento) {
 
     const recomendacionesPorJuego = {
@@ -462,15 +430,11 @@ function obtenerRecomendacionesUsuario(juegoId, porcentajeRendimiento) {
     return recomendacionesPorJuego[juegoId]?.[categoria] || [];
 }
 
-// ─────────────────────────────────────────────────────────────
-// FUNCIÓN limpiarInformesAntiguos
-// Borra los HTML guardados en /public/informes/ con más de X días.
-// Se ejecuta al inicio de cada cron de envío de informes.
-// ─────────────────────────────────────────────────────────────
+// Borra los HTMLs de informes con más de X días de antigüedad del directorio público
 function limpiarInformesAntiguos(diasMaximos = 60) {
     const directorio = path.join(__dirname, '../public/informes');
     
-    // Si el directorio no existe, no hay nada que limpiar
+    // Si el directorio aún no existe, no hay nada que limpiar
     if (!fs.existsSync(directorio)) return;
     
     const ahora = Date.now();
@@ -479,7 +443,7 @@ function limpiarInformesAntiguos(diasMaximos = 60) {
     
     const ficheros = fs.readdirSync(directorio);
     for (const fichero of ficheros) {
-        // Solo procesar HTMLs de informes
+        // Solo procesa HTMLs de informes generados por este servicio
         if (!fichero.endsWith('.html')) continue;
         if (!fichero.startsWith('informe_')) continue;
         
@@ -502,16 +466,7 @@ function limpiarInformesAntiguos(diasMaximos = 60) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// FUNCIÓN enviarInformes
-// Se ejecuta cada 15 días via cron.
-// Genera y envía el informe PDF a cada usuario con partidas.
-// ─────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────
-// FUNCIÓN enviarInformes
-// Se ejecuta cada 15 días via cron.
-// Genera y envía el informe PDF a cada usuario con partidas.
-// ─────────────────────────────────────────────────────────────
+// Genera y envía los informes mensuales en PDF a cada usuario y su cuidador
 async function enviarInformes() {
     limpiarInformesAntiguos();
 
@@ -548,26 +503,23 @@ async function enviarInformes() {
                 const diasUso    = new Set(partidas.map(p => new Date(p.fecha).toDateString()));
                 const diasUnicos = diasUso.size;
 
-                // Generar HTMLs de ambos informes
+                // Genera los HTMLs del informe para el usuario y para el cuidador
                 const htmlInforme        = generarHTMLCuidador(usuario, partidas, mediasPorJuego, diasUnicos);
                 const htmlInformeUsuario = generarHTMLInformeUsuario(usuario, partidas, mediasPorJuego, diasUnicos);
 
-                // ── INFORME USUARIO ──
-
-                // Guardar HTML del usuario en disco
+                // Guarda el HTML del usuario en disco y genera su PDF con Puppeteer
                 const nombreFicheroUsuario = `informe_usuario_${Date.now()}.html`;
                 const rutaFicheroUsuario   = path.join(__dirname, '../public/informes', nombreFicheroUsuario);
                 fs.writeFileSync(rutaFicheroUsuario, htmlInformeUsuario);
                 const enlaceUsuario = `http://localhost:3000/informes/${nombreFicheroUsuario}`;
 
-                // Generar PDF del usuario (página continua, sin cortes)
                 const pageUsuario = await browser.newPage();
                 await pageUsuario.setViewport({ width: 794, height: 1123 });
                 await pageUsuario.setContent(htmlInformeUsuario, { waitUntil: 'networkidle0' });
                 await pageUsuario.emulateMediaType('screen');
                 await pageUsuario.evaluate(() => document.fonts.ready);
 
-                // Medir la altura real del contenido usando la posición del footer
+                // Mide la altura real del contenido para generar el PDF en página continua
                 const alturaUsuario = await pageUsuario.evaluate(() => {
                     const footer = document.querySelector('.report-footer');
                     const rect = footer.getBoundingClientRect();
@@ -583,15 +535,12 @@ async function enviarInformes() {
                 });
                 await pageUsuario.close();
 
-                // ── INFORME CUIDADOR ──
-
-                // Guardar HTML del cuidador en disco
+                // Guarda el HTML del cuidador en disco y genera su PDF con Puppeteer
                 const nombreFichero = `informe_cuidador_${Date.now()}.html`;
                 const rutaFichero   = path.join(__dirname, '../public/informes', nombreFichero);
                 fs.writeFileSync(rutaFichero, htmlInforme);
                 const enlace = `http://localhost:3000/informes/${nombreFichero}`;
 
-                // Generar PDF del cuidador (página continua, sin cortes)
                 const pageCuidador = await browser.newPage();
                 await pageCuidador.setViewport({ width: 794, height: 1123 });
                 await pageCuidador.setContent(htmlInforme, { waitUntil: 'networkidle0' });
@@ -600,7 +549,7 @@ async function enviarInformes() {
                 await pageCuidador.waitForFunction('window.chartsReady === true', { timeout: 10000 });
                 await new Promise(r => setTimeout(r, 500));
 
-                // Medir la altura real del contenido usando la posición del footer
+                // Mide la altura real del contenido para generar el PDF en página continua
                 const alturaCuidador = await pageCuidador.evaluate(() => {
                     const footer = document.querySelector('.report-footer');
                     const rect = footer.getBoundingClientRect();
@@ -616,7 +565,7 @@ async function enviarInformes() {
                 });
                 await pageCuidador.close();
 
-                // ── CORREO AL USUARIO ──
+                // Envío del correo al usuario con el PDF adjunto
                 const htmlCorreoUsuario = generarHTMLEmail({
                     saludo:  `Hola, ${nombreUsuario} 😊`,
                     icono:   '📋',
@@ -640,7 +589,7 @@ async function enviarInformes() {
                     attachments: [{ filename: 'informe_usuario.pdf', content: pdfBufferUsuario }]
                 });
 
-                // ── CORREO AL CUIDADOR ──
+                // Envío del correo al cuidador con el PDF adjunto (si tiene email asignado)
                 if (emailCuidador) {
                     const htmlCorreoCuidador = generarHTMLEmail({
                         saludo:  `Estimado/a ${nombreCuidador},`,
@@ -674,11 +623,7 @@ async function enviarInformes() {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// FUNCIÓN enviarRecordatorioInactividad
-// Se ejecuta cada 10 días via cron.
-// Envía un recordatorio a usuarios sin partidas en 7 días.
-// ─────────────────────────────────────────────────────────────
+// Envía un correo de recordatorio a los usuarios que llevan más de 7 días sin jugar
 async function enviarRecordatorioInactividad() {
     const hoy = new Date();
     const hace7dias = new Date();

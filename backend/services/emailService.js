@@ -1,21 +1,20 @@
-const nodemailer = require('nodemailer'); 
-// Librería para enviar correos desde Node.js.
-// Equivalente a JavaMail en Java.
+// Servicio de correo: configura el transporter SMTP y expone las funciones de envío
+const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 
-// TRANSPORTER: gestiona la conexión con el servidor SMTP
-// Se configura una sola vez al arrancar el servidor y se reutiliza en cada envío
-// Usamos Gmail como servidor saliente con conexión SSL (puerto 465)
+// Transporter con conexión SSL a Gmail, reutilizado en cada envío
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',  // Servidor SMTP de Google
-    port: 465,               // Puerto SSL de Gmail
-    secure: true,            
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
-        user: process.env.EMAIL_USER, 
-        pass: process.env.EMAIL_PASS  
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
-// Verificamos al arrancar que la conexión con Gmail es correcta.
+// Verificación de la conexión SMTP al arrancar el servidor
 transporter.verify((error, success) => {
     if (error) {
         console.error('❌ Error en la configuración del correo:', error);
@@ -24,9 +23,9 @@ transporter.verify((error, success) => {
     }
 });
 
+// Envía un correo al cuidador cuando el rendimiento del usuario cae significativamente
 async function enviarCorreoAlCuidador(emailCuidador, nombreUsuario, nombreJuego, puntuacion, media) {
 
-    
     const bloqueDestacado = `
         <div style="background-color:#FAEAEA; border-left:4px solid #8B2020; border-radius:0 8px 8px 0; padding:20px 24px; margin-bottom:24px;">
             <p style="font-size:13px; text-transform:uppercase; letter-spacing:1.5px; color:#8B2020; margin:0 0 12px 0; font-weight:600;">Detalle del aviso</p>
@@ -73,9 +72,7 @@ async function enviarCorreoAlCuidador(emailCuidador, nombreUsuario, nombreJuego,
     }
 }
 
-const fs = require('fs');
-const path = require('path');
-
+// Carga la plantilla HTML del email y sustituye los marcadores por los valores recibidos
 function generarHTMLEmail({ saludo, icono, titulo, cuerpo, bloqueDestacado = '', boton = '' }) {
     let html = fs.readFileSync(
         path.join(__dirname, '../templates/email.html'),
@@ -93,8 +90,6 @@ function generarHTMLEmail({ saludo, icono, titulo, cuerpo, bloqueDestacado = '',
     return html;
 }
 
-// Exportamos solo la función, no el transporter.
-// El transporter es un detalle de implementación interno de este módulo
 module.exports = {
     enviarCorreoAlCuidador,
     transporter,

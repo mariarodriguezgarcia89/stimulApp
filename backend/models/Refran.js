@@ -1,4 +1,4 @@
-// Modelo de refrán: primera parte y tres opciones de respuesta (dos incorrectas y una correcta)
+// Modelo Sequelize para la tabla refranes: primera parte del refrán y tres opciones de respuesta
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
@@ -30,6 +30,7 @@ const Refran = sequelize.define('refranes', {
         allowNull: false,
     }
 
+// Sin timestamps: la tabla no requiere createdAt ni updatedAt
 }, {timestamps: false});
 
 module.exports = Refran;

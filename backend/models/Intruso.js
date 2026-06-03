@@ -1,4 +1,4 @@
-// Modelo de intruso: cuatro imágenes por ronda, una de ellas es el intruso, con explicación y nivel
+// Modelo Sequelize para la tabla intrusos: cuatro imágenes por ronda, una es el intruso
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
@@ -37,6 +37,7 @@ const Intruso = sequelize.define('intrusos', {
         allowNull: false,
     }
 
+// Sin timestamps: la tabla no requiere createdAt ni updatedAt
 }, {timestamps: false});
 
 module.exports = Intruso;

@@ -1,4 +1,4 @@
-// Modelo de juego: catálogo de los tres juegos disponibles con su categoría cognitiva
+// Modelo Sequelize para la tabla juegos: catálogo de juegos disponibles con su categoría cognitiva
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
@@ -30,4 +30,3 @@ const Juego = sequelize.define('juegos', {
 });
 
 module.exports = Juego;
-

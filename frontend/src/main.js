@@ -6,8 +6,8 @@ import App from './App.vue'
 import router from './router'
 import './assets/main.css'
 
+// Registro de plugins y montaje de la aplicación
 const app = createApp(App)
-
 app.use(createPinia())
 app.use(router)
 app.component('apexchart', VueApexCharts)

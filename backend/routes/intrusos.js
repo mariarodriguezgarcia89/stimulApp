@@ -1,21 +1,19 @@
+// Rutas protegidas del juego Intruso: devuelve preguntas aleatorias filtradas por nivel
 const express = require('express');
-const router = express.Router(); 
+const router = express.Router();
 const auth = require('../middleware/auth');
 const { Intruso, sequelize } = require('../models');
 
-// GET /intrusos/partida
-// Devuelve una lista de 3 intrusos aleatorios para el juego de encontrar el intruso
-// Ruta protegida: requiere token JWT válido en la cabecera Authorization
-router.get('/partida', auth, async (req, res) => { 
+// GET /intrusos/partida — devuelve 3 intrusos aleatorios del nivel indicado
+router.get('/partida', auth, async (req, res) => {
     try {
-
         const { nivel } = req.query;
 
         if (!nivel || !['facil', 'dificil'].includes(nivel)) {
             return res.status(400).json({ error: 'El parámetro nivel debe ser "facil" o "dificil".' });
         }
-        // findAll con order: sequelize.random() genera una consulta SQL con ORDER BY RAND()
-        // limit: 10 limita el resultado a 10 filas.
+
+        // ORDER BY RAND() garantiza que cada partida reciba intrusos distintos
         const intrusos = await Intruso.findAll({
             where: { nivel },
             order: sequelize.random(),

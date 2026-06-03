@@ -1,8 +1,9 @@
+// Instancia axios centralizada con interceptores de autenticación y manejo de sesión expirada
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
 
-// Instancia axios con la URL base del backend (configurable por variable de entorno)
+// Instancia con la URL base del backend configurable por variable de entorno
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000'
 })
@@ -16,8 +17,7 @@ api.interceptors.request.use(config => {
   return config
 })
 
-// Cierra sesión automáticamente si el backend devuelve 401 (token expirado o inválido)
-// No redirige si ya estamos en Login para evitar bucles
+// Cierra sesión y redirige al login si el backend responde con 401 (token expirado o inválido)
 api.interceptors.response.use(
   response => response,
   error => {
