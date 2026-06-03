@@ -1,5 +1,8 @@
 {
   "appId": "com.stimulapp.app",
   "appName": "StimulApp",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http"
+  }
 }
