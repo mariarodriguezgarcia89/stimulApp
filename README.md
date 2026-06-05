@@ -67,8 +67,8 @@ Antes de instalar el proyecto, asegúrate de tener instalado lo siguiente en tu 
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/mariarodriguezgarcia89/stimulapp.git
-cd stimulapp
+git clone https://github.com/mariarodriguezgarcia89/stimulApp.git
+cd stimulApp
 ```
 
 ### 2. Instalar dependencias del backend
