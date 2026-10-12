@@ -1,3 +1,4 @@
 node_modules
 .env
-frontend/distbackend/public/informes/*.html
+frontend/dist
+backend/public/informes/*.html
