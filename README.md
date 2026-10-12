@@ -4,6 +4,19 @@
 
 StimulApp es una aplicación web desarrollada como Trabajo Final de Ciclo de 2º DAM. Está dirigida a personas mayores sin deterioro cognitivo o con un grado leve-moderado, y ofrece tres juegos de estimulación cognitiva adaptados a sus necesidades, con seguimiento del rendimiento, análisis de tendencias y alertas automáticas al cuidador.
 
+<details>
+<summary>🇬🇧 English summary</summary>
+
+<br>
+
+StimulApp is a cognitive stimulation web app for older adults, built as my final project for the Higher Technician Degree in Multiplatform Application Development (DAM). It offers three cognitive games with two difficulty levels, tracks each user's performance over time, emails the caregiver automatically when performance drops, and sends a monthly PDF report.
+
+**Stack:** Vue 3, Pinia, Node.js, Express, Sequelize, MariaDB, JWT, Puppeteer, Nodemailer, node-cron.
+
+The design draws on my background in Psychology and Clinical Gerontology: accessibility controls are always visible, forms show one field per screen, and caregiver reports break down performance by cognitive area.
+
+</details>
+
 ---
 
 ## 🛠️ Tecnologías utilizadas
@@ -251,6 +264,51 @@ Cada juego tiene dos niveles de dificultad: **Normal** y **Avanzado**.
 - **Modo oscuro** para reducir la fatiga visual.
 - **Ajuste de tamaño de texto** para usuarios con dificultades visuales.
 - Diseño adaptado a dispositivos móviles.
+
+---
+
+## 🧭 Decisiones de diseño
+
+StimulApp parte de mi formación en Psicología y Gerontología Clínica. Por eso muchas decisiones no son solo técnicas: salen de pensar en quién va a usar la app.
+
+### Pensada para personas mayores
+
+- **Un campo por pantalla en los formularios.** El registro va paso a paso, para no saturar a la persona con demasiada información a la vez.
+- **Mensajes de error en lenguaje llano**, sin tecnicismos.
+- **Controles de accesibilidad siempre visibles.** El modo oscuro y el tamaño de texto están a mano, no escondidos en un menú de ajustes.
+- **Dos niveles de dificultad por juego**, para cubrir tanto a personas sin deterioro cognitivo como a personas con deterioro leve-moderado.
+
+### Cada juego trabaja un área cognitiva
+
+| Juego | Área que estimula |
+|---|---|
+| Acaba el refrán | Lenguaje y memoria semántica |
+| Encuentra el intruso | Atención y funciones ejecutivas |
+| Memory | Memoria visual |
+
+Gracias a esta separación, el informe del cuidador analiza el rendimiento por área cognitiva y no solo por juego.
+
+### Seguimiento y alertas
+
+- **Cada persona se compara consigo misma.** La tendencia compara sus últimas 5 partidas con su propia media histórica, no con una referencia general.
+- **Alerta al cuidador** cuando la media de las últimas 3 partidas de un juego baja del 40 % de la media histórica. Es un umbral orientativo: en un uso real habría que revisarlo con profesionales de la gerontopsicología y ajustarlo a la evidencia empírica.
+- **Dos informes distintos:** uno para el usuario, con lenguaje cercano, y otro para el cuidador, con una valoración clínica por área.
+
+### Decisiones técnicas
+
+- **Las estadísticas se recalculan en la misma petición que guarda la partida**, en una sola operación. El panel siempre muestra datos coherentes, sin llamadas extra al servidor.
+- **La accesibilidad cuelga del elemento raíz.** El modo oscuro y el zoom cambian un atributo en `<html>`, así que cualquier vista nueva hereda estas opciones sin trabajo adicional.
+- **Doble protección de rutas:** un guard de Vue Router comprueba el token antes de navegar y un interceptor de Axios cierra la sesión ante cualquier respuesta 401.
+- **MariaDB** porque los datos son relacionales (usuarios, partidas, estadísticas) y las estadísticas necesitan JOINs y agregaciones. Además, era el sistema que usé en las prácticas.
+
+### Problemas que resolví por el camino
+
+- **Gráficas en blanco en los PDF.** PDFKit no renderizaba las gráficas, así que cambié a Puppeteer. Puppeteer capturaba la página antes de que Chart.js terminara de pintar; lo resolví marcando `window.chartsReady` al acabar y esperando a esa señal con `waitForFunction`.
+- **El modo oscuro invertía toda la página.** Un `:global()` dentro de un `<style scoped>` acababa aplicándose al `<html>`. Moví todas las reglas de modo oscuro a `main.css` y los estilos scoped quedaron solo para estructura.
+- **Pinia usado antes de existir.** Llamar a `useAuthStore()` en el nivel superior del router rompía el arranque; lo pasé dentro del `beforeEach`.
+- **El zoom de accesibilidad desbordaba elementos.** `transform: scale()` agranda visualmente pero no afecta al flujo del documento; lo cambié por `zoom` sobre el elemento raíz.
+
+Todos los detalles están en la [memoria del TFC](docs/).
 
 ---
 
