@@ -1,38 +1,24 @@
-# .
+# StimulApp · Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Cliente web de StimulApp, desarrollado con **Vue 3 + Vite**.
 
-## Recommended IDE Setup
+- **Estado global:** Pinia
+- **Rutas:** Vue Router (con protección de páginas privadas)
+- **Peticiones a la API:** Axios
+- **Gráficas:** ApexCharts
+- **App Android:** Capacitor
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Arranque en local
 
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Compile and Minify for Production
+Antes de arrancar, copia `.env.example` a `.env`. Contiene la URL del backend:
 
-```sh
-npm run build
 ```
+VITE_API_URL=http://localhost:3000
+```
+
+La instalación completa del proyecto (backend, base de datos y datos de ejemplo) está en el [README principal](../README.md).
