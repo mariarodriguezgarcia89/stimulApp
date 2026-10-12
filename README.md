@@ -19,6 +19,14 @@ StimulApp es una aplicación web desarrollada como Trabajo Final de Ciclo de 2º
 
 ---
 
+## 🏗️ Arquitectura
+
+![Arquitectura de StimulApp](docs/arquitectura.png)
+
+En la carpeta [`docs/`](docs/) están también el diagrama entidad-relación, el diagrama UML, el mapa de navegación, ejemplos de los informes PDF y la memoria completa del TFC.
+
+---
+
 ## 📁 Estructura del proyecto
 
 ```
@@ -246,7 +254,13 @@ Cada juego tiene dos niveles de dificultad: **Normal** y **Avanzado**.
 
 ---
 
-## 👩‍💻 Autor
+## 👩‍💻 Autora
 
 **María Rodríguez García**
 2º DAM — Trabajo Final de Ciclo 2025/2026
+
+---
+
+## 📄 Licencia
+
+Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE).
